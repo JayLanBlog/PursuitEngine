@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="pf::graphics::GraphicsDevice_Vulkan">
+    <Position X="0.5" Y="0.5" Width="7" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::CopyAllocator">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Struct Name="pf::graphics::GraphicsDevice_Vulkan::CopyAllocator::CopyCMD">
+            <TypeIdentifier>
+              <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+            </TypeIdentifier>
+          </Struct>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::VideoCapability">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::CommandQueue">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::TransitionHandler">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::PSOLayout">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::DescriptorBinderPool">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::DescriptorBinder">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Enum Name="pf::graphics::GraphicsDevice_Vulkan::DescriptorBinder::DIRTY_FLAGS">
+            <TypeIdentifier>
+              <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+            </TypeIdentifier>
+          </Enum>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::CommandList_Vulkan">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice_Vulkan::AllocationHandler">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Struct Name="pf::graphics::GraphicsDevice_Vulkan::AllocationHandler::BindlessDescriptorHeap">
+            <TypeIdentifier>
+              <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+            </TypeIdentifier>
+          </Struct>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>vSq/75En59Ms62dc6KZmGcX15FRrMxo6NVccW3KLDo0=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="pf::graphics::PSOLayoutHash">
+    <Position X="8.5" Y="0.5" Width="6.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="pf::graphics::PSOLayoutHash::Item">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAgAAQAAAAAAAAQAAAAIAAAAAAQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="std::hash&lt;pf::graphics::PSOLayoutHash&gt;">
+    <Position X="8.5" Y="5" Width="6.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\vulkan_driver.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Microsoft YaHei UI" Size="8.88" />
+</ClassDiagram>

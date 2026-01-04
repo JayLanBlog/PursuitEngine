@@ -1,0 +1,725 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Thirdparty">
+      <UniqueIdentifier>{a574ff65-d554-421c-9105-d553bbf7c5d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Lua">
+      <UniqueIdentifier>{c51d6335-5e7f-4b23-947a-b6f512f3962f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{6ac973bf-5127-4ccd-a38c-cebf13e4be1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Lua">
+      <UniqueIdentifier>{6163cd20-2c57-44b3-b0d5-b078aac0377b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Opengl">
+      <UniqueIdentifier>{2af16292-6caa-4f7f-82dd-1b6d9d1e524e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\GLFW">
+      <UniqueIdentifier>{ad05e870-fa8b-4fbf-82f9-8e2211205cc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Imgui">
+      <UniqueIdentifier>{58a1996c-a142-407a-ad4f-5420368e67dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Imgui\gl">
+      <UniqueIdentifier>{9954fcb7-4959-426e-8250-0f2e88d68420}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Imgui\vk">
+      <UniqueIdentifier>{fe8b9090-ebea-474e-8531-a94e4a0758c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Vulkan">
+      <UniqueIdentifier>{59ad4aef-2bf0-4b48-997e-f7157e399fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Lua\samples">
+      <UniqueIdentifier>{c5c0c59e-3a24-4813-8a25-295538e0cce1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Vulkan\samples">
+      <UniqueIdentifier>{b11a8427-7986-40d5-884c-6d29432f7c4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Opengl\samples">
+      <UniqueIdentifier>{3eaf6d39-5743-4d67-bf22-e36d623fec80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module">
+      <UniqueIdentifier>{3945466e-9817-4cc6-98af-9340a4405f61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\luaer">
+      <UniqueIdentifier>{35dc9e76-7c6d-4483-a117-6825e32a32d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\logger">
+      <UniqueIdentifier>{af990430-5146-4364-a746-05d0ff5f09bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\filer">
+      <UniqueIdentifier>{bfd39911-6ed8-4bf3-aa10-d4a965594902}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\container">
+      <UniqueIdentifier>{2d03080b-77dd-4475-8700-b88aeb0afc8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Lua\samples\scripts">
+      <UniqueIdentifier>{4fb24e4c-b0dd-4ca2-96fe-7ae9018b0915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\mem">
+      <UniqueIdentifier>{44b045e2-1ed2-4c54-bdaa-d94fdee7b2ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\util">
+      <UniqueIdentifier>{b9e6c2de-2e54-46dc-a320-47d74c834db5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Util">
+      <UniqueIdentifier>{f0ce3f72-2045-4854-8f97-8105c7d85413}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Util\Samples">
+      <UniqueIdentifier>{93335227-a0c0-47fe-bb35-9b6f38314a19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{88f7ffd4-1cf8-4571-ad68-ed4bfbba6253}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\device">
+      <UniqueIdentifier>{16850043-8d7a-4dc9-ba77-03da979e4258}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\evulkan">
+      <UniqueIdentifier>{86ac02e4-ee09-4017-9b68-dbe2d828c9d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="module\math">
+      <UniqueIdentifier>{abb44349-b222-440e-a619-979db5fdc8f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Utility">
+      <UniqueIdentifier>{4a25602c-0f43-45ec-821b-56d29afe73fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{eb558fc2-9406-476d-b0b2-5d50c8cb3f76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\evulkan\volk">
+      <UniqueIdentifier>{a01f3b32-7774-4d42-8763-49d94ef0ea0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\volk">
+      <UniqueIdentifier>{0fb1ea16-3b55-4497-9dea-5949ba1ae3fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\volk\samples">
+      <UniqueIdentifier>{04a84ddf-edc3-4cd4-976d-ee12f8f6ed7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\scene">
+      <UniqueIdentifier>{3dbba499-15e6-4964-b11b-6de7035b3494}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\ecore">
+      <UniqueIdentifier>{22bb2e82-eeff-410d-95ed-5ddf519918cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Utility\zstd">
+      <UniqueIdentifier>{bbe6a68d-3eae-4e51-ab9b-954ab71afdbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Utility\direct">
+      <UniqueIdentifier>{ffe95f7a-f933-40d5-bd31-4be6eeaecd01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\shaders">
+      <UniqueIdentifier>{0025940a-62d1-4ddc-b779-70b048da42ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Shader">
+      <UniqueIdentifier>{6de3d2c4-5d70-456d-962a-5f42359cc432}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{642860c5-cea3-413c-95b7-276e98a92654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\runtime">
+      <UniqueIdentifier>{e9f2b3c5-c6c5-44fc-b591-4d667fbe5c94}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp">
+      <Filter>src\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lapi.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lauxlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lbaselib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lcode.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lcorolib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lctype.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldblib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldebug.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldo.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldump.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lfunc.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lgc.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\linit.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\liolib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\llex.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lmathlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lmem.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\loadlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lobject.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lopcodes.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\loslib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lparser.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstate.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstring.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstrlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltable.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltablib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltm.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lundump.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lutf8lib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lvm.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lzio.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Opengl\opengl_test.cpp">
+      <Filter>src\Opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_demo.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_draw.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_impl_sdl3.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_tables.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_widgets.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3.cpp">
+      <Filter>Thirdparty\Imgui\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\vk\imgui_impl_vulkan.cpp">
+      <Filter>Thirdparty\Imgui\vk</Filter>
+    </ClCompile>
+    <ClCompile Include="TestMain.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Luaer\plua.cpp">
+      <Filter>module\luaer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Logger\backlogger.cpp">
+      <Filter>module\logger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Filer\file_helper.cpp">
+      <Filter>module\filer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Lua\samples\1.lua_serparam2c_sample.cpp">
+      <Filter>src\Lua\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Lua\samples\2.lua_runfile_sample.cpp">
+      <Filter>src\Lua\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Lua\samples\3.lua_class_prop_sample.cpp">
+      <Filter>src\Lua\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\offset_allocator.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Lua\samples\4.lua_class_param_sample.cpp">
+      <Filter>src\Lua\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Util\Samples\test_timer.cpp">
+      <Filter>src\Util\Samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\job_system.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Util\Samples\test_job_system.cpp">
+      <Filter>src\Util\Samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\arguments.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Math\pf_math.cpp">
+      <Filter>module\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\event_handle.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\spirv_reflect.c">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Core\pf_version.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Volk\volk_test.cpp">
+      <Filter>src\volk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\evulkan\volk\volk.c">
+      <Filter>Thirdparty\evulkan\volk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Device\volk_driver.cpp">
+      <Filter>engine\device</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Volk\Samples\test_vulkan_engine.cpp">
+      <Filter>src\volk\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\audio.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\archive.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\zstd\zstd.c">
+      <Filter>Thirdparty\Utility\zstd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\texture_helper.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\lodepng.cpp">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\video.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\resource_manager.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\utility_common.cpp">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Shaders\ShaderCompiler.cpp">
+      <Filter>engine\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Shader\shader_compare_test.cpp">
+      <Filter>src\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\primitive.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\draw_image.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\renderer.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\input.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Runtime\initializer.cpp">
+      <Filter>engine\runtime</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lapi.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lauxlib.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lcode.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lctype.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ldebug.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ldo.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lfunc.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lgc.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ljumptab.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\llex.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\llimits.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lmem.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lobject.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lopcodes.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lopnames.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lparser.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lprefix.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lstate.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lstring.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ltable.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ltm.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\luaconf.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lualib.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lundump.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lvm.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lzio.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Lua\lua_test.h">
+      <Filter>src\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Opengl\opengl_test.h">
+      <Filter>src\Opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\GLFW\glfw3.h">
+      <Filter>Thirdparty\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\GLFW\glfw3native.h">
+      <Filter>Thirdparty\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imconfig.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui_impl_sdl3.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui_internal.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_rectpack.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_textedit.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_truetype.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3.h">
+      <Filter>Thirdparty\Imgui\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3_loader.h">
+      <Filter>Thirdparty\Imgui\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\vk\imgui_impl_vulkan.h">
+      <Filter>Thirdparty\Imgui\vk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Luaer\lua_global.h">
+      <Filter>module\luaer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Luaer\plua.h">
+      <Filter>module\luaer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Logger\backlogger.h">
+      <Filter>module\logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Filer\file_helper.h">
+      <Filter>module\filer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\container\pvector.h">
+      <Filter>module\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Lua\samples\1.lua_setparam2c_sample.h">
+      <Filter>src\Lua\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Lua\samples\2.lua_runfile_sample.h">
+      <Filter>src\Lua\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Lua\lua_sample_include.h">
+      <Filter>src\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Lua\samples\3.lua_class_prop_sample.h">
+      <Filter>src\Lua\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Mem\pAllocator.h">
+      <Filter>module\mem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\offset_allocator.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Luaer\pluna.h">
+      <Filter>module\luaer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Lua\samples\4.lua_class_param_sample.h">
+      <Filter>src\Lua\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\p_timer.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\spin_lock.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Util\util_test_include.h">
+      <Filter>src\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Util\Samples\test_timer.h">
+      <Filter>src\Util\Samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\job_system.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Util\Samples\test_job_system.h">
+      <Filter>src\Util\Samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Container\unorder_set.h">
+      <Filter>module\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Container\unorderedmap.h">
+      <Filter>module\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\arguments.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Device\graphic.h">
+      <Filter>engine\device</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Device\graph_driver.h">
+      <Filter>engine\device</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\evulkan\vk_enum_string_helper.h">
+      <Filter>Thirdparty\evulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\evulkan\vk_mem_alloc.h">
+      <Filter>Thirdparty\evulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Math\pf_math.h">
+      <Filter>module\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\event_handle.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\h264.h">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\spirv_reflect.h">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Device\vulkan_driver.h">
+      <Filter>engine\device</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Core\core_include.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Core\platform.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Core\pf_version.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\evulkan\volk\volk.h">
+      <Filter>Thirdparty\evulkan\volk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Volk\volk_test.h">
+      <Filter>src\volk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Container\container_include.h">
+      <Filter>module\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Volk\Samples\test_vulkan_engine.h">
+      <Filter>src\volk\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\resource_manager.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\audio.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\archive.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\color.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\zstd\zstd.h">
+      <Filter>Thirdparty\Utility\zstd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\zstd\zstd_errors.h">
+      <Filter>Thirdparty\Utility\zstd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\texture_helper.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\lodepng.h">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\video.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\enums.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Shaders\ShaderCompiler.h">
+      <Filter>engine\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Shader\shader_compare_test.h">
+      <Filter>src\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\ecs.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\primitive.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\canvas.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_BVH.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_DDGI.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_EmittedParticle.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_FFTGenerator.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Font.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_FSR2.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_GPUSortLib.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_HairParticle.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Image.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Ocean.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Postprocess.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Raytracing.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Renderer.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_SurfelGI.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Terrain.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_VoxelGrid.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_VXGI.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Shader\ShaderInterop_Weather.h">
+      <Filter>shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\draw_image.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\renderer.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\input.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Runtime\initializer.h">
+      <Filter>engine\runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\pfengine.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\cpuinfo.hpp">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Test\Lua\samples\scripts\1.test_add.lua">
+      <Filter>src\Lua\samples\scripts</Filter>
+    </None>
+    <None Include="Garphic_define.cd" />
+    <None Include="Graphic_vulkan_impl.cd" />
+    <None Include="Graphic_device_define.cd" />
+  </ItemGroup>
+</Project>

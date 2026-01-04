@@ -1,0 +1,69 @@
+#pragma once
+#include "Core/core_include.h"
+#include "Module/Filer/file_helper.h"
+#include <functional>
+#include <filesystem>
+#include <string>
+#include <cassert>
+
+
+
+
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : \
+                      (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
+
+
+#define log_level(str,level,...) {char text[1024]; snprintf(text, sizeof(text),  " %s - %d :  " str, __FILENAME__, __LINE__,## __VA_ARGS__); pf::backlogger::postin(text, level);}
+//#define log_messagebox(str,...) {char text[1024]; snprintf(text, sizeof(text), str, ## __VA_ARGS__); pf::backlogger::postin(text, pf::backlogger::LogLevel::Error); pf::helper::messageBox(text, "Error!");}
+#define log_warning(str,...) {log_level(str,LogLevel::Warning, ## __VA_ARGS__);}
+#define log_error(str,...) {log_level(str, LogLevel::Error, ## __VA_ARGS__);}
+#define log(str,...) {log_level(str, LogLevel::Default, ## __VA_ARGS__);}
+#define log_assert(cond,str,...) {if(!(cond)){log_error(str, ## __VA_ARGS__); assert(cond);}}
+#define Logger(str,...) {\
+	log_level(str, LogLevel::Default, ## __VA_ARGS__);\
+}
+enum class LogLevel
+{
+	None,
+	Default,
+	Warning,
+	Error,
+};
+
+namespace pf {
+	namespace backlogger {
+		// Do not modify the order, as this is exposed to LUA scripts as int!
+
+
+		std::string getText();
+
+		void postin(const char* input, LogLevel level = LogLevel::Default);
+		
+		void postin(const std::string& input, LogLevel level = LogLevel::Default);
+
+		void historyPre();
+
+		void historyNext();
+		
+		bool isActive();
+
+		void Lock();
+
+		void Unlock();
+
+		void BlockLuaExecution();
+		
+		void UnblockLuaExecution();
+
+		void SaveLogToFile(const std::string& path);
+
+		struct LogEntry
+		{
+			std::string text;
+			LogLevel level = LogLevel::Default;
+		};
+
+		// Use getText() instead, unless absolutely necessary.
+		void _forEachLogEntry_unsafe(std::function<void(const LogEntry&)> cb);
+	}
+}

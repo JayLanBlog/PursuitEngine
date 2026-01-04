@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Module\Filer\file_helper.cpp" />
+    <ClCompile Include="..\..\..\Module\Logger\backlogger.cpp" />
+    <ClCompile Include="..\..\..\Module\Luaer\plua.cpp" />
+    <ClCompile Include="..\..\..\Module\Util\job_system.cpp" />
+    <ClCompile Include="..\..\..\Module\Util\offset_allocator.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_impl_sdl3.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\imgui\vk\imgui_impl_vulkan.cpp" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lapi.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lauxlib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lbaselib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lcode.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lcorolib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lctype.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldblib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldebug.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldo.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldump.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lfunc.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lgc.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\linit.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\liolib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\llex.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lmathlib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lmem.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\loadlib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lobject.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lopcodes.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\loslib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lparser.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstate.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstring.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstrlib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltable.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltablib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltm.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lundump.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lutf8lib.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lvm.c" />
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lzio.c" />
+    <ClCompile Include="Launcher.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Core\core_include.h" />
+    <ClInclude Include="..\..\..\Core\platform.h" />
+    <ClInclude Include="..\..\..\Module\container\pvector.h" />
+    <ClInclude Include="..\..\..\Module\Filer\file_helper.h" />
+    <ClInclude Include="..\..\..\Module\Logger\backlogger.h" />
+    <ClInclude Include="..\..\..\Module\Luaer\lua_global.h" />
+    <ClInclude Include="..\..\..\Module\Luaer\plua.h" />
+    <ClInclude Include="..\..\..\Module\Luaer\pluna.h" />
+    <ClInclude Include="..\..\..\Module\Mem\pAllocator.h" />
+    <ClInclude Include="..\..\..\Module\Util\job_system.h" />
+    <ClInclude Include="..\..\..\Module\Util\offset_allocator.h" />
+    <ClInclude Include="..\..\..\Module\Util\p_timer.h" />
+    <ClInclude Include="..\..\..\Module\Util\spin_lock.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imconfig.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui_impl_sdl3.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\..\..\Thirdparty\imgui\vk\imgui_impl_vulkan.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lapi.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lauxlib.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lcode.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lctype.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ldebug.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ldo.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lfunc.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lgc.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ljumptab.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\llex.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\llimits.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lmem.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lobject.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lopcodes.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lopnames.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lparser.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lprefix.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lstate.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lstring.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ltable.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ltm.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lua.hpp" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\luaconf.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lualib.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lundump.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lvm.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lzio.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{38b4c72e-e2ac-4025-a8c0-3e83de8a0089}</ProjectGuid>
+    <RootNamespace>PursuitCanvas</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../../../Thirdparty/Lua;../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/;../../../Thirdparty/imgui;%VULKAN_SDK%\include;../../../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;vulkan-1.lib;opengl32.lib;SDL3.lib;win32_directx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../../../Thirdparty/Lua;../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/;../../../Thirdparty/imgui;%VULKAN_SDK%\include;../../../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;vulkan-1.lib;opengl32.lib;SDL3.lib;win32_directx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../../../Thirdparty/Lua;../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/;../../../Thirdparty/imgui;%VULKAN_SDK%\include;../../../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;vulkan-1.lib;opengl32.lib;SDL3.lib;win32_directx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../../../Thirdparty/Lua;../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/;../../../Thirdparty/imgui;%VULKAN_SDK%\include;../../../;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;vulkan-1.lib;opengl32.lib;SDL3.lib;win32_directx9.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

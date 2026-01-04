@@ -1,0 +1,1013 @@
+#include "resource_manager.h"
+#include "Module/Filer/file_helper.h"
+#include "stb_image.h"
+#include <mutex>
+#include <algorithm>
+#include <mutex>
+#include <unordered_map>
+#include <Utility/dds.h>
+#include <Engine/Ecore/renderer.h>
+
+
+
+using namespace pf::graphics;
+namespace pf {
+	struct StreamingTexture
+	{
+		struct StreamingSubresourceData
+		{
+			size_t data_offset = 0;
+			uint32_t row_pitch = 0;
+			uint32_t slice_pitch = 0;
+		};
+		StreamingSubresourceData streaming_data[16] = {};
+		uint32_t mip_count = 0; // mip count of full resource
+		float min_lod_clamp_absolute = 0; // relative to mip_count of full resource
+	};
+
+	//static constexpr size_t streaming_texture_min_size = 4096; // 4KB is the minimum texture memory alignment
+	static constexpr size_t streaming_texture_min_size = 64 * 1024; // 64KB is the usual texture memory alignment, this allows higher base tex size than 4KB
+	
+	struct ResourceInternal
+	{
+		resourcemanager::Flags flags = resourcemanager::Flags::NONE;
+		graphics::Texture texture;
+		int srgb_subresource = -1;
+		audio::Sound sound;
+		std::string script;
+		size_t script_hash = 0;
+		video::Video video;
+		vector<uint8_t> filedata;
+		int font_style = -1;
+
+		// Original filename:
+		std::string filename;
+
+		// Container file is different from original filename when
+		//	multiple resources are embedded inside one file:
+		std::string container_filename;
+		size_t container_filesize = ~0ull;
+		size_t container_fileoffset = 0;
+		uint64_t timestamp = 0;
+
+		// Streaming parameters:
+		StreamingTexture streaming_texture;
+		std::atomic<uint32_t> streaming_resolution{ 0 };
+		uint32_t streaming_unload_delay = 0;
+
+		// Virtual texture things:
+		graphics::GPUBuffer tile_pool;
+		graphics::Texture texture_feedback;
+		graphics::Texture texture_residency;
+	};
+
+	const vector<uint8_t>& Resource::GetFileData() const
+	{
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->filedata;
+	}
+	const graphics::Texture& Resource::GetTexture() const
+	{
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->texture;
+	}
+	const audio::Sound& Resource::GetSound() const
+	{
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->sound;
+	}
+	const std::string& Resource::GetScript() const
+	{
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->script;
+	}
+	size_t Resource::GetScriptHash() const
+	{
+		if (internal_state == nullptr)
+			return 0;
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->script_hash;
+	}
+	const video::Video& Resource::GetVideo() const
+	{
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->video;
+	}
+	int Resource::GetTextureSRGBSubresource() const
+	{
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->srgb_subresource;
+	}
+	int Resource::GetFontStyle() const
+	{
+		const ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		return resourceinternal->font_style;
+	}
+
+	void Resource::SetFileData(const vector<uint8_t>& data)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->filedata = data;
+	}
+	void Resource::SetFileData(vector<uint8_t>&& data)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->filedata = data;
+	}
+	void Resource::SetTexture(const graphics::Texture& texture, int srgb_subresource)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->texture = texture;
+		resourceinternal->srgb_subresource = srgb_subresource;
+	}
+	void Resource::SetTextureVirtual(const GPUBuffer& tile_pool, const Texture& residency, const Texture& feedback)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->tile_pool = tile_pool;
+		resourceinternal->texture_residency = residency;
+		resourceinternal->texture_feedback = feedback;
+	}
+	void Resource::SetSound(const audio::Sound& sound)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->sound = sound;
+	}
+	void Resource::SetScript(const std::string& script)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->script = script;
+	}
+	void Resource::SetVideo(const video::Video& video)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->video = video;
+	}
+
+	void Resource::SetOutdated()
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->timestamp = 0;
+	}
+
+	void Resource::StreamingRequestResolution(uint32_t resolution)
+	{
+		if (internal_state == nullptr)
+		{
+			internal_state = std::make_shared<ResourceInternal>();
+		}
+		ResourceInternal* resourceinternal = (ResourceInternal*)internal_state.get();
+		resourceinternal->streaming_resolution.fetch_or(resolution);
+	}
+
+	namespace resourcemanager {
+		static std::mutex locker;
+		static std::unordered_map<std::string, std::weak_ptr<ResourceInternal>> resources;
+		static Mode mode = Mode::NO_EMBEDDING;
+
+		void SetMode(Mode param)
+		{
+			mode = param;
+		}
+		Mode GetMode()
+		{
+			return mode;
+		}
+		
+		enum class DataType
+		{
+			IMAGE,
+			SOUND,
+			SCRIPT,
+			VIDEO_MP4,
+			VIDEO_H264_RAW,
+			FONTSTYLE,
+		};
+		static const unordered_map<std::string, DataType> types = {
+			{"JPG", DataType::IMAGE},
+			{"JPEG", DataType::IMAGE},
+			{"PNG", DataType::IMAGE},
+			{"BMP", DataType::IMAGE},
+			{"DDS", DataType::IMAGE},
+			{"TGA", DataType::IMAGE},
+			{"HDR", DataType::IMAGE},
+			{"WAV", DataType::SOUND},
+			{"OGG", DataType::SOUND},
+			{"LUA", DataType::SCRIPT},
+			{"MP4", DataType::VIDEO_MP4},
+			{"H264", DataType::VIDEO_H264_RAW},
+			{"TTF", DataType::FONTSTYLE},
+		};
+
+
+		vector<std::string> GetSupportedImageExtensions()
+		{
+			vector<std::string> ret;
+			for (auto& x : types)
+			{
+				if (x.second == DataType::IMAGE)
+				{
+					ret.push_back(x.first);
+				}
+			}
+			return ret;
+		}
+		vector<std::string> GetSupportedSoundExtensions()
+		{
+			vector<std::string> ret;
+			for (auto& x : types)
+			{
+				if (x.second == DataType::SOUND)
+				{
+					ret.push_back(x.first);
+				}
+			}
+			return ret;
+		}
+		vector<std::string> GetSupportedVideoExtensions()
+		{
+			vector<std::string> ret;
+			for (auto& x : types)
+			{
+				if (x.second == DataType::VIDEO_MP4 || x.second == DataType::VIDEO_H264_RAW)
+				{
+					ret.push_back(x.first);
+				}
+			}
+			return ret;
+		}
+		vector<std::string> GetSupportedScriptExtensions()
+		{
+			vector<std::string> ret;
+			for (auto& x : types)
+			{
+				if (x.second == DataType::SCRIPT)
+				{
+					ret.push_back(x.first);
+				}
+			}
+			return ret;
+		}
+		vector<std::string> GetSupportedFontStyleExtensions()
+		{
+			vector<std::string> ret;
+			for (auto& x : types)
+			{
+				if (x.second == DataType::FONTSTYLE)
+				{
+					ret.push_back(x.first);
+				}
+			}
+			return ret;
+		}
+
+		bool LoadResourceDirectly(
+			const std::string& name,
+			Flags flags,
+			const uint8_t* filedata,
+			size_t filesize,
+			ResourceInternal* resource
+		)
+		{
+			std::string ext = helper::toUpper(helper::GetExtensionFromFileName(name));
+			DataType type;
+
+			// dynamic type selection:
+			{
+				auto it = types.find(ext);
+				if (it != types.end())
+				{
+					type = it->second;
+				}
+				else
+				{
+					return false;
+				}
+			}
+
+			bool success = false;
+
+			switch (type)
+			{
+			case DataType::IMAGE:
+			{
+				GraphicsDevice* device = graphics::GetDevice();
+				if (!ext.compare("DDS"))
+				{
+					dds::Header header = dds::read_header(filedata, filesize);
+					if (header.is_valid())
+					{
+						TextureDesc desc;
+						desc.array_size = 1;
+						desc.bind_flags = BindFlag::SHADER_RESOURCE;
+						desc.width = header.width();
+						desc.height = header.height();
+						desc.depth = header.depth();
+						desc.mip_levels = header.mip_levels();
+						desc.array_size = header.array_size();
+						desc.format = Format::R8G8B8A8_UNORM;
+						desc.layout = ResourceState::SHADER_RESOURCE;
+						desc.misc_flags = ResourceMiscFlag::TYPED_FORMAT_CASTING;
+
+						if (header.is_cubemap())
+						{
+							desc.misc_flags |= ResourceMiscFlag::TEXTURECUBE;
+						}
+						if (desc.mip_levels == 1 || desc.depth > 1 || desc.array_size > 1)
+						{
+							// don't allow streaming for single mip, array and 3D textures
+							flags &= ~Flags::STREAMING;
+						}
+
+						auto ddsFormat = header.format();
+
+						switch (ddsFormat)
+						{
+						case dds::DXGI_FORMAT_R32G32B32A32_FLOAT: desc.format = Format::R32G32B32A32_FLOAT; break;
+						case dds::DXGI_FORMAT_R32G32B32A32_UINT: desc.format = Format::R32G32B32A32_UINT; break;
+						case dds::DXGI_FORMAT_R32G32B32A32_SINT: desc.format = Format::R32G32B32A32_SINT; break;
+						case dds::DXGI_FORMAT_R32G32B32_FLOAT: desc.format = Format::R32G32B32_FLOAT; break;
+						case dds::DXGI_FORMAT_R32G32B32_UINT: desc.format = Format::R32G32B32_UINT; break;
+						case dds::DXGI_FORMAT_R32G32B32_SINT: desc.format = Format::R32G32B32_SINT; break;
+						case dds::DXGI_FORMAT_R16G16B16A16_FLOAT: desc.format = Format::R16G16B16A16_FLOAT; break;
+						case dds::DXGI_FORMAT_R16G16B16A16_UNORM: desc.format = Format::R16G16B16A16_UNORM; break;
+						case dds::DXGI_FORMAT_R16G16B16A16_UINT: desc.format = Format::R16G16B16A16_UINT; break;
+						case dds::DXGI_FORMAT_R16G16B16A16_SNORM: desc.format = Format::R16G16B16A16_SNORM; break;
+						case dds::DXGI_FORMAT_R16G16B16A16_SINT: desc.format = Format::R16G16B16A16_SINT; break;
+						case dds::DXGI_FORMAT_R32G32_FLOAT: desc.format = Format::R32G32_FLOAT; break;
+						case dds::DXGI_FORMAT_R32G32_UINT: desc.format = Format::R32G32_UINT; break;
+						case dds::DXGI_FORMAT_R32G32_SINT: desc.format = Format::R32G32_SINT; break;
+						case dds::DXGI_FORMAT_R10G10B10A2_UNORM: desc.format = Format::R10G10B10A2_UNORM; break;
+						case dds::DXGI_FORMAT_R10G10B10A2_UINT: desc.format = Format::R10G10B10A2_UINT; break;
+						case dds::DXGI_FORMAT_R11G11B10_FLOAT: desc.format = Format::R11G11B10_FLOAT; break;
+						case dds::DXGI_FORMAT_R9G9B9E5_SHAREDEXP: desc.format = Format::R9G9B9E5_SHAREDEXP; break;
+						case dds::DXGI_FORMAT_B8G8R8X8_UNORM: desc.format = Format::B8G8R8A8_UNORM; break;
+						case dds::DXGI_FORMAT_B8G8R8A8_UNORM: desc.format = Format::B8G8R8A8_UNORM; break;
+						case dds::DXGI_FORMAT_B8G8R8A8_UNORM_SRGB: desc.format = Format::B8G8R8A8_UNORM_SRGB; break;
+						case dds::DXGI_FORMAT_R8G8B8A8_UNORM: desc.format = Format::R8G8B8A8_UNORM; break;
+						case dds::DXGI_FORMAT_R8G8B8A8_UNORM_SRGB: desc.format = Format::R8G8B8A8_UNORM_SRGB; break;
+						case dds::DXGI_FORMAT_R8G8B8A8_UINT: desc.format = Format::R8G8B8A8_UINT; break;
+						case dds::DXGI_FORMAT_R8G8B8A8_SNORM: desc.format = Format::R8G8B8A8_SNORM; break;
+						case dds::DXGI_FORMAT_R8G8B8A8_SINT: desc.format = Format::R8G8B8A8_SINT; break;
+						case dds::DXGI_FORMAT_R16G16_FLOAT: desc.format = Format::R16G16_FLOAT; break;
+						case dds::DXGI_FORMAT_R16G16_UNORM: desc.format = Format::R16G16_UNORM; break;
+						case dds::DXGI_FORMAT_R16G16_UINT: desc.format = Format::R16G16_UINT; break;
+						case dds::DXGI_FORMAT_R16G16_SNORM: desc.format = Format::R16G16_SNORM; break;
+						case dds::DXGI_FORMAT_R16G16_SINT: desc.format = Format::R16G16_SINT; break;
+						case dds::DXGI_FORMAT_D32_FLOAT: desc.format = Format::D32_FLOAT; break;
+						case dds::DXGI_FORMAT_R32_FLOAT: desc.format = Format::R32_FLOAT; break;
+						case dds::DXGI_FORMAT_R32_UINT: desc.format = Format::R32_UINT; break;
+						case dds::DXGI_FORMAT_R32_SINT: desc.format = Format::R32_SINT; break;
+						case dds::DXGI_FORMAT_R8G8_UNORM: desc.format = Format::R8G8_UNORM; break;
+						case dds::DXGI_FORMAT_R8G8_UINT: desc.format = Format::R8G8_UINT; break;
+						case dds::DXGI_FORMAT_R8G8_SNORM: desc.format = Format::R8G8_SNORM; break;
+						case dds::DXGI_FORMAT_R8G8_SINT: desc.format = Format::R8G8_SINT; break;
+						case dds::DXGI_FORMAT_R16_FLOAT: desc.format = Format::R16_FLOAT; break;
+						case dds::DXGI_FORMAT_D16_UNORM: desc.format = Format::D16_UNORM; break;
+						case dds::DXGI_FORMAT_R16_UNORM: desc.format = Format::R16_UNORM; break;
+						case dds::DXGI_FORMAT_R16_UINT: desc.format = Format::R16_UINT; break;
+						case dds::DXGI_FORMAT_R16_SNORM: desc.format = Format::R16_SNORM; break;
+						case dds::DXGI_FORMAT_R16_SINT: desc.format = Format::R16_SINT; break;
+						case dds::DXGI_FORMAT_R8_UNORM: desc.format = Format::R8_UNORM; break;
+						case dds::DXGI_FORMAT_R8_UINT: desc.format = Format::R8_UINT; break;
+						case dds::DXGI_FORMAT_R8_SNORM: desc.format = Format::R8_SNORM; break;
+						case dds::DXGI_FORMAT_R8_SINT: desc.format = Format::R8_SINT; break;
+						case dds::DXGI_FORMAT_BC1_UNORM: desc.format = Format::BC1_UNORM; break;
+						case dds::DXGI_FORMAT_BC1_UNORM_SRGB: desc.format = Format::BC1_UNORM_SRGB; break;
+						case dds::DXGI_FORMAT_BC2_UNORM: desc.format = Format::BC2_UNORM; break;
+						case dds::DXGI_FORMAT_BC2_UNORM_SRGB: desc.format = Format::BC2_UNORM_SRGB; break;
+						case dds::DXGI_FORMAT_BC3_UNORM: desc.format = Format::BC3_UNORM; break;
+						case dds::DXGI_FORMAT_BC3_UNORM_SRGB: desc.format = Format::BC3_UNORM_SRGB; break;
+						case dds::DXGI_FORMAT_BC4_UNORM: desc.format = Format::BC4_UNORM; break;
+						case dds::DXGI_FORMAT_BC4_SNORM: desc.format = Format::BC4_SNORM; break;
+						case dds::DXGI_FORMAT_BC5_UNORM: desc.format = Format::BC5_UNORM; break;
+						case dds::DXGI_FORMAT_BC5_SNORM: desc.format = Format::BC5_SNORM; break;
+						case dds::DXGI_FORMAT_BC6H_SF16: desc.format = Format::BC6H_SF16; break;
+						case dds::DXGI_FORMAT_BC6H_UF16: desc.format = Format::BC6H_UF16; break;
+						case dds::DXGI_FORMAT_BC7_UNORM: desc.format = Format::BC7_UNORM; break;
+						case dds::DXGI_FORMAT_BC7_UNORM_SRGB: desc.format = Format::BC7_UNORM_SRGB; break;
+						default:
+							assert(0); // incoming format is not supported 
+							break;
+						}
+
+						if (desc.format == Format::BC4_UNORM || desc.format == Format::BC4_SNORM)
+						{
+							desc.swizzle.r = ComponentSwizzle::R;
+							desc.swizzle.g = ComponentSwizzle::R;
+							desc.swizzle.b = ComponentSwizzle::R;
+							desc.swizzle.a = ComponentSwizzle::ONE;
+						}
+						if (desc.format == Format::BC5_UNORM || desc.format == Format::BC5_SNORM)
+						{
+							desc.swizzle.r = ComponentSwizzle::R;
+							desc.swizzle.g = ComponentSwizzle::G;
+							desc.swizzle.b = ComponentSwizzle::ONE;
+							desc.swizzle.a = ComponentSwizzle::ONE;
+						}
+
+						if (header.is_1d())
+						{
+							desc.type = TextureDesc::Type::TEXTURE_1D;
+						}
+						else if (header.is_3d())
+						{
+							desc.type = TextureDesc::Type::TEXTURE_3D;
+						}
+
+						if (IsFormatBlockCompressed(desc.format))
+						{
+							desc.width = AlignTo(desc.width, GetFormatBlockSize(desc.format));
+							desc.height = AlignTo(desc.height, GetFormatBlockSize(desc.format));
+						}
+
+						vector<SubresourceData> initdata_heap;
+						SubresourceData initdata_stack[16] = {};
+						SubresourceData* initdata = nullptr;
+
+						// Determine if we need heap allocation for initdata, or it is small enough for stack:
+						if (desc.array_size * desc.mip_levels < arraysize(initdata_stack))
+						{
+							initdata = initdata_stack;
+						}
+						else
+						{
+							initdata_heap.resize(desc.array_size * desc.mip_levels);
+							initdata = initdata_heap.data();
+						}
+
+						uint32_t subresource_index = 0;
+						for (uint32_t slice = 0; slice < desc.array_size; ++slice)
+						{
+							for (uint32_t mip = 0; mip < desc.mip_levels; ++mip)
+							{
+								SubresourceData& subresourceData = initdata[subresource_index++];
+								subresourceData.data_ptr = filedata + header.mip_offset(mip, slice);
+								subresourceData.row_pitch = header.row_pitch(mip);
+								subresourceData.slice_pitch = header.slice_pitch(mip);
+							}
+						}
+
+						int mip_offset = 0;
+						if (has_flag(flags, Flags::STREAMING))
+						{
+							// Remember full mipcount for streaming:
+							resource->streaming_texture.mip_count = desc.mip_levels;
+							// For streaming, remember relative memory offsets for mip levels:
+							for (uint32_t slice = 0; slice < desc.array_size; ++slice)
+							{
+								for (uint32_t mip = 0; mip < desc.mip_levels; ++mip)
+								{
+									auto& streaming_data = resource->streaming_texture.streaming_data[mip];
+									streaming_data.data_offset = header.mip_offset(mip, slice);
+									streaming_data.row_pitch = header.row_pitch(mip);
+									streaming_data.slice_pitch = header.slice_pitch(mip);
+								}
+							}
+							// Reduce mip map count that will be uploaded to GPU:
+							while (desc.mip_levels > 1 && desc.depth == 1 && desc.array_size == 1 && ComputeTextureMemorySizeInBytes(desc) > streaming_texture_min_size)
+							{
+								desc.width >>= 1;
+								desc.height >>= 1;
+								desc.mip_levels -= 1;
+								mip_offset++;
+							}
+							resource->streaming_texture.min_lod_clamp_absolute = (float)mip_offset;
+						}
+
+						success = device->CreateTexture(&desc, initdata + mip_offset, &resource->texture);
+						device->SetName(&resource->texture, name.c_str());
+
+						Format srgb_format = GetFormatSRGB(desc.format);
+						if (srgb_format != Format::UNKNOWN && srgb_format != desc.format)
+						{
+							resource->srgb_subresource = device->CreateSubresource(
+								&resource->texture,
+								SubresourceType::SRV,
+								0, -1,
+								0, -1,
+								&srgb_format
+							);
+						}
+					}
+					else assert(0); // failed to load DDS
+
+				}
+				else if (!ext.compare("HDR"))
+				{
+					flags &= ~Flags::STREAMING; // disable streaming
+					int height, width, channels; // stb_image
+					float* data = stbi_loadf_from_memory(filedata, (int)filesize, &width, &height, &channels, 0);
+					static constexpr bool allow_packing = true; // we now always assume that we won't need full precision float textures, so pack them for memory saving
+
+					if (data != nullptr)
+					{
+						TextureDesc desc;
+						desc.width = (uint32_t)width;
+						desc.height = (uint32_t)height;
+						switch (channels)
+						{
+						default:
+						case 4:
+							if (allow_packing)
+							{
+								desc.format = Format::R16G16B16A16_FLOAT;
+								const XMFLOAT4* data_full = (const XMFLOAT4*)data;
+								XMHALF4* data_packed = (XMHALF4*)data;
+								for (int i = 0; i < width * height; ++i)
+								{
+									
+								//	DirectX::XMLoadFloat4(data_full + i);
+									DirectX::PackedVector::XMStoreHalf4(data_packed + i, DirectX::XMLoadFloat4(data_full + i));
+								}
+							}
+							else
+							{
+								desc.format = Format::R32G32B32A32_FLOAT;
+							}
+							break;
+						case 3:
+							if (allow_packing)
+							{
+								desc.format = Format::R9G9B9E5_SHAREDEXP;
+								const XMFLOAT3* data_full = (const XMFLOAT3*)data;
+								XMFLOAT3SE* data_packed = (XMFLOAT3SE*)data;
+								for (int i = 0; i < width * height; ++i)
+								{
+									DirectX::PackedVector::XMStoreFloat3SE(data_packed + i, DirectX::XMLoadFloat3(data_full + i));
+								}
+							}
+							else
+							{
+								desc.format = Format::R32G32B32_FLOAT;
+							}
+							break;
+						case 2:
+							if (allow_packing)
+							{
+								desc.format = Format::R16G16_FLOAT;
+								const XMFLOAT2* data_full = (const XMFLOAT2*)data;
+								XMHALF2* data_packed = (XMHALF2*)data;
+								for (int i = 0; i < width * height; ++i)
+								{
+									DirectX::PackedVector::XMStoreHalf2(data_packed + i, DirectX::XMLoadFloat2(data_full + i));
+								}
+							}
+							else
+							{
+								desc.format = Format::R32G32_FLOAT;
+							}
+							break;
+						case 1:
+							if (allow_packing)
+							{
+								desc.format = Format::R16_FLOAT;
+								HALF* data_packed = (HALF*)data;
+								for (int i = 0; i < width * height; ++i)
+								{
+									data_packed[i] = DirectX::PackedVector::XMConvertFloatToHalf(data[i]);
+								}
+							}
+							else
+							{
+								desc.format = Format::R32_FLOAT;
+							}
+							break;
+						}
+						desc.bind_flags = BindFlag::SHADER_RESOURCE;
+						desc.mip_levels = 1;
+						SubresourceData InitData;
+						InitData.data_ptr = data;
+						InitData.row_pitch = width * GetFormatStride(desc.format);
+						success = device->CreateTexture(&desc, &InitData, &resource->texture);
+						device->SetName(&resource->texture, name.c_str());
+
+						stbi_image_free(data);
+					}
+				}
+				else
+				{
+					// png, tga, jpg, etc. loader:
+					flags &= ~Flags::STREAMING; // disable streaming
+					int height = 0, width = 0, channels = 0;
+					bool is_16bit = false;
+					Format format = Format::R8G8B8A8_UNORM;
+					Format bc_format = Format::BC3_UNORM;
+					Swizzle swizzle = { ComponentSwizzle::R, ComponentSwizzle::G, ComponentSwizzle::B, ComponentSwizzle::A };
+
+					void* rgba;
+					if (!has_flag(flags, Flags::IMPORT_COLORGRADINGLUT) 
+						&& stbi_is_16_bit_from_memory(filedata, (int)filesize)
+						)
+					{
+						is_16bit = true;
+						rgba = stbi_load_16_from_memory(filedata, (int)filesize, &width, &height, &channels, 0);
+						switch (channels)
+						{
+						case 1:
+							format = Format::R16_UNORM;
+							bc_format = Format::BC4_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::ONE };
+							break;
+						case 2:
+							format = Format::R16G16_UNORM;
+							bc_format = Format::BC5_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::G };
+							break;
+						case 3:
+						{
+							// Graphics API doesn't support 3 channel formats, so need to expand to RGBA:
+							struct Color3
+							{
+								uint16_t r, g, b;
+							};
+							const Color3* color3 = (const Color3*)rgba;
+							Color16* color4 = (Color16*)malloc(width * height * sizeof(Color16));
+							for (int i = 0; i < width * height; ++i)
+							{
+								color4[i].setR(color3[i].r);
+								color4[i].setG(color3[i].g);
+								color4[i].setB(color3[i].b);
+								color4[i].setA(65535);
+							}
+							free(rgba);
+							rgba = color4;
+							format = Format::R16G16B16A16_UNORM;
+							bc_format = Format::BC1_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::G, ComponentSwizzle::B, ComponentSwizzle::ONE };
+						}
+						break;
+						case 4:
+						default:
+							format = Format::R16G16B16A16_UNORM;
+							bc_format = Format::BC3_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::G, ComponentSwizzle::B, ComponentSwizzle::A };
+							break;
+						}
+					}
+					else
+					{
+						rgba = stbi_load_from_memory(filedata, (int)filesize, &width, &height, &channels, 0);
+						switch (channels)
+						{
+						case 1:
+							format = Format::R8_UNORM;
+							bc_format = Format::BC4_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::ONE };
+							break;
+						case 2:
+							format = Format::R8G8_UNORM;
+							bc_format = Format::BC5_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::R, ComponentSwizzle::G };
+							break;
+						case 3:
+						{
+							// Graphics API doesn't support 3 channel formats, so need to expand to RGBA:
+							struct Color3
+							{
+								uint8_t r, g, b;
+							};
+							const Color3* color3 = (const Color3*)rgba;
+							Color* color4 = (Color*)malloc(width * height * sizeof(Color));
+							for (int i = 0; i < width * height; ++i)
+							{
+								color4[i].setR(color3[i].r);
+								color4[i].setG(color3[i].g);
+								color4[i].setB(color3[i].b);
+								color4[i].setA(255);
+							}
+							free(rgba);
+							rgba = color4;
+							format = Format::R8G8B8A8_UNORM;
+							bc_format = Format::BC1_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::G, ComponentSwizzle::B, ComponentSwizzle::ONE };
+						}
+						break;
+						case 4:
+						default:
+							format = Format::R8G8B8A8_UNORM;
+							bc_format = Format::BC3_UNORM;
+							swizzle = { ComponentSwizzle::R, ComponentSwizzle::G, ComponentSwizzle::B, ComponentSwizzle::A };
+							break;
+						}
+					}
+
+					if (rgba != nullptr)
+					{
+						TextureDesc desc;
+						desc.height = uint32_t(height);
+						desc.width = uint32_t(width);
+						desc.layout = ResourceState::SHADER_RESOURCE;
+						desc.format = format;
+						desc.swizzle = swizzle;
+
+						if (has_flag(flags, Flags::IMPORT_COLORGRADINGLUT))
+						{
+							if (desc.type != TextureDesc::Type::TEXTURE_2D ||
+								desc.width != 256 ||
+								desc.height != 16 ||
+								format != Format::R8G8B8A8_UNORM)
+							{
+								//helper::messageBox("The Dimensions must be 256 x 16 for color grading LUT and format must be RGB or RGBA!", "Error");
+							}
+							else
+							{
+								uint32_t data[16 * 16 * 16];
+								int pixel = 0;
+								for (int z = 0; z < 16; ++z)
+								{
+									for (int y = 0; y < 16; ++y)
+									{
+										for (int x = 0; x < 16; ++x)
+										{
+											int coord = x + y * 256 + z * 16;
+											data[pixel++] = ((uint32_t*)rgba)[coord];
+										}
+									}
+								}
+
+								desc.type = TextureDesc::Type::TEXTURE_3D;
+								desc.width = 16;
+								desc.height = 16;
+								desc.depth = 16;
+								desc.bind_flags = BindFlag::SHADER_RESOURCE;
+								SubresourceData InitData;
+								InitData.data_ptr = data;
+								InitData.row_pitch = 16 * sizeof(uint32_t);
+								InitData.slice_pitch = 16 * InitData.row_pitch;
+								success = device->CreateTexture(&desc, &InitData, &resource->texture);
+								device->SetName(&resource->texture, name.c_str());
+							}
+						}
+						else
+						{
+							desc.bind_flags = BindFlag::SHADER_RESOURCE | BindFlag::UNORDERED_ACCESS;
+							desc.mip_levels = GetMipCount(desc.width, desc.height);
+							desc.usage = Usage::DEFAULT;
+							desc.layout = ResourceState::SHADER_RESOURCE;
+							desc.misc_flags = ResourceMiscFlag::TYPED_FORMAT_CASTING;
+
+							uint32_t mipwidth = width;
+							SubresourceData init_data[16];
+							for (uint32_t mip = 0; mip < desc.mip_levels; ++mip)
+							{
+								init_data[mip].data_ptr = rgba; // attention! we don't fill the mips here correctly, just always point to the mip0 data by default. Mip levels will be created using compute shader when needed!
+								init_data[mip].row_pitch = uint32_t(mipwidth * GetFormatStride(desc.format));
+								mipwidth = std::max(1u, mipwidth / 2);
+							}
+
+							success = device->CreateTexture(&desc, init_data, &resource->texture);
+							device->SetName(&resource->texture, name.c_str());
+							device->CreateMipgenSubresources(resource->texture);
+
+							// This part must be AFTER mip level subresource creation:
+							Format srgb_format = GetFormatSRGB(desc.format);
+							if (srgb_format != Format::UNKNOWN && srgb_format != desc.format)
+							{
+								resource->srgb_subresource = device->CreateSubresource(
+									&resource->texture,
+									SubresourceType::SRV,
+									0, -1,
+									0, -1,
+									&srgb_format
+								);
+							}
+
+							pf::renderer::AddDeferredMIPGen(resource->texture, true);
+
+							if (has_flag(flags, Flags::IMPORT_BLOCK_COMPRESSED))
+							{
+								// Schedule additional task to compress into BC format and replace resource texture:
+								Texture uncompressed_src = std::move(resource->texture);
+								resource->srgb_subresource = -1;
+
+								desc.format = bc_format;
+
+								if (has_flag(flags, Flags::IMPORT_NORMALMAP))
+								{
+									desc.format = Format::BC5_UNORM;
+									desc.swizzle = { ComponentSwizzle::R, ComponentSwizzle::G, ComponentSwizzle::ONE, ComponentSwizzle::ONE };
+								}
+
+								desc.bind_flags = BindFlag::SHADER_RESOURCE;
+
+								const uint32_t block_size = GetFormatBlockSize(desc.format);
+								desc.width = align(desc.width, block_size);
+								desc.height = align(desc.height, block_size);
+								desc.mip_levels = GetMipCount(desc.width, desc.height, 1, block_size);
+
+								success = device->CreateTexture(&desc, nullptr, &resource->texture);
+								device->SetName(&resource->texture, name.c_str());
+
+								// This part must be AFTER mip level subresource creation:
+								Format srgb_format = GetFormatSRGB(desc.format);
+								if (srgb_format != Format::UNKNOWN && srgb_format != desc.format)
+								{
+									resource->srgb_subresource = device->CreateSubresource(
+										&resource->texture,
+										SubresourceType::SRV,
+										0, -1,
+										0, -1,
+										&srgb_format
+									);
+								}
+
+								renderer::AddDeferredBlockCompression(uncompressed_src, resource->texture);
+
+							}
+						}
+					}
+					stbi_image_free(rgba);
+				}
+			}
+			break;
+
+			case DataType::SOUND:
+			{
+				success = audio::CreateSound(filedata, filesize, &resource->sound);
+			}
+			break;
+
+			case DataType::SCRIPT:
+			{
+				resource->script.resize(filesize);
+				std::memcpy(resource->script.data(), filedata, filesize);
+				resource->script_hash = helper::string_hash(resource->script.c_str());
+				success = true;
+			}
+			break;
+
+			case DataType::VIDEO_MP4:
+			{
+				success = video::CreateVideoMP4(filedata, filesize, &resource->video);
+			}
+			break;
+
+			case DataType::VIDEO_H264_RAW:
+			{
+				success = video::CreateVideoH264RAW(filedata, filesize, &resource->video);
+			}
+			break;
+
+			case DataType::FONTSTYLE:
+			{
+				//resource->font_style = wi::font::AddFontStyle(name, filedata, filesize, true);
+				success = resource->font_style >= 0;
+			}
+			break;
+
+			};
+
+			if (!resource->filedata.empty() && !has_flag(flags, Flags::IMPORT_RETAIN_FILEDATA) && !has_flag(flags, Flags::IMPORT_DELAY))
+			{
+				// file data can be discarded:
+				resource->filedata.clear();
+				resource->filedata.shrink_to_fit();
+			}
+
+			return success;
+		}
+
+
+
+		Resource Load(
+			const std::string& name,
+			Flags flags,
+			const uint8_t* filedata,
+			size_t filesize,
+			const std::string& container_filename,
+			size_t container_fileoffset
+		)
+		{
+			locker.lock();
+			std::weak_ptr<ResourceInternal>& weak_resource = resources[name];
+			std::shared_ptr<ResourceInternal> resource = weak_resource.lock();
+
+			uint64_t timestamp = 0;
+			if (!container_filename.empty())
+			{
+				timestamp = helper::FileTimestamp(container_filename);
+			}
+			else
+			{
+				timestamp = helper::FileTimestamp(name);
+			}
+
+			if (resource == nullptr || resource->timestamp < timestamp)
+			{
+				resource = std::make_shared<ResourceInternal>();
+				resources[name] = resource;
+				resource->filename = name;
+
+				// Rememeber the streaming file parameters, which is either the resource filename,
+				//	or it can be a specific filename and offset in the case when the file contained multiple resources
+				if (container_filename.empty())
+				{
+					resource->container_filename = name;
+				}
+				else
+				{
+					resource->container_filename = container_filename;
+				}
+				resource->container_filesize = filesize;
+				resource->container_fileoffset = container_fileoffset;
+
+				if (filedata != nullptr && resource->filedata.empty() && (has_flag(flags, Flags::IMPORT_RETAIN_FILEDATA) || has_flag(flags, Flags::IMPORT_DELAY)))
+				{
+					// resource was loaded with external filedata, and we want to retain filedata
+					//	this must also happen when using IMPORT_DELAY!
+					resource->filedata.resize(filesize);
+					std::memcpy(resource->filedata.data(), filedata, filesize);
+				}
+			}
+			else
+			{
+				if (!has_flag(flags, Flags::IMPORT_DELAY) && has_flag(resource->flags, Flags::IMPORT_DELAY))
+				{
+					// If this is not an IMPORT_DELAY load, but this resource load was incomplete, using IMPORT_DELAY,
+					//	then continue loading it as normal from existing file data and remove IMPORT_DELAY flag from it
+					resource->flags &= ~Flags::IMPORT_DELAY;
+				}
+				else
+				{
+					Resource retVal;
+					retVal.internal_state = resource;
+					locker.unlock();
+					return retVal;
+				}
+			}
+
+			locker.unlock();
+
+			if (filedata == nullptr || filesize == 0)
+			{
+				if (resource->filedata.empty())
+				{
+					if (!helper::FileRead(resource->container_filename, resource->filedata, resource->container_filesize, resource->container_fileoffset))
+					{
+						resource.reset();
+						return Resource();
+					}
+				}
+				filedata = resource->filedata.data();
+				filesize = resource->filedata.size();
+			}
+
+			flags |= resource->flags;
+
+			bool success = false;
+
+			if (has_flag(flags, Flags::IMPORT_DELAY))
+			{
+				success = true;
+			}
+			else
+			{
+				success = LoadResourceDirectly(name, flags, filedata, filesize, resource.get());
+			}
+
+			if (success)
+			{
+				resource->flags = flags;
+				resource->timestamp = timestamp;
+
+				Resource retVal;
+				retVal.internal_state = resource;
+				return retVal;
+			}
+
+			return Resource();
+		}
+	}
+}

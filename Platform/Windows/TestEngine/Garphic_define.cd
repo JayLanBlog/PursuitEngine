@@ -1,0 +1,860 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Struct Name="pf::graphics::Shader">
+    <Position X="0.5" Y="3" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::GPUResource">
+    <Position X="11" Y="3" Width="2.5" />
+    <NestedTypes>
+      <Enum Name="pf::graphics::GPUResource::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAQAAAAAAgAAAAAAAAABBAAAAABAgAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::GPUBuffer">
+    <Position X="6.25" Y="6.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::Texture">
+    <Position X="9.75" Y="6.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAABAAAAAEQAAAAAAAABAAAAIAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::Viewport">
+    <Position X="49.75" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAwAQAAAAAAAAAAAAAAAAAwgAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::InputLayout">
+    <Position X="38.75" Y="27" Width="4.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="pf::graphics::InputLayout::Element">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::Swizzle">
+    <Position X="11" Y="11.5" Width="4.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAQABAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::TextureDesc">
+    <Position X="7" Y="11.5" Width="3.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::TextureDesc::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AEACAAAAQAAAAAQAQAQACAAMAAABAAQAAAAAKAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SamplerDesc">
+    <Position X="16" Y="11.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAIAAAABgBEAIAAAAAAAAAAAAACAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RasterizerState">
+    <Position X="38.75" Y="24" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AgEIAQAAAAACAAgAAAIAAAAAABAAAAAAAAgAAAAEAAg=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::DepthStencilState">
+    <Position X="38.75" Y="19.25" Width="4.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="pf::graphics::DepthStencilState::DepthStencilOp">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAIAAEAEAgAwAAAAAAAAAAAAAAAAoA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::BlendState">
+    <Position X="38.75" Y="15" Width="4.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="pf::graphics::BlendState::RenderTargetBlendState">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAgAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::GPUBufferDesc">
+    <Position X="0.5" Y="11.5" Width="6.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIQACAAkAAAAAAQAAAEAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::GPUQueryHeapDesc">
+    <Position X="35.25" Y="11.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::PipelineStateDesc">
+    <Position X="38.75" Y="11.5" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABAEAAAAAAAECoIEwDAIAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::GPUBarrier">
+    <Position X="55.75" Y="16.25" Width="10.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::GPUBarrier::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Struct Name="pf::graphics::GPUBarrier::Memory">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GPUBarrier::Image">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GPUBarrier::Buffer">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GPUBarrier::Aliasing">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAQAAAAAAAAAAABABAAAgAAAAAAQAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SwapChainDesc">
+    <Position X="43.25" Y="11.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAgAAAQAQAAACAACAAAAAAAAAAACAAAAAAQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SubresourceData">
+    <Position X="7" Y="21.25" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAgAAAAIAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::Rect">
+    <Position X="40.75" Y="0.5" Width="4.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABAAAAAAAAgACAAIAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::Box">
+    <Position X="37.75" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAABAAABAAAAAAAAgAAAAIAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SparseTextureProperties">
+    <Position X="16" Y="14.25" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABABAAAAAAAAAIAQAAEAAAAAAAAAAAAAIAIAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::VideoDesc">
+    <Position X="25" Y="11.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgEAAIAAQAQAAACAAAAAAAUIgAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::GraphicsDeviceChild">
+    <Position X="17.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::Sampler">
+    <Position X="3" Y="3" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::VideoDecoder">
+    <Position X="19" Y="3" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAIAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::VideoDecodeOperation">
+    <Position X="67" Y="0.5" Width="4.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::VideoDecodeOperation::Flags">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ABFAAAAAAAAAAAEIAAAAAIAECAAAAAAASAEAwAAoAIQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RenderPassImage">
+    <Position X="64.5" Y="6.5" Width="6.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::RenderPassImage::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="pf::graphics::RenderPassImage::LoadOp">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="pf::graphics::RenderPassImage::StoreOp">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="pf::graphics::RenderPassImage::DepthResolveMode">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAASCAAAAIABAEAABAAQBAgAAAABACIAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RenderPassInfo">
+    <Position X="55.75" Y="13.75" Width="8" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAABAAAAAAAAAAAAEQAABAACAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::GPUQueryHeap">
+    <Position X="27" Y="3" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::PipelineState">
+    <Position X="30.75" Y="3" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SwapChain">
+    <Position X="34.5" Y="3" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RaytracingAccelerationStructureDesc">
+    <Position X="20.25" Y="11.5" Width="4.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::RaytracingAccelerationStructureDesc::Flags">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="pf::graphics::RaytracingAccelerationStructureDesc::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Struct Name="pf::graphics::RaytracingAccelerationStructureDesc::BottomLevel">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Struct Name="pf::graphics::RaytracingAccelerationStructureDesc::BottomLevel::Geometry">
+            <Compartments>
+              <Compartment Name="Nested Types" Collapsed="false" />
+            </Compartments>
+            <NestedTypes>
+              <Enum Name="pf::graphics::RaytracingAccelerationStructureDesc::BottomLevel::Geometry::FLAGS">
+                <TypeIdentifier>
+                  <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+                </TypeIdentifier>
+              </Enum>
+              <Enum Name="pf::graphics::RaytracingAccelerationStructureDesc::BottomLevel::Geometry::Type">
+                <TypeIdentifier>
+                  <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+                </TypeIdentifier>
+              </Enum>
+              <Struct Name="pf::graphics::RaytracingAccelerationStructureDesc::BottomLevel::Geometry::Triangles">
+                <TypeIdentifier>
+                  <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+                </TypeIdentifier>
+              </Struct>
+              <Struct Name="pf::graphics::RaytracingAccelerationStructureDesc::BottomLevel::Geometry::Procedural_AABBs">
+                <TypeIdentifier>
+                  <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+                </TypeIdentifier>
+              </Struct>
+            </NestedTypes>
+            <TypeIdentifier>
+              <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+            </TypeIdentifier>
+          </Struct>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::RaytracingAccelerationStructureDesc::TopLevel">
+        <Compartments>
+          <Compartment Name="Nested Types" Collapsed="false" />
+        </Compartments>
+        <NestedTypes>
+          <Struct Name="pf::graphics::RaytracingAccelerationStructureDesc::TopLevel::Instance">
+            <Compartments>
+              <Compartment Name="Nested Types" Collapsed="false" />
+            </Compartments>
+            <NestedTypes>
+              <Enum Name="pf::graphics::RaytracingAccelerationStructureDesc::TopLevel::Instance::FLAGS">
+                <TypeIdentifier>
+                  <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+                </TypeIdentifier>
+              </Enum>
+            </NestedTypes>
+            <TypeIdentifier>
+              <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+            </TypeIdentifier>
+          </Struct>
+        </NestedTypes>
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAABAEAAAAAAAAAAAAQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RaytracingAccelerationStructure">
+    <Position X="14.25" Y="6.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAIAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::ShaderLibrary">
+    <Position X="29" Y="13.5" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::ShaderLibrary::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::ShaderHitGroup">
+    <Position X="32.5" Y="13.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::ShaderHitGroup::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAFIAAQAAAIAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RaytracingPipelineStateDesc">
+    <Position X="29" Y="11.5" Width="6" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAQCAAAAAAAEAAAAAAAQAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RaytracingPipelineState">
+    <Position X="22.75" Y="3" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::PipelineHash">
+    <Position X="56.5" Y="0.5" Width="5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAwAAAAAAAAQgAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::ShaderTable">
+    <Position X="49.75" Y="16" Width="5.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAFAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::DispatchRaysDesc">
+    <Position X="49.75" Y="13.75" Width="5.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgAAAAAQAQAAAAAAAAAQAMAAAAAAAIAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SparseResourceCoordinate">
+    <Position X="43" Y="2.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAIBgAQAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SparseRegionSize">
+    <Position X="37.75" Y="5.25" Width="5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAQAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SparseUpdateCommand">
+    <Position X="37.75" Y="2.75" Width="5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAABAAAAQAAAAAgAIAAAgAAAAAAAAAEgAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::SwizzleString">
+    <Position X="53" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RenderPassAttachment">
+    <Position X="49.75" Y="4" Width="14" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::RenderPassAttachment::Type">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="pf::graphics::RenderPassAttachment::LoadOp">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="pf::graphics::RenderPassAttachment::StoreOp">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="pf::graphics::RenderPassAttachment::DepthResolveMode">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAABABAAAQCCAAAIIABBEAABAAQBAgAAAAAAAIAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RenderPassDesc">
+    <Position X="45.5" Y="2.5" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="pf::graphics::RenderPassDesc::Flags">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::RenderPass">
+    <Position X="45.5" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAgAAAAAAAAAAABAAAAAAAAAAAQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="enable_bitmask_operators&lt;pf::graphics::ColorWrite&gt;">
+    <Position X="61.75" Y="0.5" Width="5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="std::hash&lt;pf::graphics::PipelineHash&gt;">
+    <Position X="56.5" Y="2.5" Width="5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="pf::graphics::ValidationMode">
+    <Position X="52.5" Y="25.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAIAAAACAAAAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::AdapterType">
+    <Position X="52.5" Y="24" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAQAAAAEAAAAAAAAAAAAACQAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::GPUPreference">
+    <Position X="49.75" Y="25.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAABAAAAAAAAAAAAIAAAAAAAAAECA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ShaderStage">
+    <Position X="3.5" Y="24.25" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>CgAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAACAVQg=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ShaderFormat">
+    <Position X="52.5" Y="19.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAgAAAAAAAAASAAAAAAABAAACAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ShaderModel">
+    <Position X="52.5" Y="21.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::PrimitiveTopology">
+    <Position X="35.25" Y="25.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEAAAgAAAYBAAAACABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ComparisonFunc">
+    <Position X="16" Y="19.75" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAABAQAAAAAAAAAAAAAAACAGAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::DepthWriteMask">
+    <Position X="35.25" Y="22" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::StencilOp">
+    <Position X="35.25" Y="23.25" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>QAIAAAAAAAAIAABAAAAAAAIAAAAAAAgAAAAAAAAAIQA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::Blend">
+    <Position X="35.25" Y="16" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>BAAIggAQAAAIAAkAAAAAAAAGABACBAAAAEACAAEAAQA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::BlendOp">
+    <Position X="35.25" Y="14.25" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAABCAAAACAIAAAAAAAAAAAAAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::FillMode">
+    <Position X="35.25" Y="29" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::CullMode">
+    <Position X="35.25" Y="30.25" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAQAAAAEAAAAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::InputClassification">
+    <Position X="35.25" Y="27.75" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::Usage">
+    <Position X="3.5" Y="16.75" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgAACAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::TextureAddressMode">
+    <Position X="16" Y="16.75" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAACAAAAACAAAAAAQAAAAAAAAAAAE=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::Filter">
+    <Position X="11" Y="15.25" Width="4.75" />
+    <TypeIdentifier>
+      <HashCode>AAAEQQAMBAQAFAAoEAABAQAAAQklABUkDTQAAAAIASE=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::SamplerBorderColor">
+    <Position X="16" Y="18.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAEAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::Format">
+    <Position X="0.5" Y="14" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>CAQwJCAgQBAQAChFCIYQBiAYCSBCkqgEEggACFAkEwQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::GpuQueryType">
+    <Position X="35.25" Y="13" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAEAAAAAAAACAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::IndexBufferFormat">
+    <Position X="25" Y="17.25" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::SubresourceType">
+    <Position X="49.75" Y="22.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAACAEAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ShadingRate">
+    <Position X="49.75" Y="19.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAgAABAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::PredicationOp">
+    <Position X="49.75" Y="24.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAg=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ImageAspect">
+    <Position X="52.5" Y="17.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAABCAAAAAAAAAAAAACAAAAAAAAABAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::VideoFrameType">
+    <Position X="64.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::VideoProfile">
+    <Position X="25" Y="16" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ComponentSwizzle">
+    <Position X="11" Y="13.25" Width="4.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAKAEAAQA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ColorSpace">
+    <Position X="49.75" Y="21.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAQIAAAAAAABAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ColorWrite">
+    <Position X="35.25" Y="20" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAIAAAAAAAAAAACAAQAAAAAAAAAACAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::BindFlag">
+    <Position X="3.5" Y="14" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAQACEAAAAAAAAAAAAgAAjAAAAAE=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ResourceMiscFlag">
+    <Position X="3.5" Y="18.25" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAgAQgCAAAAABBBEASIBAAAAQAAUAAAYAhQAAgoABEA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::GraphicsDeviceCapability">
+    <Position X="49.75" Y="27.5" Width="5.5" />
+    <TypeIdentifier>
+      <HashCode>gCoAgBAIgAAQAAAAMSBgAAIAAAAAAABQBACAQACAEAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::ResourceState">
+    <Position X="7" Y="16.75" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAACBACgACACWEAAEAAAAAAAAMBADAIAAAE=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::RenderPassFlags">
+    <Position X="49.75" Y="17.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAQACQAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::VideoDecoderSupportFlags">
+    <Position X="25" Y="14.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAQAACAAAAAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="pf::graphics::TileRangeFlags">
+    <Position X="43" Y="4.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAEAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graphic.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="8.88" />
+</ClassDiagram>

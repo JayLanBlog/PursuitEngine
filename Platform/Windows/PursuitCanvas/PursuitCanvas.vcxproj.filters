@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Thirdparty">
+      <UniqueIdentifier>{435661a0-d32a-41f7-801d-c192c17a9643}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Lua">
+      <UniqueIdentifier>{0442500d-1bf5-40cf-a90c-f8a3ecb3ff46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{1700ae29-5011-4a00-ab6e-68dcd7965c0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module">
+      <UniqueIdentifier>{a900d91f-ff9b-41bd-b1af-4892339ab1dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{e1334e1a-09f7-4200-a721-e10087892ed9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module\Luaer">
+      <UniqueIdentifier>{0713a508-71f2-4a8d-ac62-beaaf4175b45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module\Logger">
+      <UniqueIdentifier>{f0ed76f4-3d48-4071-9448-67ac4046552e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module\Filer">
+      <UniqueIdentifier>{126012a9-95bf-45aa-8fa6-9c8f5954208f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module\container">
+      <UniqueIdentifier>{4e0129d9-d768-402c-ba6f-22f2740a04ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module\util">
+      <UniqueIdentifier>{6f017f26-8c0e-4b22-99f5-98a4595c450b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module\mem">
+      <UniqueIdentifier>{5b2749a4-6479-49e1-a9b9-7b76572c8e37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Imgui">
+      <UniqueIdentifier>{cd51d15c-b3db-4b26-ab16-e126d9518021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Imgui\vk">
+      <UniqueIdentifier>{d4e9f9c2-c569-4e5a-a842-ef3b820be0b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Imgui\gl">
+      <UniqueIdentifier>{26766f96-cdb3-4aba-8d81-0523090b5e3e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lapi.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lauxlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lbaselib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lcode.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lcorolib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lctype.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldblib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldebug.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldo.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ldump.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lfunc.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lgc.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\linit.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\liolib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\llex.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lmathlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lmem.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\loadlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lobject.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lopcodes.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\loslib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lparser.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstate.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstring.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lstrlib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltable.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltablib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\ltm.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lundump.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lutf8lib.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lvm.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Lua\lzio.c">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="Launcher.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Luaer\plua.cpp">
+      <Filter>Module\Luaer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Filer\file_helper.cpp">
+      <Filter>Module\Filer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Logger\backlogger.cpp">
+      <Filter>Module\Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\offset_allocator.cpp">
+      <Filter>Module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_demo.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_draw.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_impl_sdl3.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_tables.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\imgui_widgets.cpp">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3.cpp">
+      <Filter>Thirdparty\Imgui\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\imgui\vk\imgui_impl_vulkan.cpp">
+      <Filter>Thirdparty\Imgui\vk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\job_system.cpp">
+      <Filter>Module\util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lapi.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lauxlib.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lcode.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lctype.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ldebug.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ldo.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lfunc.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lgc.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ljumptab.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\llex.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\llimits.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lmem.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lobject.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lopcodes.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lopnames.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lparser.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lprefix.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lstate.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lstring.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ltable.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\ltm.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lua.hpp">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\luaconf.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lualib.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lundump.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lvm.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Lua\lzio.h">
+      <Filter>Thirdparty\Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Luaer\plua.h">
+      <Filter>Module\Luaer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Core\core_include.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Luaer\lua_global.h">
+      <Filter>Module\Luaer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Filer\file_helper.h">
+      <Filter>Module\Filer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Core\platform.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\container\pvector.h">
+      <Filter>Module\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Logger\backlogger.h">
+      <Filter>Module\Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Luaer\pluna.h">
+      <Filter>Module\Luaer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Mem\pAllocator.h">
+      <Filter>Module\mem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\offset_allocator.h">
+      <Filter>Module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imconfig.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui_impl_sdl3.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imgui_internal.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_rectpack.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_textedit.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\imstb_truetype.h">
+      <Filter>Thirdparty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3.h">
+      <Filter>Thirdparty\Imgui\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\gl\imgui_impl_opengl3_loader.h">
+      <Filter>Thirdparty\Imgui\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\imgui\vk\imgui_impl_vulkan.h">
+      <Filter>Thirdparty\Imgui\vk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\p_timer.h">
+      <Filter>Module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\spin_lock.h">
+      <Filter>Module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\job_system.h">
+      <Filter>Module\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

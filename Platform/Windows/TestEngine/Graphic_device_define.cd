@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="pf::graphics::GraphicsDevice">
+    <Position X="0.5" Y="0.5" Width="17.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="pf::graphics::GraphicsDevice::MemoryUsage">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graph_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice::GPULinearAllocator">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graph_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="pf::graphics::GraphicsDevice::GPUAllocation">
+        <TypeIdentifier>
+          <NewMemberFileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graph_driver.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>vAibB4Eop5E05nSUGAAmCMXQ5EQgA1tbUQ0AWlZHXpQ=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graph_driver.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="pf::graphics::CommandList">
+    <Position X="19" Y="0.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graph_driver.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="pf::graphics::DescriptorBindingTable">
+    <Position X="23.5" Y="0.5" Width="7" />
+    <TypeIdentifier>
+      <HashCode>AABQEAAgAAAAAAAAAAAAAAAAhAAAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graph_driver.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="pf::graphics::QUEUE_TYPE">
+    <Position X="19" Y="2.75" Width="4" />
+    <TypeIdentifier>
+      <HashCode>BAAAgAAACAAAAAAAAAAAAAAABAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>E:\WorkLearn\FrameWork\PursuitEngine\Engine\Device\graph_driver.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Microsoft YaHei UI" Size="8.88" />
+</ClassDiagram>
