@@ -121,6 +121,12 @@
     <Filter Include="engine\runtime">
       <UniqueIdentifier>{e9f2b3c5-c6c5-44fc-b591-4d667fbe5c94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Component">
+      <UniqueIdentifier>{96290a10-85d2-40da-b551-841d15d40425}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\component">
+      <UniqueIdentifier>{033e0b3c-e1d4-46e3-8609-5994484088fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp">
@@ -356,6 +362,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Engine\Runtime\initializer.cpp">
       <Filter>engine\runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Component\test_component_vk.cpp">
+      <Filter>src\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Component\font.cpp">
+      <Filter>engine\component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -712,6 +724,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Thirdparty\Utility\cpuinfo.hpp">
       <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Component\test_component_vk.h">
+      <Filter>src\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Component\font.h">
+      <Filter>engine\component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Component\rect_packer.h">
+      <Filter>engine\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

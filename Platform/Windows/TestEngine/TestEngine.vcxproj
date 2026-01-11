@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Core\pf_version.cpp" />
+    <ClCompile Include="..\..\..\Engine\Component\font.cpp" />
     <ClCompile Include="..\..\..\Engine\Device\volk_driver.cpp" />
     <ClCompile Include="..\..\..\Engine\Ecore\archive.cpp" />
     <ClCompile Include="..\..\..\Engine\Ecore\audio.cpp" />
@@ -176,6 +177,7 @@
     <ClCompile Include="..\..\..\Module\Util\event_handle.cpp" />
     <ClCompile Include="..\..\..\Module\Util\job_system.cpp" />
     <ClCompile Include="..\..\..\Module\Util\offset_allocator.cpp" />
+    <ClCompile Include="..\..\..\Test\Component\test_component_vk.cpp" />
     <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp" />
     <ClCompile Include="..\..\..\Test\Lua\samples\1.lua_serparam2c_sample.cpp" />
     <ClCompile Include="..\..\..\Test\Lua\samples\2.lua_runfile_sample.cpp" />
@@ -238,6 +240,8 @@
     <ClInclude Include="..\..\..\Core\core_include.h" />
     <ClInclude Include="..\..\..\Core\pf_version.h" />
     <ClInclude Include="..\..\..\Core\platform.h" />
+    <ClInclude Include="..\..\..\Engine\Component\font.h" />
+    <ClInclude Include="..\..\..\Engine\Component\rect_packer.h" />
     <ClInclude Include="..\..\..\Engine\Device\graphic.h" />
     <ClInclude Include="..\..\..\Engine\Device\graph_driver.h" />
     <ClInclude Include="..\..\..\Engine\Device\vulkan_driver.h" />
@@ -293,6 +297,7 @@
     <ClInclude Include="..\..\..\Shader\ShaderInterop_VoxelGrid.h" />
     <ClInclude Include="..\..\..\Shader\ShaderInterop_VXGI.h" />
     <ClInclude Include="..\..\..\Shader\ShaderInterop_Weather.h" />
+    <ClInclude Include="..\..\..\Test\Component\test_component_vk.h" />
     <ClInclude Include="..\..\..\Test\Lua\lua_sample_include.h" />
     <ClInclude Include="..\..\..\Test\Lua\lua_test.h" />
     <ClInclude Include="..\..\..\Test\Lua\samples\1.lua_setparam2c_sample.h" />
