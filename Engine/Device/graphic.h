@@ -717,7 +717,7 @@ namespace pf::graphics {
 
 		struct Memory
 		{
-			const GPUResource* resource;
+			const GPUResource * resource;
 		};
 		struct Image
 		{

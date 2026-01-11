@@ -1041,6 +1041,7 @@ namespace pf::graphics {
 
 			}
 		};
+
 		struct VideoDecoder_Vulkan
 		{
 			std::shared_ptr<GraphicsDevice_Vulkan::AllocationHandler> allocationhandler;
@@ -2318,6 +2319,7 @@ namespace pf::graphics {
 	GraphicsDevice_Vulkan::GraphicsDevice_Vulkan(platform::window_type window, ValidationMode validationMode_, GPUPreference preference)
 	{
 		pf::Timer timer;
+
 		capabilities |= GraphicsDeviceCapability::ALIASING_GENERIC;
 
 		// This functionalty is missing from Vulkan but might be added in the future:
@@ -2809,7 +2811,7 @@ namespace pf::graphics {
 			if (mesh_shader_features.meshShader == VK_TRUE && mesh_shader_features.taskShader == VK_TRUE)
 			{
 				// Disable Vulkan mesh shader for now because it can crash AMD driver just by compiling shader, without any warnings
-				//capabilities |= GraphicsDeviceCapability::MESH_SHADER;
+				capabilities |= GraphicsDeviceCapability::MESH_SHADER;
 			}
 			if (fragment_shading_rate_features.pipelineFragmentShadingRate == VK_TRUE)
 			{

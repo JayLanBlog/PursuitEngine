@@ -202,6 +202,17 @@ namespace pf::math {
 	{
 		return pack_half4(value.x, value.y, value.z, value.w);
 	}
+	inline XMUINT2 pack_half3(float x, float y, float z)
+	{
+		return XMUINT2(
+			(uint32_t)XMConvertFloatToHalf(x) | ((uint32_t)XMConvertFloatToHalf(y) << 16u),
+			(uint32_t)XMConvertFloatToHalf(z)
+		);
+	}
+	inline XMUINT2 pack_half3(const XMFLOAT3& value)
+	{
+		return pack_half3(value.x, value.y, value.z);
+	}
 
 
 	inline uint32_t pack_half2(float x, float y)

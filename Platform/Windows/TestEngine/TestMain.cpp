@@ -6,7 +6,8 @@
 #include "Volk/Samples/test_vulkan_engine.h"
 #include "Shader/shader_compare_test.h"
 #include "Util/util_test_include.h"
-
+#include "Event/test_eventmanager.h"
+#include "Component/test_component_vk.h"
 
 
 int main(int argc, char* argv[]) {
@@ -25,8 +26,11 @@ int main(int argc, char* argv[]) {
 
 	//const XMFLOAT4* data_full =nullptr;
 	//XMHALF4* data_packed = nullptr;
-    test_vulkan_egine();
+    //test_vulkan_egine();
 	//test_shader_compare_test(argc,argv);
 
+	//test_eventmanager();
+	
+	test_component();
 	return 0;
 }
