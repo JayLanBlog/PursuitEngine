@@ -132,6 +132,15 @@ namespace pf{
 
 
 		//bool saveTextureToMemoryFile(const vector<uint8_t>& texturedata, const graphics::TextureDesc& desc, const std::string& fileExtension, vector<uint8_t>& filedata);
-		//
+		
+		struct MemoryUsage
+		{
+			uint64_t total_physical = 0;	// size of physical memory on whole system (in bytes)
+			uint64_t total_virtual = 0;		// size of virtual address space on whole system (in bytes)
+			uint64_t process_physical = 0;	// size of currently committed physical memory by application (in bytes)
+			uint64_t process_virtual = 0;	// size of currently mapped virtual memory by application (in bytes)
+		};
+		MemoryUsage GetMemoryUsage();
+
 	}
 }

@@ -8,7 +8,7 @@
 #include "Util/util_test_include.h"
 #include "Event/test_eventmanager.h"
 #include "Component/test_component_vk.h"
-
+#include "Run/app_run.h"
 
 int main(int argc, char* argv[]) {
 	// Test Lua
@@ -31,6 +31,9 @@ int main(int argc, char* argv[]) {
 
 	//test_eventmanager();
 	
-	test_component();
+	//test_component();
+
+	pf::arun::TLauncher luancher;
+	luancher.run();
 	return 0;
 }

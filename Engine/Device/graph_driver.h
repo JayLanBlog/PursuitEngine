@@ -176,8 +176,6 @@ namespace pf::graphics {
 		virtual void SparseUpdate(QUEUE_TYPE queue, const SparseUpdateCommand* commands, uint32_t command_count) {
 		
 		};
-
-
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Command List functions are below:
 		//	- These are used to record rendering commands to a CommandList

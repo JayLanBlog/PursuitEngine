@@ -127,6 +127,15 @@
     <Filter Include="engine\component">
       <UniqueIdentifier>{033e0b3c-e1d4-46e3-8609-5994484088fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="iexporter">
+      <UniqueIdentifier>{e163e7f9-4aea-480f-8114-48f78933eb27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Profiler">
+      <UniqueIdentifier>{438db4cc-7ec1-4759-a5ee-e06af84beda4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Run">
+      <UniqueIdentifier>{0a4eec4d-d9be-469d-8e93-643b615fcf30}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp">
@@ -368,6 +377,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Engine\Component\font.cpp">
       <Filter>engine\component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\profiler.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Profiler\test_profiler.cpp">
+      <Filter>src\Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Run\app_run.cpp">
+      <Filter>src\Run</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -733,6 +751,54 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\Component\rect_packer.h">
       <Filter>engine\component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\profiler.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\core.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\engine.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\engine_component.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\engine_device.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\engine_core.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module_file.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module_container.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module_lua.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module_log.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module_mem.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module_math.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IExporter\module_util.h">
+      <Filter>iexporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Profiler\test_profiler.h">
+      <Filter>src\Profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Run\app_run.h">
+      <Filter>src\Run</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

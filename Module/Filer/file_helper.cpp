@@ -1230,5 +1230,82 @@ namespace pf {
 				}
 			}
 		}
+
+
+
+		MemoryUsage GetMemoryUsage()
+		{
+			MemoryUsage mem;
+#if defined(_WIN32)
+			// https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+			MEMORYSTATUSEX memInfo = {};
+			memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+			BOOL ret = GlobalMemoryStatusEx(&memInfo);
+			assert(ret);
+			mem.total_physical = memInfo.ullTotalPhys;
+			mem.total_virtual = memInfo.ullTotalVirtual;
+
+			PROCESS_MEMORY_COUNTERS_EX pmc = {};
+			GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+			mem.process_physical = pmc.WorkingSetSize;
+			mem.process_virtual = pmc.PrivateUsage;
+#elif defined(__FREEBSD__)
+			static uint64_t phys_mem = 0;
+			static uint64_t swap_mem = 0;
+			size_t sysctl_buf_s;
+			int page_size = getpagesize();
+			if (phys_mem == 0)
+			{
+				int phys_mem_name[] = { CTL_HW, HW_PHYSMEM };
+				sysctl_buf_s = sizeof(phys_mem);
+				sysctl(phys_mem_name, 2, &phys_mem, &sysctl_buf_s, NULL, 0);
+				kvm_t* kvm;
+				if ((kvm = kvm_open(NULL, "/dev/null", "/dev/null", O_RDONLY, "GetMemoryUsage")) != NULL)
+				{
+					struct kvm_swap swap;
+					if (kvm_getswapinfo(kvm, &swap, 1, 0) == 0)
+						swap_mem = swap.ksw_total * page_size;
+					kvm_close(kvm);
+				}
+			}
+			mem.total_physical = phys_mem;
+			mem.total_virtual = swap_mem;
+			struct kinfo_proc kinfo;
+			int proc_name[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
+			sysctl_buf_s = sizeof(struct kinfo_proc);
+			if (sysctl(proc_name, 4, &kinfo, &sysctl_buf_s, NULL, 0) == 0)
+			{
+				mem.process_physical = kinfo.ki_rssize * page_size;
+			}
+#elif defined(PLATFORM_LINUX)
+			struct sysinfo info;
+			constexpr int PAGE_SIZE = 4096;
+			if (sysinfo(&info) == 0)
+			{
+				unsigned long phys = info.totalram - info.totalswap;
+				mem.total_physical = phys * info.mem_unit;
+				mem.total_virtual = info.totalswap * info.mem_unit;
+			}
+			unsigned long l;
+			std::ifstream statm("/proc/self/statm");
+			// Format of statm:
+			// size resident shared trs lrs drs dt
+			// see linux Documentation/filesystems/proc.rst
+
+			// we want "resident", the second number, so just read the first one
+			// and discard it
+			statm >> l;
+			statm >> l;
+			mem.process_physical = l * PAGE_SIZE;
+			// there doesn't seem to be an easy way to determine
+			// swapped out memory
+#elif defined(PLATFORM_PS5)
+			wi::graphics::GraphicsDevice::MemoryUsage gpumem = wi::graphics::GetDevice()->GetMemoryUsage();
+			mem.process_physical = mem.total_physical = gpumem.budget;
+			mem.process_virtual = mem.total_virtual = gpumem.usage;
+#endif // defined(_WIN32)
+			return mem;
+		}
+
 	}
 }

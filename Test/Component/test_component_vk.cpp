@@ -178,6 +178,5 @@ void startmain_componet() {
 
 int test_component() {
 	startmain_componet();
-
 	return 0;
 }
