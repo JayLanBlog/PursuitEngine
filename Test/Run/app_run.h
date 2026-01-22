@@ -17,6 +17,8 @@ namespace pf::arun {
 		Texture splash_screen_c;
 
 		Canvas canvas_c;
+		Canvas canvas_p;
+		
 		int screenW_c = 1920;
 		int screenH_c = 1080;
 		int imageW_c = 1000;

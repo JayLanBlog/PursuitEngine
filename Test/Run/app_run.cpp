@@ -17,7 +17,9 @@ namespace pf::arun {
 	 
 		canvas_c.init(imageW_c, imageH_c);
 
-		font::SetCanvas(canvas_c);
+		canvas_p.init(imageW_c / 2.0, imageH_c / 2.0);
+
+		
 
 		SwapChainDesc desc = swapChain_c.desc;
 		if (!swapChain_c.IsValid())
@@ -35,12 +37,13 @@ namespace pf::arun {
 		}
 
 		desc.width = canvas_c.GetLogicalWidth();
-		desc.height = canvas_c.GetPhysicalHeight();
+		desc.height = canvas_c.GetLogicalHeight();
 		desc.allow_hdr = allow_hdr_c;
 		bool success = graphicsDevice_c->CreateSwapChain(&desc, window_c, &swapChain_c);
 		assert(success);
 		pf::image::Initialize();
 		pf::font::Initialize();
+		pf::renderer::Initialize();
 		pf::profiler::SetEnabled(true);
 		infodisplay_str_c = "Hello Test Engine";
 
@@ -52,7 +55,7 @@ namespace pf::arun {
 			isInitialize_c = true;
 		}
 		font::UpdateAtlas(canvas_c.GetDPIScaling());
-
+		
 		rendertargetPreHDR10_c = {};
 		ColorSpace colorspace = graphicsDevice_c->GetSwapChainColorSpace(&swapChain_c);
 		if (!rendertargetPreHDR10_c.IsValid()) {
@@ -71,11 +74,12 @@ namespace pf::arun {
 			assert(success);
 			graphicsDevice_c->SetName(&rendertargetPreHDR10_c, "Application::rendertargetPreHDR10");
 		}
-
+		profiler::BeginFrame();
 		CommandList cmd = graphicsDevice_c->BeginCommandList();
 
 //		auto range = pf::profiler::BeginRangeGPU("TLauncher render", cmd);
-		auto range = pf::profiler::BeginRangeCPU("Compose");
+	//	profiler::BeginFrame();
+		//auto range = pf::profiler::BeginRangeCPU("Compose");
 
 		splash_screen_c = {}; // splash screen no longer needed after initialization, it is deleted
 
@@ -99,25 +103,37 @@ namespace pf::arun {
 			Color::White(),
 			Color::Shadow()
 		);
+		font::SetCanvas(canvas_c);
 		params.shadow_softness = 0.4f;
 		params.cursor = pf::font::Draw(infodisplay_str_c, params, cmd);
 
+		profiler::DrawData(canvas_p, 4, 10, cmd, colorspace);
+
 		//Draw Font
 		graphicsDevice_c->RenderPassEnd(cmd);
+		
+		//profiler::DrawData(canvas_c, 4, 10, cmd, colorspace);
 
-		profiler::DrawData(canvas_c, 4, 10, cmd, colorspace);
+		//pf::profiler::EndRange(range); // BVH rebuild
 
-		pf::profiler::EndRange(range); // BVH rebuild
-		// In HDR10, we perform a final mapping from linear to HDR10, into the swapchain
+	//	pf::profiler::EndFrame(cmd);
+		// In HDR10, we perform a final mapping from linear to HDR10, into the swapchain4
+		
 		graphicsDevice_c->RenderPassBegin(&swapChain_c, cmd);
+		
 		pf::image::Params fx;
 		fx.enableFullScreen();
 		fx.enableHDR10OutputMapping();
 		pf::image::Draw(&rendertargetPreHDR10_c, fx, cmd);
+
 		graphicsDevice_c->RenderPassEnd(cmd);
 		
 		
+		pf::profiler::EndFrame(cmd);
+	
 		graphicsDevice_c->SubmitCommandLists();
+		//profiler::BeginFrame();
+		//pf::profiler::EndFrame(cmd);
 
 	
 	}

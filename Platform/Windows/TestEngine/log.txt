@@ -1,4 +1,5 @@
-[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (743 ms)
+[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (338 ms)
 Adapter: NVIDIA GeForce RTX 3060 Laptop GPU
-[Info]  draw_image.cpp - 695 :  wi::image Initialized (26 ms)
-[Info]  font.cpp - 355 :  wi::font Initialized (44 ms)
+[Info]  draw_image.cpp - 695 :  wi::image Initialized (12 ms)
+[Info]  font.cpp - 355 :  wi::font Initialized (16 ms)
+[Info]  renderer.cpp - 1688 :  wi::renderer Initialized (1758 ms)
