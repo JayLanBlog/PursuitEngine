@@ -6,3 +6,4 @@
 #include "Module/Util/profiler.h"
 #include "Module/Util/p_timer.h"
 #include "Module/Util/spin_lock.h"
+#include "Module/Util/random.h"

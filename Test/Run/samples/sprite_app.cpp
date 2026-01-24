@@ -1,9 +1,14 @@
-#include "app_run.h"
+#include "sprite_app.h"
 #include "Module/Util/profiler.h"
 
 namespace pf::arun {
-	
-	void TLauncher::intialize() {
+	void SpriteLauncher::spriteinit() {
+		sprite.params.color = Color::Booger();
+		sprite.params.blendFlag = enums::BLENDMODE_OPAQUE;
+		sprite.params.enableBackground();
+	}
+
+	void SpriteLauncher::intialize() {
 		// SDL3 建议只初始化真正需要的子系统
 		if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 			// SDL3 中返回 false 表示失败
@@ -11,11 +16,11 @@ namespace pf::arun {
 		}
 		pf::graphics::GetDevice() = graphicsDevice_c.get();
 		//	canvas.init(window);
-	 
-		canvas_c.init(imageW_c,imageH_c);
-		canvas_p.init(imageW_c / 2.0,imageH_c / 2.0);
+
+		canvas_c.init(imageW_c, imageH_c);
+		canvas_p.init(imageW_c / 2.0, imageH_c / 2.0);
 		SwapChainDesc desc = swapChain_c.desc;
-		
+
 		if (!swapChain_c.IsValid())
 		{
 			// initialize for the first time
@@ -40,15 +45,17 @@ namespace pf::arun {
 		pf::renderer::Initialize();
 		pf::profiler::SetEnabled(true);
 		infodisplay_str_c = "Hello Test Engine";
+		//spriteinit();
 	}
-
-	void TLauncher::render() {
+	
+	void SpriteLauncher::render() {
 		if (!isInitialize_c) {
 			intialize();
 			isInitialize_c = true;
 		}
 		font::UpdateAtlas(canvas_c.GetDPIScaling());
-		
+		//sprite.Update(canvas_c.GetDPIScaling());
+
 		rendertargetPreHDR10_c = {};
 		ColorSpace colorspace = graphicsDevice_c->GetSwapChainColorSpace(&swapChain_c);
 		if (!rendertargetPreHDR10_c.IsValid()) {
@@ -67,23 +74,20 @@ namespace pf::arun {
 			assert(success);
 			graphicsDevice_c->SetName(&rendertargetPreHDR10_c, "Application::rendertargetPreHDR10");
 		}
-
 		profiler::BeginFrame();
 		CommandList cmd = graphicsDevice_c->BeginCommandList();
 		//auto range = pf::profiler::BeginRangeGPU("TLauncher render", cmd);
 		//profiler::BeginFrame();
 		//auto range = pf::profiler::BeginRangeCPU("Compose");
-		splash_screen_c = {}; 
-	
+		splash_screen_c = {};
 		// splash screen no longer needed after initialization, it is deleted
 		//static bool startup_script = false;
-
 		Viewport viewport;
 		viewport.width = (float)swapChain_c.desc.width;
 		viewport.height = (float)swapChain_c.desc.height;
 		graphicsDevice_c->BindViewports(1, &viewport, cmd);
 		graphicsDevice_c->RenderPassBegin(&rendertargetPreHDR10_c, cmd, true);
-		
+
 		font::Params params = font::Params(
 			4 + canvas_c.PhysicalToLogical((uint32_t)rect.left),
 			4 + canvas_c.PhysicalToLogical((uint32_t)rect.top),
@@ -97,8 +101,10 @@ namespace pf::arun {
 		font::SetCanvas(canvas_c);
 		params.shadow_softness = 0.4f;
 		params.cursor = pf::font::Draw(infodisplay_str_c, params, cmd);
-		profiler::DrawData(canvas_p, 4, 10, cmd, colorspace);	
-
+	
+		//sprite.Draw(cmd);
+		profiler::DrawData(canvas_p, 4, 10, cmd, colorspace);
+		
 		//Draw Font
 		graphicsDevice_c->RenderPassEnd(cmd);
 		//profiler::DrawData(canvas_c, 4, 10, cmd, colorspace);
@@ -115,37 +121,6 @@ namespace pf::arun {
 		pf::profiler::EndFrame(cmd);
 		graphicsDevice_c->SubmitCommandLists();
 
-		// profiler::BeginFrame();		
-		// pf::profiler::EndFrame(cmd); 
 	}
 
-	void TLauncher::run() {
-		SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_HIDDEN);
-		window_c = SDL_CreateWindow("Test Pursuit example", screenW_c, screenH_c, window_flags);
-		graphicsDevice_c = std::make_unique<GraphicsDevice_Vulkan>(window_c, ValidationMode::Enabled, GPUPreference::Discrete);
-		pf::graphics::GetDevice() = graphicsDevice_c.get();
-		SDL_ShowWindow(window_c);
-
-		bool quit = false;
-		while (!quit) {
-			render();
-			SDL_Event event;
-
-			while (SDL_PollEvent(&event)) {
-				switch (event.type) {
-				case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-					quit = true;
-					break;
-				case SDL_EVENT_WINDOW_RESIZED:
-					break;
-				case SDL_EVENT_WINDOW_FOCUS_LOST:
-					//	tests.is_window_active = false;
-					break;
-				case SDL_EVENT_WINDOW_FOCUS_GAINED:
-					break;
-				}
-			}
-		}
-		SDL_Quit();
-	}
 }

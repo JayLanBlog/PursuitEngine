@@ -71,13 +71,14 @@ namespace pf::profiler {
 			ranges.reserve(100);
 
 			GraphicsDevice* device = pf::graphics::GetDevice();
-
+			
 			GPUQueryHeapDesc desc;
 			desc.type = GpuQueryType::TIMESTAMP;
 			desc.query_count = 1024;
+
 			bool success = device->CreateQueryHeap(&desc, &queryHeap);
 			assert(success);
-
+			
 			GPUBufferDesc bd;
 			bd.usage = Usage::READBACK;
 			bd.size = desc.query_count * sizeof(uint64_t);
@@ -189,7 +190,7 @@ namespace pf::profiler {
 #endif // PERFORMANCEAPI_ENABLED
 
 		range_id id = pf::helper::string_hash(name);
-
+		
 		lock.lock();
 
 		// If one range name is hit multiple times, differentiate between them!
@@ -203,7 +204,6 @@ namespace pf::profiler {
 		ranges[id].cpuTimer.record();
 
 		lock.unlock();
-
 		return id;
 	}
 	range_id BeginRangeGPU(const char* name, CommandList cmd)
@@ -212,9 +212,7 @@ namespace pf::profiler {
 			return 0;
 
 		range_id id = pf::helper::string_hash(name);
-
 		lock.lock();
-
 		// If one range name is hit multiple times, differentiate between them!
 		size_t differentiator = 0;
 		while (ranges[id].in_use)
@@ -394,10 +392,8 @@ namespace pf::profiler {
 			params.enableLinearOutputMapping(9);
 			fx.enableLinearOutputMapping(9);
 		}
-
 		pf::image::Draw(nullptr, fx, cmd);
 		pf::font::Draw(ss.str(), params, cmd);
-
 
 		// Graph:
 		{

@@ -136,6 +136,9 @@
     <Filter Include="src\Run">
       <UniqueIdentifier>{0a4eec4d-d9be-469d-8e93-643b615fcf30}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Run\samples">
+      <UniqueIdentifier>{fd40f9d9-bd1b-4979-9950-6fad0b1b0fe2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp">
@@ -386,6 +389,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Test\Run\app_run.cpp">
       <Filter>src\Run</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\sprite.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\random.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Run\samples\sprite_app.cpp">
+      <Filter>src\Run\samples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -799,6 +811,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Test\Run\app_run.h">
       <Filter>src\Run</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\sprite.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\random.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Run\samples\sprite_app.h">
+      <Filter>src\Run\samples</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
