@@ -1,7 +1,7 @@
-[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (828 ms)
+[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (380 ms)
 Adapter: NVIDIA GeForce RTX 3060 Laptop GPU
-[Info]  draw_image.cpp - 695 :  wi::image Initialized (33 ms)
-[Info]  font.cpp - 355 :  wi::font Initialized (39 ms)
+[Info]  draw_image.cpp - 695 :  wi::image Initialized (28 ms)
+[Info]  font.cpp - 355 :  wi::font Initialized (18 ms)
 [Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
 [Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
 [Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
@@ -62,4 +62,4 @@ Adapter: NVIDIA GeForce RTX 3060 Laptop GPU
 [Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
 [Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
 [Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
-[Info]  renderer.cpp - 2235 :  pf::renderer Initialized (18955 ms)
+[Info]  renderer.cpp - 2235 :  pf::renderer Initialized (8251 ms)

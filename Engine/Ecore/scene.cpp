@@ -4,7 +4,7 @@
 #include "renderer.h"
 #include "helper.h"
 #include "module.h"
-
+#include "module_util.h"
 #include "Shader/ShaderInterop_SurfelGI.h"
 #include "Shader/ShaderInterop_DDGI.h"
 
@@ -29,15 +29,12 @@ namespace pf::scene {
 		cpu_gpu_mapped_resource_index = GetDevice()->GetBufferIndex(); // this is now saved so that the renderer knows the last resource index that the scene was updated with
 		this->dt = dt;
 		time += dt;
-
 		pf::jobsystem::context ctx;
-
 		UpdateHumanoidFacings();
-
 		// Script system runs first, because it could create new entities and components
 		//	So GPU persistent resources need to be created accordingly for them too:
 		RunScriptUpdateSystem(ctx);
-
+		
 		RunSplineUpdateSystem(ctx);
 
 		ScanAnimationDependencies();
@@ -46,13 +43,16 @@ namespace pf::scene {
 		if (dt > 0)
 		{
 			// Because this also spawns render tasks, this must not be during dt == 0 (eg. background loading)
-	/*	TO DO:	for (size_t i = 0; i < terrains.GetCount(); ++i)
+		/*	
+			//TO DO:	
+			for (size_t i = 0; i < terrains.GetCount(); ++i)
 			{
 				pf::terrain::Terrain& terrain = terrains[i];
 				terrain.terrainEntity = terrains.GetEntity(i);
 				terrain.scene = this;
 				terrain.Generation_Update(camera);
-			}*/
+			}
+			*/
 		}
 
 		// count colliders in background thread before procedural anim system
@@ -194,10 +194,8 @@ namespace pf::scene {
 					device->SetName(&queryPredicationBuffer, "Scene::queryPredicationBuffer");
 				}
 			}
-
 			// Advance to next query result buffer to use (this will be the oldest one that was written)
 			queryheap_idx = cpu_gpu_mapped_resource_index;
-
 			// Clear query allocation state:
 			queryAllocator.store(0);
 		}
@@ -244,7 +242,7 @@ namespace pf::scene {
 
 		RunAnimationUpdateSystem(ctx);
 
-	//TO DO : pf::physics::RunPhysicsUpdateSystem(ctx, *this, dt);
+		//TO DO : pf::physics::RunPhysicsUpdateSystem(ctx, *this, dt);
 
 		RunTransformUpdateSystem(ctx);
 

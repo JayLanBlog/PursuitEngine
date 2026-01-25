@@ -10,7 +10,6 @@
 #include "Component/test_component_vk.h"
 #include "Run/app_run.h"
 #include "Run/samples/sprite_app.h"
-#include "Engine/Ecore/scene_component.h"
 
 int main(int argc, char* argv[]) {
 	// Test Lua
@@ -30,11 +29,8 @@ int main(int argc, char* argv[]) {
 	//XMHALF4* data_packed = nullptr;
     //test_vulkan_egine();
 	//test_shader_compare_test(argc,argv);
-
 	//test_eventmanager();
-	
 	//test_component();
-
 	//pf::arun::TLauncher luancher;
 	//luancher.run();
 	

@@ -1,5 +1,6 @@
 #include "app_run.h"
 #include "Module/Util/profiler.h"
+#include <Engine/Ecore/renderer.h>
 
 namespace pf::arun {
 	

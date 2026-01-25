@@ -1,5 +1,6 @@
 #pragma once
-#include "engine_core.h"
+#include "Engine/Ecore/canvas.h"
+#include "Engine/Ecore/color.h"
 #include "engine_device.h"
 
 
