@@ -630,17 +630,15 @@ namespace pf::audio {
 			auto instanceinternal = to_internal(instance);
 
 			X3DAUDIO_LISTENER listener = {};
-			/*
-			TO DO:
+			
+			
 			listener.Position = instance3D.listenerPos;
 			listener.OrientFront = instance3D.listenerFront;
 			listener.OrientTop = instance3D.listenerUp;
 			listener.Velocity = instance3D.listenerVelocity;
-			*/
+			
 
 			X3DAUDIO_EMITTER emitter = {};
-			/*
-			TO DO:
 			emitter.Position = instance3D.emitterPos;
 			emitter.OrientFront = instance3D.emitterFront;
 			emitter.OrientTop = instance3D.emitterUp;
@@ -652,7 +650,6 @@ namespace pf::audio {
 			emitter.ChannelRadius = 0.1f;
 			emitter.CurveDistanceScaler = 1;
 			emitter.DopplerScaler = 1;
-			*/
 
 			UINT32 flags = 0;
 			flags |= X3DAUDIO_CALCULATE_MATRIX;
@@ -660,10 +657,10 @@ namespace pf::audio {
 			flags |= X3DAUDIO_CALCULATE_REVERB;
 			flags |= X3DAUDIO_CALCULATE_LPF_REVERB;
 			flags |= X3DAUDIO_CALCULATE_DOPPLER;
-			//flags |= X3DAUDIO_CALCULATE_DELAY;
-			//flags |= X3DAUDIO_CALCULATE_EMITTER_ANGLE;
-			//flags |= X3DAUDIO_CALCULATE_ZEROCENTER;
-			//flags |= X3DAUDIO_CALCULATE_REDIRECT_TO_LFE;
+			flags |= X3DAUDIO_CALCULATE_DELAY;
+			flags |= X3DAUDIO_CALCULATE_EMITTER_ANGLE;
+			flags |= X3DAUDIO_CALCULATE_ZEROCENTER;
+			flags |= X3DAUDIO_CALCULATE_REDIRECT_TO_LFE;
 
 			X3DAUDIO_DSP_SETTINGS settings = {};
 			settings.SrcChannelCount = instanceinternal->voiceDetails.InputChannels;

@@ -97,9 +97,6 @@
     <Filter Include="src\volk\samples">
       <UniqueIdentifier>{04a84ddf-edc3-4cd4-976d-ee12f8f6ed7f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\scene">
-      <UniqueIdentifier>{3dbba499-15e6-4964-b11b-6de7035b3494}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\ecore">
       <UniqueIdentifier>{22bb2e82-eeff-410d-95ed-5ddf519918cf}</UniqueIdentifier>
     </Filter>
@@ -138,6 +135,9 @@
     </Filter>
     <Filter Include="src\Run\samples">
       <UniqueIdentifier>{fd40f9d9-bd1b-4979-9950-6fad0b1b0fe2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thirdparty\Utility\meshoptimizer">
+      <UniqueIdentifier>{939ad0cb-f6cd-44aa-9ea2-dd98a66432b8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -398,6 +398,75 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Test\Run\samples\sprite_app.cpp">
       <Filter>src\Run\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\scene_component.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\mikktspace.c">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\allocator.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\clusterizer.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\indexanalyzer.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\indexcodec.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\indexgenerator.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\overdrawoptimizer.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\partition.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\quantization.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\rasterizer.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\simplifier.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\spatialorder.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\stripifier.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\vcacheoptimizer.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\vertexcodec.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\vertexfilter.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\meshoptimizer\vfetchoptimizer.cpp">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\helper.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Component\sprite_font.cpp">
+      <Filter>engine\component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\scene.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\samplerBlueNoiseErrorDistribution_128x128_OptimizedFor_2d2d2d2d_1spp.cpp">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\scene_serializers.cpp">
+      <Filter>engine\ecore</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -820,6 +889,45 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Test\Run\samples\sprite_app.h">
       <Filter>src\Run\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\scene_component.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\scene_decl.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\ocean.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\bvh.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\mikktspace.h">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\meshoptimizer\meshoptimizer.h">
+      <Filter>Thirdparty\Utility\meshoptimizer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\sheen_lut.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\helper.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Component\sprite_font.h">
+      <Filter>engine\component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\scene.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\noise.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\logo.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\waterripple.h">
+      <Filter>engine\ecore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

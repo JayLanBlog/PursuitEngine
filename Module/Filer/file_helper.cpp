@@ -195,6 +195,7 @@ namespace pf {
 			return false;
 		}
 
+
 		bool FileExists(const std::string& fileName){
 			bool exists = std::filesystem::exists(ToNativeString(fileName));
 			//std::filesystem::exists(ToNativeString(fileName));
@@ -519,6 +520,29 @@ namespace pf {
 			dst_data.resize(res);
 			res = ZSTD_decompress(dst_data.data(), dst_data.size(), src_data, src_size);
 			return ZSTD_isError(res) == 0;
+		}
+
+		std::string GetMemorySizeText(size_t sizeInBytes)
+		{
+			std::stringstream ss;
+			ss << std::fixed << std::setprecision(1);
+			if (sizeInBytes >= 1024ull * 1024ull * 1024ull)
+			{
+				ss << (double)sizeInBytes / 1024.0 / 1024.0 / 1024.0 << " GB";
+			}
+			else if (sizeInBytes >= 1024ull * 1024ull)
+			{
+				ss << (double)sizeInBytes / 1024.0 / 1024.0 << " MB";
+			}
+			else if (sizeInBytes >= 1024ull)
+			{
+				ss << (double)sizeInBytes / 1024.0 << " KB";
+			}
+			else
+			{
+				ss << sizeInBytes << " bytes";
+			}
+			return ss.str();
 		}
 
 

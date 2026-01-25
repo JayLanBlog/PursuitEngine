@@ -1,0 +1,678 @@
+#pragma once
+
+#include "engine_core.h"
+#include "module_util.h"
+#include "sprite.h"
+#include "engine_component.h"
+#include "ecs.h"
+#include "bvh.h"
+#include "module_container.h"
+#include "scene_component.h"
+#include <string>
+#include <memory>
+
+
+namespace pf::scene {
+	struct Scene
+	{
+		virtual ~Scene() = default;
+
+		pf::ecs::ComponentLibrary componentLibrary;
+
+		pf::ecs::ComponentManager<NameComponent>& names = componentLibrary.Register<NameComponent>("pf::scene::Scene::names");
+		pf::ecs::ComponentManager<LayerComponent>& layers = componentLibrary.Register<LayerComponent>("pf::scene::Scene::layers");
+		pf::ecs::ComponentManager<TransformComponent>& transforms = componentLibrary.Register<TransformComponent>("pf::scene::Scene::transforms");
+		pf::ecs::ComponentManager<HierarchyComponent>& hierarchy = componentLibrary.Register<HierarchyComponent>("pf::scene::Scene::hierarchy");
+		pf::ecs::ComponentManager<MaterialComponent>& materials = componentLibrary.Register<MaterialComponent>("pf::scene::Scene::materials", 11); // version = 11
+		pf::ecs::ComponentManager<MeshComponent>& meshes = componentLibrary.Register<MeshComponent>("pf::scene::Scene::meshes", 4); // version = 4
+		pf::ecs::ComponentManager<ImpostorComponent>& impostors = componentLibrary.Register<ImpostorComponent>("pf::scene::Scene::impostors");
+		pf::ecs::ComponentManager<ObjectComponent>& objects = componentLibrary.Register<ObjectComponent>("pf::scene::Scene::objects", 4); // version = 4
+		pf::ecs::ComponentManager<RigidBodyPhysicsComponent>& rigidbodies = componentLibrary.Register<RigidBodyPhysicsComponent>("pf::scene::Scene::rigidbodies", 6); // version = 6
+		pf::ecs::ComponentManager<SoftBodyPhysicsComponent>& softbodies = componentLibrary.Register<SoftBodyPhysicsComponent>("pf::scene::Scene::softbodies", 3); // version = 3
+		pf::ecs::ComponentManager<ArmatureComponent>& armatures = componentLibrary.Register<ArmatureComponent>("pf::scene::Scene::armatures");
+		pf::ecs::ComponentManager<LightComponent>& lights = componentLibrary.Register<LightComponent>("pf::scene::Scene::lights", 5); // version = 5
+		pf::ecs::ComponentManager<CameraComponent>& cameras = componentLibrary.Register<CameraComponent>("pf::scene::Scene::cameras", 2); // version = 2
+		pf::ecs::ComponentManager<EnvironmentProbeComponent>& probes = componentLibrary.Register<EnvironmentProbeComponent>("pf::scene::Scene::probes", 1); // version = 1
+		pf::ecs::ComponentManager<ForceFieldComponent>& forces = componentLibrary.Register<ForceFieldComponent>("pf::scene::Scene::forces", 1); // version = 1
+		pf::ecs::ComponentManager<DecalComponent>& decals = componentLibrary.Register<DecalComponent>("pf::scene::Scene::decals", 1); // version = 1
+		pf::ecs::ComponentManager<AnimationComponent>& animations = componentLibrary.Register<AnimationComponent>("pf::scene::Scene::animations", 2); // version = 2
+		pf::ecs::ComponentManager<AnimationDataComponent>& animation_datas = componentLibrary.Register<AnimationDataComponent>("pf::scene::Scene::animation_datas");
+		//TO DO :pf::ecs::ComponentManager<EmittedParticleSystem>& emitters = componentLibrary.Register<EmittedParticleSystem>("pf::scene::Scene::emitters", 2); // version = 2
+		//TO DO :pf::ecs::ComponentManager<HairParticleSystem>& hairs = componentLibrary.Register<HairParticleSystem>("pf::scene::Scene::hairs", 3); // version = 3
+		pf::ecs::ComponentManager<WeatherComponent>& weathers = componentLibrary.Register<WeatherComponent>("pf::scene::Scene::weathers", 6); // version = 6
+		pf::ecs::ComponentManager<SoundComponent>& sounds = componentLibrary.Register<SoundComponent>("pf::scene::Scene::sounds", 1); // version = 1
+		pf::ecs::ComponentManager<VideoComponent>& videos = componentLibrary.Register<VideoComponent>("pf::scene::Scene::videos", 1); // version = 1
+		pf::ecs::ComponentManager<InverseKinematicsComponent>& inverse_kinematics = componentLibrary.Register<InverseKinematicsComponent>("pf::scene::Scene::inverse_kinematics");
+		pf::ecs::ComponentManager<SpringComponent>& springs = componentLibrary.Register<SpringComponent>("pf::scene::Scene::springs", 1); // version = 1
+		pf::ecs::ComponentManager<ColliderComponent>& colliders = componentLibrary.Register<ColliderComponent>("pf::scene::Scene::colliders", 2); // version = 2
+		pf::ecs::ComponentManager<ScriptComponent>& scripts = componentLibrary.Register<ScriptComponent>("pf::scene::Scene::scripts");
+		pf::ecs::ComponentManager<ExpressionComponent>& expressions = componentLibrary.Register<ExpressionComponent>("pf::scene::Scene::expressions");
+		pf::ecs::ComponentManager<HumanoidComponent>& humanoids = componentLibrary.Register<HumanoidComponent>("pf::scene::Scene::humanoids", 3); // version = 3
+		//TO DO :pf::ecs::ComponentManager<pf::terrain::Terrain>& terrains = componentLibrary.Register<pf::terrain::Terrain>("pf::scene::Scene::terrains", 5); // version = 5
+		pf::ecs::ComponentManager<pf::Sprite>& sprites = componentLibrary.Register<pf::Sprite>("pf::scene::Scene::sprites", 2); // version = 2
+		pf::ecs::ComponentManager<pf::SpriteFont>& fonts = componentLibrary.Register<pf::SpriteFont>("pf::scene::Scene::fonts");
+		//TO DO :pf::ecs::ComponentManager<pf::VoxelGrid>& voxel_grids = componentLibrary.Register<pf::VoxelGrid>("pf::scene::Scene::voxel_grids");
+		pf::ecs::ComponentManager<MetadataComponent>& metadatas = componentLibrary.Register<MetadataComponent>("pf::scene::Scene::metadatas");
+		pf::ecs::ComponentManager<CharacterComponent>& characters = componentLibrary.Register<CharacterComponent>("pf::scene::Scene::characters");
+		pf::ecs::ComponentManager<PhysicsConstraintComponent>& constraints = componentLibrary.Register<PhysicsConstraintComponent>("pf::scene::Scene::constraints", 6); // version = 6
+		pf::ecs::ComponentManager<SplineComponent>& splines = componentLibrary.Register<SplineComponent>("pf::scene::Scene::splines", 2); // version = 2
+
+		// Non-serialized attributes:
+		float dt = 0;
+		enum FLAGS
+		{
+			EMPTY = 0,
+		};
+		uint32_t flags = EMPTY;
+
+		float time = 0;
+		CameraComponent camera; // for LOD and 3D sound update
+		std::shared_ptr<void> physics_scene;
+		pf::SpinLock locker;
+		pf::primitive::AABB bounds;
+		pf::vector<pf::primitive::AABB> parallel_bounds;
+		WeatherComponent weather;
+		pf::graphics::RaytracingAccelerationStructure TLAS;
+		pf::graphics::GPUBuffer TLAS_instancesUpload[pf::graphics::GraphicsDevice::GetBufferCount()];
+		void* TLAS_instancesMapped = nullptr;
+		//TO DO :	pf::GPUBVH BVH; // this is for non-hardware accelerated raytracing
+		mutable bool acceleration_structure_update_requested = false;
+		void SetAccelerationStructureUpdateRequested(bool value = true) { acceleration_structure_update_requested = value; }
+		bool IsAccelerationStructureUpdateRequested() const { return acceleration_structure_update_requested; }
+		bool IsLightmapUpdateRequested() const { return lightmap_request_allocator.load() > 0; }
+		pf::Archive optimized_instatiation_data;
+		pf::vector<pf::primitive::Capsule> character_capsules;
+		pf::vector<pf::primitive::Sphere> character_dedicated_shadows;
+		pf::unordered_map<pf::ecs::Entity, pf::vector<pf::ecs::Entity>> topdown_hierarchy; // managed by BuildTopDownHierarchy() in every Update(), allows parent->children traversal
+		pf::jobsystem::context topdown_hierarchy_workload;
+		uint32_t cpu_gpu_mapped_resource_index = 0;
+
+		// AABB culling streams:
+		pf::vector<pf::primitive::AABB> aabb_objects;
+		pf::vector<pf::primitive::AABB> aabb_lights;
+		pf::vector<pf::primitive::AABB> aabb_probes;
+		pf::vector<pf::primitive::AABB> aabb_decals;
+		pf::vector<pf::primitive::AABB> aabb_fonts;
+
+		// Separate stream of world matrices:
+		pf::vector<XMFLOAT4X4> matrix_objects;
+		pf::vector<XMFLOAT4X4> matrix_objects_prev;
+
+		// Shader visible scene parameters:
+		ShaderScene shaderscene;
+
+		// Instances for bindless visiblity indexing:
+		//	contains in order:
+		//		1) objects
+		//		2) hair particles
+		//		3) emitted particles
+		//		4) impostors
+		pf::graphics::GPUBuffer instanceUploadBuffer[pf::graphics::GraphicsDevice::GetBufferCount()];
+		ShaderMeshInstance* instanceArrayMapped = nullptr;
+		size_t instanceArraySize = 0;
+		pf::graphics::GPUBuffer instanceBuffer;
+
+		// Geometries for bindless visiblity indexing:
+		//	contains in order:
+		//		1) meshes * mesh.subsetCount
+		//		2) hair particles * 1
+		//		3) emitted particles * 1
+		//		4) impostors * 1
+		pf::graphics::GPUBuffer geometryUploadBuffer[pf::graphics::GraphicsDevice::GetBufferCount()];
+		ShaderGeometry* geometryArrayMapped = nullptr;
+		size_t geometryArraySize = 0;
+		pf::graphics::GPUBuffer geometryBuffer;
+		std::atomic<uint32_t> geometryAllocator{ 0 };
+
+		// Materials for bindless visibility indexing:
+		pf::graphics::GPUBuffer materialUploadBuffer[pf::graphics::GraphicsDevice::GetBufferCount()];
+		ShaderMaterial* materialArrayMapped = nullptr;
+		size_t materialArraySize = 0;
+		pf::graphics::GPUBuffer materialBuffer;
+		pf::graphics::GPUBuffer textureStreamingFeedbackBuffer;
+		pf::graphics::GPUBuffer textureStreamingFeedbackBuffer_readback[pf::graphics::GraphicsDevice::GetBufferCount()];
+		const uint32_t* textureStreamingFeedbackMapped = nullptr;
+
+		// Meshlets:
+		pf::graphics::GPUBuffer meshletBuffer;
+		std::atomic<uint32_t> meshletAllocator{ 0 };
+
+		// Skinning GPU data containining all bones, all morph descriptions:
+		pf::graphics::GPUBuffer skinningUploadBuffer[pf::graphics::GraphicsDevice::GetBufferCount()];
+		void* skinningDataMapped = nullptr;
+		size_t skinningDataSize = 0;
+		pf::graphics::GPUBuffer skinningBuffer;
+		std::atomic<uint32_t> skinningAllocator{ 0 };
+
+		// Occlusion query state:
+		struct OcclusionResult
+		{
+			int occlusionQueries[pf::graphics::GraphicsDevice::GetBufferCount()];
+			// occlusion result history bitfield (32 bit->32 frame history)
+			uint32_t occlusionHistory = ~0u;
+
+			constexpr bool IsOccluded() const
+			{
+				// Perform a conservative occlusion test:
+				// If it is visible in any frames in the history, it is determined visible in this frame
+				// But if all queries failed in the history, it is occluded.
+				// If it pops up for a frame after occluded, it is visible again for some frames
+				return occlusionHistory == 0;
+			}
+		};
+		mutable pf::vector<OcclusionResult> occlusion_results_objects;
+		pf::graphics::GPUQueryHeap queryHeap;
+		pf::graphics::GPUBuffer queryResultBuffer[arraysize(OcclusionResult::occlusionQueries)];
+		pf::graphics::GPUBuffer queryPredicationBuffer;
+		uint32_t queryheap_idx = 0;
+		mutable std::atomic<uint32_t> queryAllocator{ 0 };
+
+		// Surfel GI resources:
+		struct SurfelGI
+		{
+			mutable bool cleared = false;
+			pf::graphics::GPUBuffer surfelBuffer;
+			pf::graphics::GPUBuffer dataBuffer;
+			pf::graphics::GPUBuffer varianceBuffer;
+			pf::graphics::GPUBuffer aliveBuffer[2];
+			pf::graphics::GPUBuffer deadBuffer;
+			pf::graphics::GPUBuffer statsBuffer;
+			pf::graphics::GPUBuffer indirectBuffer;
+			pf::graphics::GPUBuffer gridBuffer;
+			pf::graphics::GPUBuffer cellBuffer;
+			pf::graphics::GPUBuffer rayBuffer;
+			pf::graphics::Texture momentsTexture;
+		} surfelgi;
+
+		// DDGI resources:
+		struct DDGI
+		{
+			uint frame_index = 0;
+			uint3 grid_dimensions = uint3(32, 8, 32); // The scene extents will be subdivided into a grid of this resolution, each grid cell will have one probe
+			float3 grid_min = float3(-1, -1, -1);
+			float3 grid_max = float3(1, 1, 1);
+			float smooth_backface = 0.01f; // smoothness of backface test
+			pf::graphics::GPUBuffer ray_buffer;
+			pf::graphics::GPUBuffer variance_buffer;
+			pf::graphics::GPUBuffer raycount_buffer;
+			pf::graphics::GPUBuffer rayallocation_buffer;
+			pf::graphics::GPUBuffer probe_buffer;
+			pf::graphics::Texture depth_texture;
+
+			void Serialize(pf::Archive& archive);
+		} ddgi;
+
+		// Voxel GI resources:
+		struct VXGI
+		{
+			uint32_t res = 64;
+			float rayStepSize = 1;
+			float maxDistance = 100.0f;
+			struct ClipMap
+			{
+				float voxelsize = 0.125;
+				XMFLOAT3 center = XMFLOAT3(0, 0, 0);
+				XMINT3 offsetfromPrevFrame = XMINT3(0, 0, 0);
+				XMFLOAT3 extents = XMFLOAT3(0, 0, 0);
+			} clipmaps[VXGI_CLIPMAP_COUNT];
+			uint32_t clipmap_to_update = 0;
+
+			pf::graphics::Texture radiance;
+			pf::graphics::Texture prev_radiance;
+			pf::graphics::Texture render_atomic;
+			pf::graphics::Texture sdf;
+			pf::graphics::Texture sdf_temp;
+			mutable bool pre_clear = true;
+		} vxgi;
+
+		EnvironmentProbeComponent global_dynamic_probe; // when no envprobes are placed, this will be the fallback
+
+		// Impostor state:
+		static constexpr uint32_t maxImpostorCount = 8;
+		static constexpr uint32_t impostorTextureDim = 128;
+		pf::graphics::Texture impostorDepthStencil;
+		pf::graphics::Texture impostorRenderTarget_Albedo_MSAA;
+		pf::graphics::Texture impostorRenderTarget_Normal_MSAA;
+		pf::graphics::Texture impostorRenderTarget_Surface_MSAA;
+		pf::graphics::Texture impostorRenderTarget_Albedo;
+		pf::graphics::Texture impostorRenderTarget_Normal;
+		pf::graphics::Texture impostorRenderTarget_Surface;
+		pf::graphics::Texture impostorArray;
+		pf::graphics::GPUBuffer impostorBuffer;
+		uint32_t allocated_impostor_capacity = 0;
+		MeshComponent::BufferView impostor_ib32;
+		MeshComponent::BufferView impostor_ib16;
+		MeshComponent::BufferView impostor_vb_pos;
+		MeshComponent::BufferView impostor_vb_nor;
+		MeshComponent::BufferView impostor_data;
+		MeshComponent::BufferView impostor_indirect;
+		pf::graphics::Format impostor_ib_format = pf::graphics::Format::R32_UINT;
+		uint32_t impostorInstanceOffset = ~0u;
+		uint32_t impostorGeometryOffset = ~0u;
+		uint32_t impostorMaterialOffset = ~0u;
+
+		//TO DO : pf::EmittedParticleSystem rainEmitter;
+		MaterialComponent rainMaterial;
+		uint32_t rainInstanceOffset = ~0u;
+		uint32_t rainGeometryOffset = ~0u;
+		uint32_t rainMaterialOffset = ~0u;
+		LightComponent rain_blocker_dummy_light;
+
+		std::atomic<uint32_t> lightmap_request_allocator{ 0 };
+		pf::vector<uint32_t> lightmap_requests;
+		pf::vector<TransformComponent> transforms_temp;
+
+		// CPU/GPU Colliders:
+		pf::vector<uint8_t> collider_deinterleaved_data;
+		uint32_t collider_count_cpu = 0;
+		uint32_t collider_count_gpu = 0;
+		pf::primitive::AABB* aabb_colliders_cpu = nullptr;
+		pf::primitive::AABB* aabb_colliders_gpu = nullptr;
+		ColliderComponent* colliders_cpu = nullptr;
+		ColliderComponent* colliders_gpu = nullptr;
+		pf::BVH collider_bvh;
+		pf::BVH collider_bvh_next;
+		pf::jobsystem::context collider_bvh_workload;
+		void CountCPUandGPUColliders();
+
+		// Ocean GPU state:
+	//TO DO :	pf::Ocean ocean;
+	//TO DO :	void OceanRegenerate() { ocean.Create(weather.oceanParameters); }
+
+		// Simple water ripple sprites:
+		mutable pf::vector<pf::Sprite> waterRipples;
+		void PutWaterRipple(const XMFLOAT3& pos);
+		void PutWaterRipple(const std::string& image, const XMFLOAT3& pos);
+
+		pf::graphics::GPUBuffer voxelgrid_gpu; // primary CPU voxelgrid uploaded to GPU
+
+		// Animation processing optimizer:
+		struct AnimationQueue
+		{
+			// The animations within one queue must be processed on the same thread in order
+			pf::vector<AnimationComponent*> animations; // pointers for one frame only!
+			pf::unordered_set<pf::ecs::Entity> entities;
+		};
+		pf::vector<AnimationQueue> animation_queues; // different animation queues can be processed in different threads in any order
+		size_t animation_queue_count = 0; // to avoid resizing animation queues downwards because the internals for them needs to be reallocated in that case
+		pf::jobsystem::context animation_dependency_scan_workload;
+		void ScanAnimationDependencies();
+
+		pf::vector<SpringComponent*> spring_queues; // these indicate which chains can be updated on separate threads
+		pf::jobsystem::context spring_dependency_scan_workload;
+		void ScanSpringDependencies();
+		void UpdateSpringsTopDownRecursive(SpringComponent* parent_spring, SpringComponent& spring);
+
+		float wetmap_fadeout_time = 0;
+		bool IsWetmapProcessingRequired() const;
+
+		void StartBuildTopDownHierarchy();
+		void WaitBuildTopDownHierarchy() const;
+		void RefreshHierarchyTopdownFromParent(pf::ecs::Entity entity);
+
+		// Update all components by a given timestep (in seconds):
+		//	This is an expensive function, prefer to call it only once per frame!
+		virtual void Update(float dt);
+		// Remove everything from the scene that it owns:
+		virtual void Clear();
+		// Merge an other scene into this.
+		//	The contents of the other scene will be lost (and moved to this)!
+		//  Any references to entities or components from the other scene will now reference them in this scene.
+		virtual void Merge(Scene& other);
+		// Similar to merge but skipping some things that are safe to skip within the Update look
+		void MergeFastInternal(Scene& other);
+		// Create a copy of prefab and merge it into this.
+		//	prefab		: source scene to be copied from
+		//	attached	: if true, everything from prefab will be attached to a root entity
+		//	returns new root entity if attached is set to true, otherwise returns INVALID_ENTITY
+		virtual pf::ecs::Entity Instantiate(Scene& prefab, bool attached = false);
+		// Finds all entities in the scene that have any components attached
+		void FindAllEntities(pf::unordered_set<pf::ecs::Entity>& entities) const;
+
+		// Removes (deletes) a specific entity from the scene (if it exists):
+		//	recursive	: also removes children if true
+		//	keep_sorted	: remove all components while keeping sorted order (slow)
+		void Entity_Remove(pf::ecs::Entity entity, bool recursive = true, bool keep_sorted = false);
+		// Finds the first entity by the name (if it exists, otherwise returns INVALID_ENTITY):
+		//	ancestor : you can specify an ancestor entity if you only want to find entities that are descendants of ancestor entity
+		pf::ecs::Entity Entity_FindByName(const std::string& name, pf::ecs::Entity ancestor = pf::ecs::INVALID_ENTITY);
+		// Duplicates all of an entity's components and creates a new entity with them (recursively keeps hierarchy):
+		pf::ecs::Entity Entity_Duplicate(pf::ecs::Entity entity);
+		// Check whether entity is a descendant of ancestor
+		//	returns true if entity is in the hierarchy tree of ancestor, false otherwise
+		bool Entity_IsDescendant(pf::ecs::Entity entity, pf::ecs::Entity ancestor) const;
+
+		enum class EntitySerializeFlags
+		{
+			NONE = 0,
+			RECURSIVE = 1 << 0, // children entities will be also serialized
+			KEEP_INTERNAL_ENTITY_REFERENCES = 1 << 1, // entity handles inside components will be kept intact, they won't use remapping of pf::ecs::EntitySerializer
+		};
+		// Serializes entity and all of its components to archive:
+		//	archive		: archive used for serializing data
+		//	seri		: serializer state for entity component system
+		//	entity		: if archive is in write mode, this is the entity to serialize. If archive is in read mode, it should be INVALID_ENTITY
+		//	flags		: specify options as EntitySerializeFlags bits to control internal behaviour
+		// 
+		//	Returns either the new entity that was read, or the original entity that was written
+		pf::ecs::Entity Entity_Serialize(
+			pf::Archive& archive,
+			pf::ecs::EntitySerializer& seri,
+			pf::ecs::Entity entity = pf::ecs::INVALID_ENTITY,
+			EntitySerializeFlags flags = EntitySerializeFlags::RECURSIVE
+		);
+
+		pf::ecs::Entity Entity_CreateTransform(
+			const std::string& name
+		);
+		pf::ecs::Entity Entity_CreateMaterial(
+			const std::string& name
+		);
+		pf::ecs::Entity Entity_CreateObject(
+			const std::string& name
+		);
+		pf::ecs::Entity Entity_CreateMesh(
+			const std::string& name
+		);
+		pf::ecs::Entity Entity_CreateLight(
+			const std::string& name,
+			const XMFLOAT3& position = XMFLOAT3(0, 0, 0),
+			const XMFLOAT3& color = XMFLOAT3(1, 1, 1),
+			float intensity = 1,
+			float range = 10,
+			LightComponent::LightType type = LightComponent::POINT,
+			float outerConeAngle = XM_PIDIV4,
+			float innerConeAngle = 0
+		);
+		pf::ecs::Entity Entity_CreateForce(
+			const std::string& name,
+			const XMFLOAT3& position = XMFLOAT3(0, 0, 0)
+		);
+		pf::ecs::Entity Entity_CreateEnvironmentProbe(
+			const std::string& name,
+			const XMFLOAT3& position = XMFLOAT3(0, 0, 0)
+		);
+		pf::ecs::Entity Entity_CreateDecal(
+			const std::string& name,
+			const std::string& textureName,
+			const std::string& normalMapName = ""
+		);
+		pf::ecs::Entity Entity_CreateCamera(
+			const std::string& name,
+			float width, float height, float nearPlane = 0.01f, float farPlane = 1000.0f, float fov = XM_PIDIV4
+		);
+		pf::ecs::Entity Entity_CreateEmitter(
+			const std::string& name,
+			const XMFLOAT3& position = XMFLOAT3(0, 0, 0)
+		);
+		pf::ecs::Entity Entity_CreateHair(
+			const std::string& name,
+			const XMFLOAT3& position = XMFLOAT3(0, 0, 0)
+		);
+		pf::ecs::Entity Entity_CreateSound(
+			const std::string& name,
+			const std::string& filename,
+			const XMFLOAT3& position = XMFLOAT3(0, 0, 0)
+		);
+		pf::ecs::Entity Entity_CreateVideo(
+			const std::string& name,
+			const std::string& filename
+		);
+		pf::ecs::Entity Entity_CreateCube(
+			const std::string& name
+		);
+		pf::ecs::Entity Entity_CreatePlane(
+			const std::string& name
+		);
+		pf::ecs::Entity Entity_CreateSphere(
+			const std::string& name,
+			float radius = 1,
+			uint32_t latitudeBands = 64,
+			uint32_t longitudeBands = 64
+		);
+		pf::ecs::Entity Entity_CreateMeshFromData(
+			const std::string& name,
+			size_t index_count,
+			const uint32_t* indices,
+			size_t vertex_count,
+			const XMFLOAT3* positions
+		);
+
+		// Attaches an entity to a parent:
+		//	child_already_in_local_space	:	child won't be transformed from world space to local space
+		void Component_Attach(pf::ecs::Entity entity, pf::ecs::Entity parent, bool child_already_in_local_space = false);
+		// Detaches the entity from its parent (if it is attached):
+		void Component_Detach(pf::ecs::Entity entity);
+		// Detaches all children from an entity (if there are any):
+		void Component_DetachChildren(pf::ecs::Entity parent);
+		// Bakes the transform's current world matrix back to hierarchy local space (if it is part of a hierarchy)
+		void Component_TransformWorldToHierarchy(pf::ecs::Entity entity);
+
+		// Gathers all direct and indirect children of an entity
+		void GatherChildren(pf::ecs::Entity parent, pf::vector<pf::ecs::Entity>& children) const;
+
+		// Read/write whole scene into an archive
+		void Serialize(pf::Archive& archive);
+
+		void RunAnimationUpdateSystem(pf::jobsystem::context& ctx);
+		void RunTransformUpdateSystem(pf::jobsystem::context& ctx);
+		void RunHierarchyUpdateSystem(pf::jobsystem::context& ctx);
+		void RunExpressionUpdateSystem(pf::jobsystem::context& ctx);
+		void RunProceduralAnimationUpdateSystem(pf::jobsystem::context& ctx);
+		void RunArmatureUpdateSystem(pf::jobsystem::context& ctx);
+		void RunMeshUpdateSystem(pf::jobsystem::context& ctx);
+		void RunMaterialUpdateSystem(pf::jobsystem::context& ctx);
+		void RunImpostorUpdateSystem(pf::jobsystem::context& ctx);
+		void RunObjectUpdateSystem(pf::jobsystem::context& ctx);
+		void RunCameraUpdateSystem(pf::jobsystem::context& ctx);
+		void RunDecalUpdateSystem(pf::jobsystem::context& ctx);
+		void RunProbeUpdateSystem(pf::jobsystem::context& ctx);
+		void RunForceUpdateSystem(pf::jobsystem::context& ctx);
+		void RunLightUpdateSystem(pf::jobsystem::context& ctx);
+		void RunParticleUpdateSystem(pf::jobsystem::context& ctx);
+		void RunWeatherUpdateSystem(pf::jobsystem::context& ctx);
+		void RunSoundUpdateSystem(pf::jobsystem::context& ctx);
+		void RunVideoUpdateSystem(pf::jobsystem::context& ctx);
+		void RunScriptUpdateSystem(pf::jobsystem::context& ctx);
+		void RunSpriteUpdateSystem(pf::jobsystem::context& ctx);
+		void RunFontUpdateSystem(pf::jobsystem::context& ctx);
+		void RunCharacterUpdateSystem(pf::jobsystem::context& ctx);
+		void RunSplineUpdateSystem(pf::jobsystem::context& ctx);
+
+
+		struct RayIntersectionResult
+		{
+			pf::ecs::Entity entity = pf::ecs::INVALID_ENTITY;
+			XMFLOAT3 position = XMFLOAT3(0, 0, 0);
+			XMFLOAT3 normal = XMFLOAT3(0, 0, 0);
+			XMFLOAT4 uv = XMFLOAT4(0, 0, 0, 0);
+			XMFLOAT3 velocity = XMFLOAT3(0, 0, 0);
+			float distance = FLT_MAX;
+			int subsetIndex = -1;
+			int vertexID0 = -1;
+			int vertexID1 = -1;
+			int vertexID2 = -1;
+			XMFLOAT2 bary = XMFLOAT2(0, 0);
+			XMFLOAT4X4 orientation = pf::math::IDENTITY_MATRIX;
+			HumanoidComponent::HumanoidBone humanoid_bone = HumanoidComponent::HumanoidBone::Count;
+
+			constexpr bool operator==(const RayIntersectionResult& other) const
+			{
+				return entity == other.entity;
+			}
+		};
+		// Given a ray, finds the closest intersection point against all mesh instances or collliders
+		//	ray				:	the incoming ray that will be traced
+		//	filterMask		:	filter based on type
+		//	layerMask		:	filter based on layer
+		//	lod				:	specify min level of detail for meshes
+		RayIntersectionResult Intersects(const pf::primitive::Ray& ray, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, uint32_t lod = 0) const;
+
+		// Given a ray, finds the first intersection point against all mesh instances or colliders
+		//	returns true immediately if intersection was found, false otherwise
+		//	ray				:	the incoming ray that will be traced
+		//	filterMask		:	filter based on type
+		//	layerMask		:	filter based on layer
+		//	lod				:	specify min level of detail for meshes
+		bool IntersectsFirst(const pf::primitive::Ray& ray, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, uint32_t lod = 0) const;
+
+		// Given a ray, finds all intersections against all mesh instances or collliders
+		void IntersectsAll(pf::vector<RayIntersectionResult>& results, const pf::primitive::Ray& ray, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, uint32_t lod = 0) const;
+
+		struct SphereIntersectionResult
+		{
+			pf::ecs::Entity entity = pf::ecs::INVALID_ENTITY;
+			XMFLOAT3 position = XMFLOAT3(0, 0, 0);
+			XMFLOAT3 normal = XMFLOAT3(0, 0, 0);
+			XMFLOAT3 velocity = XMFLOAT3(0, 0, 0);
+			float depth = 0;
+			int subsetIndex = -1;
+			XMFLOAT4X4 orientation = pf::math::IDENTITY_MATRIX;
+			HumanoidComponent::HumanoidBone humanoid_bone = HumanoidComponent::HumanoidBone::Count;
+		};
+		// Closest sphere intersection
+		SphereIntersectionResult Intersects(const pf::primitive::Sphere& sphere, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, uint32_t lod = 0) const;
+
+		// All sphere intersections
+		void IntersectsAll(pf::vector<SphereIntersectionResult>& results, const pf::primitive::Sphere& sphere, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, uint32_t lod = 0) const;
+
+		using CapsuleIntersectionResult = SphereIntersectionResult;
+		// Closest capsule intersection
+		CapsuleIntersectionResult Intersects(const pf::primitive::Capsule& capsule, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, uint32_t lod = 0) const;
+
+		// All capsule intersections
+		void IntersectsAll(pf::vector<CapsuleIntersectionResult>& results, const pf::primitive::Capsule& capsule, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, uint32_t lod = 0) const;
+
+		// Goes through the hierarchy backwards and computes entity's world space matrix:
+		XMMATRIX ComputeEntityMatrixRecursive(pf::ecs::Entity entity) const;
+
+		// Goes through the hierarchy backwards and computes parent's world space matrix:
+		XMMATRIX ComputeParentMatrixRecursive(pf::ecs::Entity entity) const;
+
+		// Retargets an animation from a Humanoid to an other Humanoid such that the new animation will play back on the destination humanoid
+		//	dst			:	destination humanoid that the animation will be fit onto
+		//	src			:	the animation to copy, it should already target humanoid bones
+		//	bake_data	:	if true, the retargeted data will be baked into a new animation data.
+		//					if false, it will reuse the source animation data without creating a new one and retargeting will be applied at runtime on every Update
+		//	src_scene	:	(optional) specify if you want to retarget from an other scene. This scene must be kept alive while you use the resulting animation if the data is not baked!
+		//					If you use a separate scene, then you mustn't serialize the scene while there are animations referencing the src_scene!
+		//
+		//	returns entity ID of the new animation or INVALID_ENTITY if retargeting was not successful
+		pf::ecs::Entity RetargetAnimation(pf::ecs::Entity dst, pf::ecs::Entity src, bool bake_data, const Scene* src_scene = nullptr);
+
+		// If you don't know which armature the bone is contained in, this function can be used to find the first such armature and return the bone's rest matrix
+		//	If not found, and entity has a transform, it returns transform matrix
+		//	Otherwise, returns identity matrix
+		XMMATRIX GetRestPose(pf::ecs::Entity entity) const;
+		XMMATRIX FindBoneRestPose(pf::ecs::Entity bone) { return GetRestPose(bone); }; // back-compat of GetRestPose
+
+		// All triangles of the object will be injected into the voxel grid
+		//	subtract: if false (default), voxels will be added, if true then voxels will be removed
+		//TO DO : void VoxelizeObject(size_t objectIndex, pf::VoxelGrid& grid, bool subtract = false, uint32_t lod = 0);
+
+		// Voxelize all meshes that match the filters into a voxel grid
+		//TO DO : void VoxelizeScene(pf::VoxelGrid& voxelgrid, bool subtract = false, uint32_t filterMask = pf::enums::FILTER_ALL, uint32_t layerMask = ~0, uint32_t lod = 0);
+
+		// Get the current position on the surface of an object, tracked by the triangle barycentrics
+		XMFLOAT3 GetPositionOnSurface(pf::ecs::Entity objectEntity, int vertexID0, int vertexID1, int vertexID2, const XMFLOAT2& bary) const;
+
+		// Resets pose of the specified entity to bind pose
+		//	this will search for all armatures that are descendants of the entity and set all bone matrices to the their bind matrix
+		void ResetPose(pf::ecs::Entity entity);
+
+		// Returns the approximate position on the ocean surface seen from a position in world space.
+		//	If current weather doesn't have ocean enabled, returns the world position itself.
+		//	The result position is approximate because it involves reading back from GPU to the CPU, so the result can be delayed compared to the current GPU simulation.
+		//	Note that the input position to this function will be taken on the XZ plane and modified by the displacement map's XZ value, and the Y (vertical) position will be taken from the ocean water height and displacement map only.
+	//TO DO:	XMFLOAT3 GetOceanPosAt(const XMFLOAT3& worldPosition) const;
+
+		// Computes the LOD for an object AABB for a given view projection matrix
+		uint32_t ComputeObjectLODForView(const ObjectComponent& object, const pf::primitive::AABB& aabb, const MeshComponent& mesh, const XMMATRIX& ViewProjection) const;
+
+		// If somehow NANs happened in TransformComponents, this will clear them up and rename them with _nanfix postfix to help filtering them
+		void FixupNans();
+
+		// Duplicate colliders will be removed from the scene
+		void DeleteDuplicateColliders();
+
+	private:
+		void UpdateHumanoidFacings();
+
+	};
+
+	// Returns skinned vertex position
+	//	N : normal (out, optional)
+	XMVECTOR SkinVertex(const MeshComponent& mesh, const pf::vector<ShaderTransform>& boneData, uint32_t index, XMVECTOR* N = nullptr);
+	// Returns skinned vertex position in armature local space
+	//	N : normal (out, optional)
+	XMVECTOR SkinVertex(const MeshComponent& mesh, const ArmatureComponent& armature, uint32_t index, XMVECTOR* N = nullptr);
+	// Returns skinned vertex position of soft body in world space
+	//	N : normal (out, optional)
+	XMVECTOR SkinVertex(const MeshComponent& mesh, const SoftBodyPhysicsComponent& softbody, uint32_t index, XMVECTOR* N = nullptr);
+
+
+	// Helper that manages a global scene
+	//	(You don't need to use it, but it's an option for simplicity)
+	inline Scene& GetScene()
+	{
+		static Scene scene;
+		return scene;
+	}
+
+	// Helper that manages a global camera
+	//	(You don't need to use it, but it's an option for simplicity)
+	inline CameraComponent& GetCamera()
+	{
+		static CameraComponent camera;
+		return camera;
+	}
+
+	// Helper function to open a wiscene file and add the contents to the global scene
+	//	fileName		:	file path
+	//	transformMatrix	:	everything will be transformed by this matrix (optional)
+	//	attached		:	if true, everything will be attached to a base entity
+	//
+	//	returns INVALID_ENTITY if attached argument was false, else it returns the base entity handle
+	pf::ecs::Entity LoadModel(const std::string& fileName, const XMMATRIX& transformMatrix = XMMatrixIdentity(), bool attached = false);
+
+	// Helper function to open a wiscene file and add the contents to the specified scene. This is thread safe as it doesn't modify global scene
+	//	scene			:	the scene that will contain the model
+	//	fileName		:	file path
+	//	transformMatrix	:	everything will be transformed by this matrix (optional)
+	//	attached		:	if true, everything will be attached to a base entity
+	//
+	//	returns INVALID_ENTITY if attached argument was false, else it returns the base entity handle
+	pf::ecs::Entity LoadModel(Scene& scene, const std::string& fileName, const XMMATRIX& transformMatrix = XMMatrixIdentity(), bool attached = false);
+
+	// Helper function to open a wiscene file and add the contents to the global scene
+	//	fileName		:	file path
+	//	transformMatrix	:	everything will be transformed by this matrix (optional)
+	//	rootEntity		:	specify entity to attach whole scene to (optional)
+	void LoadModel2(const std::string& fileName, const XMMATRIX& transformMatrix = XMMatrixIdentity(), pf::ecs::Entity rootEntity = pf::ecs::INVALID_ENTITY);
+
+	// Helper function to open a wiscene file and add the contents to the specified scene. This is thread safe as it doesn't modify global scene
+	//	scene			:	the scene that will contain the model
+	//	fileName		:	file path
+	//	transformMatrix	:	everything will be transformed by this matrix (optional)
+	//	rootEntity		:	specify entity to attach whole scene to (optional)
+	void LoadModel2(Scene& scene, const std::string& fileName, const XMMATRIX& transformMatrix = XMMatrixIdentity(), pf::ecs::Entity rootEntity = pf::ecs::INVALID_ENTITY);
+
+	// Deprecated, use Scene::Intersects() function instead
+	using PickResult = Scene::RayIntersectionResult;
+	PickResult Pick(const pf::primitive::Ray& ray, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, const Scene& scene = GetScene(), uint32_t lod = 0);
+
+	// Deprecated, use Scene::Intersects() function instead
+	using SceneIntersectSphereResult = Scene::SphereIntersectionResult;
+	SceneIntersectSphereResult SceneIntersectSphere(const pf::primitive::Sphere& sphere, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, const Scene& scene = GetScene(), uint32_t lod = 0);
+
+	// Deprecated, use Scene::Intersects() function instead
+	using SceneIntersectCapsuleResult = Scene::SphereIntersectionResult;
+	SceneIntersectCapsuleResult SceneIntersectCapsule(const pf::primitive::Capsule& capsule, uint32_t filterMask = pf::enums::FILTER_OPAQUE, uint32_t layerMask = ~0, const Scene& scene = GetScene(), uint32_t lod = 0);
+
+
+}
+
+template<>
+struct enable_bitmask_operators<pf::scene::Scene::EntitySerializeFlags> {
+	static const bool enable = true;
+};

@@ -7,3 +7,4 @@
 #include "Module/Util/p_timer.h"
 #include "Module/Util/spin_lock.h"
 #include "Module/Util/random.h"
+#include "Module/Util/noise.h"

@@ -126,6 +126,8 @@ namespace pf{
 		void DirectoryCreate(const std::string& path);
 
 		void MakePathAbsolute(std::string& path);
+
+		std::string GetMemorySizeText(size_t sizeInBytes);
 		//bool saveTextureToMemoryFile(const graphics::Texture& texture, const std::string& fileExtension, vector<uint8_t>& filedata);
 
 		//bool saveTextureToMemory(const graphics::Texture& texture, vector<uint8_t>& texturedata);

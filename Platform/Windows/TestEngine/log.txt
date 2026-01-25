@@ -1,5 +1,65 @@
-[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (468 ms)
+[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (828 ms)
 Adapter: NVIDIA GeForce RTX 3060 Laptop GPU
-[Info]  draw_image.cpp - 695 :  wi::image Initialized (19 ms)
-[Info]  font.cpp - 355 :  wi::font Initialized (17 ms)
-[Info]  renderer.cpp - 1688 :  wi::renderer Initialized (2044 ms)
+[Info]  draw_image.cpp - 695 :  wi::image Initialized (33 ms)
+[Info]  font.cpp - 355 :  wi::font Initialized (39 ms)
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  ShaderCompiler.cpp - 533 :  GetOutput .. 0
+[Info]  renderer.cpp - 2235 :  pf::renderer Initialized (18955 ms)

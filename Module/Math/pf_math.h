@@ -38,6 +38,21 @@ namespace pf::math {
 		return ::lerp(value1, value2, amount);
 	}
 
+	constexpr XMFLOAT3 Lerp(const XMFLOAT3& a, const XMFLOAT3& b, const XMFLOAT3& i)
+	{
+		return XMFLOAT3(Lerp(a.x, b.x, i.x), Lerp(a.y, b.y, i.y), Lerp(a.z, b.z, i.z));
+	}
+
+	constexpr XMFLOAT4 Lerp(const XMFLOAT4& a, const XMFLOAT4& b, float i)
+	{
+		return XMFLOAT4(Lerp(a.x, b.x, i), Lerp(a.y, b.y, i), Lerp(a.z, b.z, i), Lerp(a.w, b.w, i));
+	}
+
+	constexpr XMFLOAT3 InverseLerp(const XMFLOAT3& value1, const XMFLOAT3& value2, const XMFLOAT3& pos)
+	{
+		return XMFLOAT3(InverseLerp(value1.x, value2.x, pos.x), InverseLerp(value1.y, value2.y, pos.y), InverseLerp(value1.z, value2.z, pos.z));
+	}
+
 	constexpr float Clamp(float val, float min, float max)
 	{
 		return std::min(max, std::max(min, val));
@@ -291,5 +306,235 @@ namespace pf::math {
 		const XMVECTOR param = XMVectorSet(param0, param1, param2, 1);
 		const XMMATRIX M = XMMATRIX(a, b, c, XMVectorSet(0, 0, 0, 1));
 		return XMVector3TransformNormal(param, M);
+	}
+
+	inline XMFLOAT3 GetPosition(const XMFLOAT4X4& _m)
+	{
+		return *((XMFLOAT3*)&_m._41);
+	}
+	inline XMFLOAT3 GetForward(const XMFLOAT4X4& _m)
+	{
+		return XMFLOAT3(_m.m[2][0], _m.m[2][1], _m.m[2][2]);
+	}
+	inline XMFLOAT3 GetUp(const XMFLOAT4X4& _m)
+	{
+		return XMFLOAT3(_m.m[1][0], _m.m[1][1], _m.m[1][2]);
+	}
+	inline XMFLOAT3 GetRight(const XMFLOAT4X4& _m)
+	{
+		return XMFLOAT3(_m.m[0][0], _m.m[0][1], _m.m[0][2]);
+	}
+
+	inline XMVECTOR GetPosition(const XMMATRIX& M)
+	{
+		XMFLOAT4X4 _m;
+		XMStoreFloat4x4(&_m, M);
+		XMFLOAT3 ret = GetPosition(_m);
+		return XMLoadFloat3(&ret);
+	}
+	inline XMVECTOR GetForward(const XMMATRIX& M)
+	{
+		XMFLOAT4X4 _m;
+		XMStoreFloat4x4(&_m, M);
+		XMFLOAT3 ret = GetForward(_m);
+		return XMLoadFloat3(&ret);
+	}
+	inline XMVECTOR GetUp(const XMMATRIX& M)
+	{
+		XMFLOAT4X4 _m;
+		XMStoreFloat4x4(&_m, M);
+		XMFLOAT3 ret = GetUp(_m);
+		return XMLoadFloat3(&ret);
+	}
+	inline XMVECTOR GetRight(const XMMATRIX& M)
+	{
+		XMFLOAT4X4 _m;
+		XMStoreFloat4x4(&_m, M);
+		XMFLOAT3 ret = GetRight(_m);
+		return XMLoadFloat3(&ret);
+	}
+	// Centripetal Catmull-Rom avoids self intersections that can appear with XMVectorCatmullRom
+	//	But it doesn't support the case when p0 == p1 or p2 == p3!
+	//	This also supports tension to control curve smoothness
+	//	Note: Catmull-Rom interpolates between p1 and p2 by value of t
+	inline XMVECTOR XM_CALLCONV CatmullRomCentripetal(XMVECTOR p0, XMVECTOR p1, XMVECTOR p2, XMVECTOR p3, float t, float tension = 0.5f)
+	{
+		float alpha = 1.0f - tension;
+		float t0 = 0.0f;
+		float t1 = t0 + std::pow(DistanceEstimated(p0, p1), alpha);
+		float t2 = t1 + std::pow(DistanceEstimated(p1, p2), alpha);
+		float t3 = t2 + std::pow(DistanceEstimated(p2, p3), alpha);
+		t = Lerp(t1, t2, t);
+		float t1t0 = 1.0f / std::max(0.001f, t1 - t0);
+		float t2t1 = 1.0f / std::max(0.001f, t2 - t1);
+		float t3t2 = 1.0f / std::max(0.001f, t3 - t2);
+		float t2t0 = 1.0f / std::max(0.001f, t2 - t0);
+		float t3t1 = 1.0f / std::max(0.001f, t3 - t1);
+		XMVECTOR A1 = (t1 - t) * t1t0 * p0 + (t - t0) * t1t0 * p1;
+		XMVECTOR A2 = (t2 - t) * t2t1 * p1 + (t - t1) * t2t1 * p2;
+		XMVECTOR A3 = (t3 - t) * t3t2 * p2 + (t - t2) * t3t2 * p3;
+		XMVECTOR B1 = (t2 - t) * t2t0 * A1 + (t - t0) * t2t0 * A2;
+		XMVECTOR B2 = (t3 - t) * t3t1 * A2 + (t - t1) * t3t1 * A3;
+		XMVECTOR C = (t2 - t) * t2t1 * B1 + (t - t1) * t2t1 * B2;
+		return C;
+	}
+
+	constexpr XMFLOAT3 Lerp(const XMFLOAT3& a, const XMFLOAT3& b, float i)
+	{
+		return XMFLOAT3(Lerp(a.x, b.x, i), Lerp(a.y, b.y, i), Lerp(a.z, b.z, i));
+	}
+
+	constexpr XMFLOAT2 Lerp(const XMFLOAT2& a, const XMFLOAT2& b, float i)
+	{
+		return XMFLOAT2(Lerp(a.x, b.x, i), Lerp(a.y, b.y, i));
+	}
+
+	float GetAngle(XMVECTOR A, XMVECTOR B, XMVECTOR axis, float max = XM_2PI);
+
+	float GetAngle(const XMFLOAT2& a, const XMFLOAT2& b);
+
+	float GetAngleSigned(XMVECTOR A, XMVECTOR B, XMVECTOR axis);
+
+	inline float LengthSquared(const XMFLOAT2& v)
+	{
+		return v.x * v.x + v.y * v.y;
+	}
+	inline float LengthSquared(const XMFLOAT3& v)
+	{
+		return v.x * v.x + v.y * v.y + v.z * v.z;
+	}
+
+	inline float Length(const XMFLOAT2& v)
+	{
+		return std::sqrt(LengthSquared(v));
+	}
+	inline float Length(const XMFLOAT3& v)
+	{
+		return std::sqrt(LengthSquared(v));
+	}
+
+	XMFLOAT3 QuaternionToRollPitchYaw(const XMFLOAT4& quaternion);
+//-----------------------------------------------------------------------------
+// Compute the intersection of a ray (Origin, Direction) with a triangle
+// (V0, V1, V2).  Return true if there is an intersection and also set *pDist
+// to the distance along the ray to the intersection.
+//
+// The algorithm is based on Moller, Tomas and Trumbore, "Fast, Minimum Storage
+// Ray-Triangle Intersection", Journal of Graphics Tools, vol. 2, no. 1,
+// pp 21-28, 1997.
+//
+//	Modified for WickedEngine to return barycentrics and support TMin, TMax
+//-----------------------------------------------------------------------------
+	_Use_decl_annotations_
+		inline bool XM_CALLCONV RayTriangleIntersects(
+			FXMVECTOR Origin,
+			FXMVECTOR Direction,
+			FXMVECTOR V0,
+			GXMVECTOR V1,
+			HXMVECTOR V2,
+			float& Dist,
+			XMFLOAT2& bary,
+			float TMin = 0,
+			float TMax = std::numeric_limits<float>::max()
+		)
+	{
+		const XMVECTOR g_RayEpsilon = XMVectorSet(1e-20f, 1e-20f, 1e-20f, 1e-20f);
+		const XMVECTOR g_RayNegEpsilon = XMVectorSet(-1e-20f, -1e-20f, -1e-20f, -1e-20f);
+
+		XMVECTOR Zero = XMVectorZero();
+
+		XMVECTOR e1 = XMVectorSubtract(V1, V0);
+		XMVECTOR e2 = XMVectorSubtract(V2, V0);
+
+		// p = Direction ^ e2;
+		XMVECTOR p = XMVector3Cross(Direction, e2);
+
+		// det = e1 * p;
+		XMVECTOR det = XMVector3Dot(e1, p);
+
+		XMVECTOR u, v, t;
+
+		if (XMVector3GreaterOrEqual(det, g_RayEpsilon))
+		{
+			// Determinate is positive (front side of the triangle).
+			XMVECTOR s = XMVectorSubtract(Origin, V0);
+
+			// u = s * p;
+			u = XMVector3Dot(s, p);
+
+			XMVECTOR NoIntersection = XMVectorLess(u, Zero);
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(u, det));
+
+			// q = s ^ e1;
+			XMVECTOR q = XMVector3Cross(s, e1);
+
+			// v = Direction * q;
+			v = XMVector3Dot(Direction, q);
+
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(v, Zero));
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(XMVectorAdd(u, v), det));
+
+			// t = e2 * q;
+			t = XMVector3Dot(e2, q);
+
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(t, Zero));
+
+			if (XMVector4EqualInt(NoIntersection, XMVectorTrueInt()))
+			{
+				Dist = 0.f;
+				return false;
+			}
+		}
+		else if (XMVector3LessOrEqual(det, g_RayNegEpsilon))
+		{
+			// Determinate is negative (back side of the triangle).
+			XMVECTOR s = XMVectorSubtract(Origin, V0);
+
+			// u = s * p;
+			u = XMVector3Dot(s, p);
+
+			XMVECTOR NoIntersection = XMVectorGreater(u, Zero);
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(u, det));
+
+			// q = s ^ e1;
+			XMVECTOR q = XMVector3Cross(s, e1);
+
+			// v = Direction * q;
+			v = XMVector3Dot(Direction, q);
+
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(v, Zero));
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorLess(XMVectorAdd(u, v), det));
+
+			// t = e2 * q;
+			t = XMVector3Dot(e2, q);
+
+			NoIntersection = XMVectorOrInt(NoIntersection, XMVectorGreater(t, Zero));
+
+			if (XMVector4EqualInt(NoIntersection, XMVectorTrueInt()))
+			{
+				Dist = 0.f;
+				return false;
+			}
+		}
+		else
+		{
+			// Parallel ray.
+			Dist = 0.f;
+			return false;
+		}
+
+		t = XMVectorDivide(t, det);
+
+		const XMVECTOR invdet = XMVectorReciprocal(det);
+		XMStoreFloat(&bary.x, u * invdet);
+		XMStoreFloat(&bary.y, v * invdet);
+
+		// Store the x-component to *pDist
+		XMStoreFloat(&Dist, t);
+
+		if (Dist > TMax || Dist < TMin)
+			return false;
+
+		return true;
 	}
 }

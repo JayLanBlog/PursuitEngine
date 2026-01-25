@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <atomic>
 #include <mutex>
+#include "sheen_lut.h"
 #include <Module/Util/spin_lock.h>
 
 using namespace pf::graphics;
@@ -31,6 +32,67 @@ namespace pf::renderer {
 	std::string SHADERPATH = pf::helper::GetCurrentPath() + "/shaders/";
 	std::string SHADERSOURCEPATH = SHADER_INTEROP_PATH;
 #endif // SHADERDUMP_ENABLED
+
+
+
+
+	WIREFRAME_MODE wireframeMode = WIREFRAME_DISABLED;
+	bool wireRender = false;
+	bool debugBoneLines = false;
+	bool debugPartitionTree = false;
+	bool debugEmitters = false;
+	bool freezeCullingCamera = false;
+	bool debugEnvProbes = false;
+	bool debugForceFields = false;
+	bool debugCameras = false;
+	bool debugColliders = false;
+	bool debugSprings = false;
+	bool gridHelper = false;
+	bool advancedLightCulling = true;
+	bool variableRateShadingClassification = false;
+	bool variableRateShadingClassificationDebug = false;
+	float GameSpeed = 1;
+	bool debugLightCulling = false;
+	bool occlusionCulling = true;
+	bool temporalAA = false;
+	bool temporalAADEBUG = false;
+	uint32_t raytraceBounceCount = 8;
+	bool raytraceDebugVisualizer = false;
+	bool raytracedShadows = false;
+	bool tessellationEnabled = true;
+	bool disableAlbedoMaps = false;
+	bool forceDiffuseLighting = false;
+	bool SHADOWS_ENABLED = true;
+	bool SCREENSPACESHADOWS = false;
+	bool SURFELGI = false;
+	//TO DO : SURFEL_DEBUG SURFELGI_DEBUG = SURFEL_DEBUG_NONE;
+	bool DDGI_ENABLED = false;
+	bool DDGI_DEBUG_ENABLED = false;
+	uint32_t DDGI_RAYCOUNT = 256u;
+	float DDGI_BLEND_SPEED = 0.1f;
+	float GI_BOOST = 1.0f;
+	bool MESH_SHADER_ALLOWED = false;
+	bool MESHLET_OCCLUSION_CULLING = false;
+	std::atomic<size_t> SHADER_ERRORS{ 0 };
+	std::atomic<size_t> SHADER_MISSING{ 0 };
+	bool VXGI_ENABLED = false;
+	bool VXGI_REFLECTIONS_ENABLED = true;
+	bool VXGI_DEBUG = false;
+	int VXGI_DEBUG_CLIPMAP = 0;
+	bool CAPSULE_SHADOW_ENABLED = false;
+	float CAPSULE_SHADOW_ANGLE = XM_PIDIV4;
+	float CAPSULE_SHADOW_FADE = 0.2f;
+	bool SHADOW_LOD_OVERRIDE = true;
+
+	Texture shadowMapAtlas;
+	Texture shadowMapAtlas_Transparent;
+	int max_shadow_resolution_2D = 1024;
+	int max_shadow_resolution_cube = 256;
+
+
+	GPUBuffer indirectDebugStatsReadback[GraphicsDevice::GetBufferCount()];
+
+
 
 	enum SKYRENDERING
 	{
@@ -67,9 +129,6 @@ namespace pf::renderer {
 	};
 	PipelineState PSO_debug[DEBUGRENDERING_COUNT];
 
-
-	std::atomic<size_t> SHADER_ERRORS{ 0 };
-	std::atomic<size_t> SHADER_MISSING{ 0 };
 
 
 	SpinLock deferredMIPGenLock;
@@ -376,6 +435,7 @@ namespace pf::renderer {
 
 		return realPS;
 	}*/
+
 
 
 	void LoadShaders() {
@@ -779,7 +839,8 @@ namespace pf::renderer {
 			pf::jobsystem::Execute(mesh_shader_ctx, [](pf::jobsystem::JobArgs args) { LoadShader(ShaderStage::MS, shaders[MSTYPE_SHADOW_ALPHATEST], "shadowMS_alphatest.cso"); });
 			pf::jobsystem::Execute(mesh_shader_ctx, [](pf::jobsystem::JobArgs args) { LoadShader(ShaderStage::MS, shaders[MSTYPE_SHADOW_TRANSPARENT], "shadowMS_transparent.cso"); });
 		}
-//
+
+
 //		pf::jobsystem::Dispatch(ctx, MaterialComponent::SHADERTYPE_COUNT, 1, [](pf::jobsystem::JobArgs args) {
 //
 //			LoadShader(
@@ -1405,6 +1466,7 @@ namespace pf::renderer {
 		//	The RenderMeshes that uses these pipeline states will be checking the PipelineState.IsValid() and skip draws if the pipeline is not yet valid
 		pf::jobsystem::Wait(object_pso_job_ctx);
 		object_pso_job_ctx.priority = pf::jobsystem::Priority::Low;
+
 		//for (uint32_t renderPass = 0; renderPass < RENDERPASS_COUNT; ++renderPass)
 		//{
 		//	for (uint32_t shaderType = 0; shaderType < MaterialComponent::SHADERTYPE_COUNT; ++shaderType)
@@ -1682,17 +1744,502 @@ namespace pf::renderer {
 
 	}
 
+	void LoadBuffers() {
+		GPUBufferDesc bd;
+		bd.usage = Usage::DEFAULT;
+		bd.size = sizeof(FrameCB);
+		bd.bind_flags = BindFlag::CONSTANT_BUFFER;
+		device->CreateBuffer(&bd, nullptr, &buffers[BUFFERTYPE_FRAMECB]);
+		device->SetName(&buffers[BUFFERTYPE_FRAMECB], "buffers[BUFFERTYPE_FRAMECB]");
+
+		bd.size = sizeof(IndirectDrawArgsInstanced) + (sizeof(XMFLOAT4) + sizeof(XMFLOAT4)) * 1000;
+		bd.bind_flags = BindFlag::VERTEX_BUFFER | BindFlag::UNORDERED_ACCESS;
+		bd.misc_flags = ResourceMiscFlag::BUFFER_RAW | ResourceMiscFlag::INDIRECT_ARGS;
+		device->CreateBufferZeroed(&bd, &buffers[BUFFERTYPE_INDIRECT_DEBUG_0]);
+		device->SetName(&buffers[BUFFERTYPE_INDIRECT_DEBUG_0], "buffers[BUFFERTYPE_INDIRECT_DEBUG_0]");
+		device->CreateBufferZeroed(&bd, &buffers[BUFFERTYPE_INDIRECT_DEBUG_1]);
+		device->SetName(&buffers[BUFFERTYPE_INDIRECT_DEBUG_1], "buffers[BUFFERTYPE_INDIRECT_DEBUG_1]");
+
+		bd.size = sizeof(IndirectDrawArgsInstanced);
+		bd.usage = Usage::READBACK;
+		bd.bind_flags = {};
+		bd.misc_flags = {};
+		for (auto& buf : indirectDebugStatsReadback)
+		{
+			device->CreateBufferZeroed(&bd, &buf);
+			device->SetName(&buf, "indirectDebugStatsReadback");
+		}
+
+		{
+			TextureDesc desc;
+			desc.bind_flags = BindFlag::SHADER_RESOURCE;
+			desc.format = Format::R8_UNORM;
+			desc.height = 16;
+			desc.width = 16;
+			SubresourceData InitData;
+			InitData.data_ptr = sheenLUTdata;
+			InitData.row_pitch = desc.width;
+			device->CreateTexture(&desc, &InitData, &textures[TEXTYPE_2D_SHEENLUT]);
+			device->SetName(&textures[TEXTYPE_2D_SHEENLUT], "textures[TEXTYPE_2D_SHEENLUT]");
+		}
+
+		{
+			TextureDesc desc;
+			desc.type = TextureDesc::Type::TEXTURE_3D;
+			desc.format = Format::R16_FLOAT;
+			desc.width = 32;
+			desc.height = 32;
+			desc.depth = 32;
+			desc.bind_flags = BindFlag::SHADER_RESOURCE | BindFlag::UNORDERED_ACCESS;
+			device->CreateTexture(&desc, nullptr, &textures[TEXTYPE_3D_WIND]);
+			device->SetName(&textures[TEXTYPE_3D_WIND], "textures[TEXTYPE_3D_WIND]");
+			device->CreateTexture(&desc, nullptr, &textures[TEXTYPE_3D_WIND_PREV]);
+			device->SetName(&textures[TEXTYPE_3D_WIND_PREV], "textures[TEXTYPE_3D_WIND_PREV]");
+		}
+		{
+			TextureDesc desc;
+			desc.type = TextureDesc::Type::TEXTURE_2D;
+			desc.format = Format::R8G8B8A8_UNORM;
+			desc.width = 256;
+			desc.height = 256;
+			desc.bind_flags = BindFlag::SHADER_RESOURCE | BindFlag::UNORDERED_ACCESS;
+			device->CreateTexture(&desc, nullptr, &textures[TEXTYPE_2D_CAUSTICS]);
+			device->SetName(&textures[TEXTYPE_2D_CAUSTICS], "textures[TEXTYPE_2D_CAUSTICS]");
+		}
+	}
+
+
+	void SetUpStates() {
+		RasterizerState rs;
+		rs.fill_mode = FillMode::SOLID;
+		rs.cull_mode = CullMode::BACK;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = true;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_FRONT] = rs;
+
+
+		rs.fill_mode = FillMode::SOLID;
+		rs.cull_mode = CullMode::BACK;
+		rs.front_counter_clockwise = true;
+		// Note: biases work slightly differently with unorm and float formats
+		//	depth_bias				: needs to be tested when light is facing surface head-on (for example: directional light pointing down perpendicular to plane)
+		//	slope_scaled_depth_bias	: needs to be tested when light gets more parallel to surface. This can cause holes in shadow maps at mismatching triangle orientations
+		if (IsFormatUnorm(format_depthbuffer_shadowmap))
+		{
+			rs.depth_bias = -1;
+			rs.slope_scaled_depth_bias = -4.0f;
+		}
+		else
+		{
+			rs.depth_bias = -10;
+			rs.slope_scaled_depth_bias = -3.4f;
+		}
+		rs.depth_bias_clamp = 0;
+		rs.depth_clip_enable = false;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_SHADOW] = rs;
+		rs.cull_mode = CullMode::NONE;
+		rasterizers[RSTYPE_SHADOW_DOUBLESIDED] = rs;
+
+		rs.fill_mode = FillMode::WIREFRAME;
+		rs.cull_mode = CullMode::BACK;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = true;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_WIRE] = rs;
+		rs.antialiased_line_enable = true;
+		rasterizers[RSTYPE_WIRE_SMOOTH] = rs;
+
+		rs.fill_mode = FillMode::SOLID;
+		rs.cull_mode = CullMode::NONE;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = true;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_DOUBLESIDED] = rs;
+
+		rs.fill_mode = FillMode::WIREFRAME;
+		rs.cull_mode = CullMode::NONE;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = true;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_WIRE_DOUBLESIDED] = rs;
+		rs.antialiased_line_enable = true;
+		rasterizers[RSTYPE_WIRE_DOUBLESIDED_SMOOTH] = rs;
+
+		rs.fill_mode = FillMode::SOLID;
+		rs.cull_mode = CullMode::FRONT;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = true;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_BACK] = rs;
+
+		rs.fill_mode = FillMode::SOLID;
+		rs.cull_mode = CullMode::NONE;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = false;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_OCCLUDEE] = rs;
+
+		rs.fill_mode = FillMode::SOLID;
+		rs.cull_mode = CullMode::FRONT;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = false;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+		rs.conservative_rasterization_enable = false;
+		rasterizers[RSTYPE_SKY] = rs;
+
+		rs.fill_mode = FillMode::SOLID;
+		rs.cull_mode = CullMode::NONE;
+		rs.front_counter_clockwise = true;
+		rs.depth_bias = 0;
+		rs.depth_bias_clamp = 0;
+		rs.slope_scaled_depth_bias = 0;
+		rs.depth_clip_enable = true;
+		rs.multisample_enable = false;
+		rs.antialiased_line_enable = false;
+#ifdef VOXELIZATION_CONSERVATIVE_RASTERIZATION_ENABLED
+		if (device->CheckCapability(GraphicsDeviceCapability::CONSERVATIVE_RASTERIZATION))
+		{
+			rs.conservative_rasterization_enable = true;
+		}
+		else
+#endif // VOXELIZATION_CONSERVATIVE_RASTERIZATION_ENABLED
+		{
+			rs.forced_sample_count = 8;
+		}
+		rasterizers[RSTYPE_VOXELIZE] = rs;
+
+
+		rs = rasterizers[RSTYPE_DOUBLESIDED];
+		if (device->CheckCapability(GraphicsDeviceCapability::CONSERVATIVE_RASTERIZATION))
+		{
+			rs.conservative_rasterization_enable = true;
+		}
+		rasterizers[RSTYPE_LIGHTMAP] = rs;
+
+
+
+		DepthStencilState dsd;
+		dsd.depth_enable = true;
+		dsd.depth_write_mask = DepthWriteMask::ALL;
+		dsd.depth_func = ComparisonFunc::GREATER;
+
+		dsd.stencil_enable = true;
+		dsd.stencil_read_mask = 0;
+		dsd.stencil_write_mask = 0xFF;
+		dsd.front_face.stencil_func = ComparisonFunc::ALWAYS;
+		dsd.front_face.stencil_pass_op = StencilOp::REPLACE;
+		dsd.front_face.stencil_fail_op = StencilOp::KEEP;
+		dsd.front_face.stencil_depth_fail_op = StencilOp::KEEP;
+		dsd.back_face.stencil_func = ComparisonFunc::ALWAYS;
+		dsd.back_face.stencil_pass_op = StencilOp::REPLACE;
+		dsd.back_face.stencil_fail_op = StencilOp::KEEP;
+		dsd.back_face.stencil_depth_fail_op = StencilOp::KEEP;
+		depthStencils[DSSTYPE_DEFAULT] = dsd;
+
+		dsd.depth_func = ComparisonFunc::GREATER_EQUAL;
+		depthStencils[DSSTYPE_TRANSPARENT] = dsd;
+		dsd.depth_func = ComparisonFunc::GREATER;
+
+		dsd.depth_write_mask = DepthWriteMask::ZERO;
+		depthStencils[DSSTYPE_HOLOGRAM] = dsd;
+
+		dsd.depth_enable = true;
+		dsd.depth_write_mask = DepthWriteMask::ALL;
+		dsd.depth_func = ComparisonFunc::GREATER;
+		dsd.stencil_enable = false;
+		depthStencils[DSSTYPE_SHADOW] = dsd;
+
+		dsd.depth_enable = true;
+		dsd.depth_write_mask = DepthWriteMask::ALL;
+		dsd.depth_func = ComparisonFunc::GREATER;
+		dsd.stencil_enable = false;
+		depthStencils[DSSTYPE_CAPTUREIMPOSTOR] = dsd;
+
+
+		dsd.depth_enable = true;
+		dsd.stencil_enable = false;
+		dsd.depth_write_mask = DepthWriteMask::ZERO;
+		dsd.depth_func = ComparisonFunc::GREATER_EQUAL;
+		depthStencils[DSSTYPE_DEPTHREAD] = dsd;
+
+		dsd.depth_enable = false;
+		dsd.stencil_enable = false;
+		depthStencils[DSSTYPE_DEPTHDISABLED] = dsd;
+
+
+		dsd.depth_enable = true;
+		dsd.depth_write_mask = DepthWriteMask::ZERO;
+		dsd.depth_func = ComparisonFunc::EQUAL;
+		depthStencils[DSSTYPE_DEPTHREADEQUAL] = dsd;
+
+
+		dsd.depth_enable = true;
+		dsd.depth_write_mask = DepthWriteMask::ALL;
+		dsd.depth_func = ComparisonFunc::GREATER;
+		depthStencils[DSSTYPE_ENVMAP] = dsd;
+
+		dsd.depth_enable = true;
+		dsd.depth_write_mask = DepthWriteMask::ALL;
+		dsd.depth_func = ComparisonFunc::ALWAYS;
+		dsd.stencil_enable = false;
+		depthStencils[DSSTYPE_WRITEONLY] = dsd;
+
+		dsd.depth_enable = false;
+		dsd.depth_write_mask = DepthWriteMask::ZERO;
+		dsd.stencil_enable = true;
+		dsd.stencil_read_mask = 0;
+		dsd.front_face.stencil_func = ComparisonFunc::ALWAYS;
+		dsd.front_face.stencil_pass_op = StencilOp::REPLACE;
+		dsd.back_face = dsd.front_face;
+		for (int i = 0; i < 8; ++i)
+		{
+			dsd.stencil_write_mask = uint8_t(1 << i);
+			depthStencils[DSSTYPE_COPY_STENCIL_BIT_0 + i] = dsd;
+		}
+
+		dsd.stencil_write_mask = 0;
+		dsd.front_face.stencil_func = ComparisonFunc::EQUAL;
+		dsd.front_face.stencil_pass_op = StencilOp::KEEP;
+		dsd.back_face = dsd.front_face;
+		for (int i = 0; i < 8; ++i)
+		{
+			dsd.stencil_read_mask = uint8_t(1 << i);
+			depthStencils[DSSTYPE_EXTRACT_STENCIL_BIT_0 + i] = dsd;
+		}
+
+
+		BlendState bd;
+		bd.render_target[0].blend_enable = false;
+		bd.render_target[0].render_target_write_mask = ColorWrite::ENABLE_ALL;
+		bd.alpha_to_coverage_enable = false;
+		bd.independent_blend_enable = false;
+		blendStates[BSTYPE_OPAQUE] = bd;
+
+		bd.render_target[0].src_blend = Blend::SRC_ALPHA;
+		bd.render_target[0].dest_blend = Blend::INV_SRC_ALPHA;
+		bd.render_target[0].blend_op = BlendOp::ADD;
+		bd.render_target[0].src_blend_alpha = Blend::ONE;
+		bd.render_target[0].dest_blend_alpha = Blend::INV_SRC_ALPHA;
+		bd.render_target[0].blend_op_alpha = BlendOp::ADD;
+		bd.render_target[0].blend_enable = true;
+		bd.render_target[0].render_target_write_mask = ColorWrite::ENABLE_ALL;
+		bd.alpha_to_coverage_enable = false;
+		bd.independent_blend_enable = false;
+		blendStates[BSTYPE_TRANSPARENT] = bd;
+
+		bd.render_target[0].blend_enable = true;
+		bd.render_target[0].src_blend = Blend::ONE;
+		bd.render_target[0].dest_blend = Blend::INV_SRC_ALPHA;
+		bd.render_target[0].blend_op = BlendOp::ADD;
+		bd.render_target[0].src_blend_alpha = Blend::ONE;
+		bd.render_target[0].dest_blend_alpha = Blend::INV_SRC_ALPHA;
+		bd.render_target[0].blend_op_alpha = BlendOp::ADD;
+		bd.render_target[0].render_target_write_mask = ColorWrite::ENABLE_ALL;
+		bd.independent_blend_enable = false;
+		bd.alpha_to_coverage_enable = false;
+		blendStates[BSTYPE_PREMULTIPLIED] = bd;
+
+
+		bd.render_target[0].blend_enable = true;
+		bd.render_target[0].src_blend = Blend::SRC_ALPHA;
+		bd.render_target[0].dest_blend = Blend::ONE;
+		bd.render_target[0].blend_op = BlendOp::ADD;
+		bd.render_target[0].src_blend_alpha = Blend::ZERO;
+		bd.render_target[0].dest_blend_alpha = Blend::ONE;
+		bd.render_target[0].blend_op_alpha = BlendOp::ADD;
+		bd.render_target[0].render_target_write_mask = ColorWrite::ENABLE_ALL;
+		bd.independent_blend_enable = false,
+			bd.alpha_to_coverage_enable = false;
+		blendStates[BSTYPE_ADDITIVE] = bd;
+
+
+		bd.render_target[0].blend_enable = false;
+		bd.render_target[0].render_target_write_mask = ColorWrite::DISABLE;
+		bd.independent_blend_enable = false,
+			bd.alpha_to_coverage_enable = false;
+		blendStates[BSTYPE_COLORWRITEDISABLE] = bd;
+
+		bd.render_target[0].src_blend = Blend::DEST_COLOR;
+		bd.render_target[0].dest_blend = Blend::ZERO;
+		bd.render_target[0].blend_op = BlendOp::ADD;
+		bd.render_target[0].src_blend_alpha = Blend::DEST_ALPHA;
+		bd.render_target[0].dest_blend_alpha = Blend::ZERO;
+		bd.render_target[0].blend_op_alpha = BlendOp::ADD;
+		bd.render_target[0].blend_enable = true;
+		bd.render_target[0].render_target_write_mask = ColorWrite::ENABLE_ALL;
+		bd.alpha_to_coverage_enable = false;
+		bd.independent_blend_enable = false;
+		blendStates[BSTYPE_MULTIPLY] = bd;
+
+		bd.render_target[0].src_blend = Blend::INV_DEST_COLOR;
+		bd.render_target[0].dest_blend = Blend::ZERO;
+		bd.render_target[0].blend_op = BlendOp::ADD;
+		bd.render_target[0].src_blend_alpha = Blend::DEST_ALPHA;
+		bd.render_target[0].dest_blend_alpha = Blend::ZERO;
+		bd.render_target[0].blend_op_alpha = BlendOp::ADD;
+		bd.render_target[0].blend_enable = true;
+		bd.render_target[0].render_target_write_mask = ColorWrite::ENABLE_ALL;
+		bd.alpha_to_coverage_enable = false;
+		bd.independent_blend_enable = false;
+		blendStates[BSTYPE_INVERSE] = bd;
+
+		bd.render_target[0].src_blend = Blend::ZERO;
+		bd.render_target[0].dest_blend = Blend::SRC_COLOR;
+		bd.render_target[0].blend_op = BlendOp::ADD;
+		bd.render_target[0].src_blend_alpha = Blend::ONE;
+		bd.render_target[0].dest_blend_alpha = Blend::ONE;
+		bd.render_target[0].blend_op_alpha = BlendOp::MAX;
+		bd.render_target[0].blend_enable = true;
+		bd.render_target[0].render_target_write_mask = ColorWrite::ENABLE_ALL;
+		bd.alpha_to_coverage_enable = false;
+		bd.independent_blend_enable = false;
+		blendStates[BSTYPE_TRANSPARENTSHADOW] = bd;
+
+
+
+
+
+		SamplerDesc samplerDesc;
+		samplerDesc.filter = Filter::MIN_MAG_MIP_LINEAR;
+		samplerDesc.address_u = TextureAddressMode::MIRROR;
+		samplerDesc.address_v = TextureAddressMode::MIRROR;
+		samplerDesc.address_w = TextureAddressMode::MIRROR;
+		samplerDesc.mip_lod_bias = 0.0f;
+		samplerDesc.max_anisotropy = 0;
+		samplerDesc.comparison_func = ComparisonFunc::NEVER;
+		samplerDesc.border_color = SamplerBorderColor::TRANSPARENT_BLACK;
+		samplerDesc.min_lod = 0;
+		samplerDesc.max_lod = std::numeric_limits<float>::max();
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_LINEAR_MIRROR]);
+
+		samplerDesc.filter = Filter::MIN_MAG_MIP_LINEAR;
+		samplerDesc.address_u = TextureAddressMode::CLAMP;
+		samplerDesc.address_v = TextureAddressMode::CLAMP;
+		samplerDesc.address_w = TextureAddressMode::CLAMP;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_LINEAR_CLAMP]);
+
+		samplerDesc.filter = Filter::MIN_MAG_MIP_LINEAR;
+		samplerDesc.address_u = TextureAddressMode::WRAP;
+		samplerDesc.address_v = TextureAddressMode::WRAP;
+		samplerDesc.address_w = TextureAddressMode::WRAP;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_LINEAR_WRAP]);
+
+		samplerDesc.filter = Filter::MIN_MAG_MIP_POINT;
+		samplerDesc.address_u = TextureAddressMode::MIRROR;
+		samplerDesc.address_v = TextureAddressMode::MIRROR;
+		samplerDesc.address_w = TextureAddressMode::MIRROR;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_POINT_MIRROR]);
+
+		samplerDesc.filter = Filter::MIN_MAG_MIP_POINT;
+		samplerDesc.address_u = TextureAddressMode::WRAP;
+		samplerDesc.address_v = TextureAddressMode::WRAP;
+		samplerDesc.address_w = TextureAddressMode::WRAP;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_POINT_WRAP]);
+
+
+		samplerDesc.filter = Filter::MIN_MAG_MIP_POINT;
+		samplerDesc.address_u = TextureAddressMode::CLAMP;
+		samplerDesc.address_v = TextureAddressMode::CLAMP;
+		samplerDesc.address_w = TextureAddressMode::CLAMP;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_POINT_CLAMP]);
+
+		samplerDesc.filter = Filter::ANISOTROPIC;
+		samplerDesc.address_u = TextureAddressMode::CLAMP;
+		samplerDesc.address_v = TextureAddressMode::CLAMP;
+		samplerDesc.address_w = TextureAddressMode::CLAMP;
+		samplerDesc.max_anisotropy = 16;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_ANISO_CLAMP]);
+
+		samplerDesc.filter = Filter::ANISOTROPIC;
+		samplerDesc.address_u = TextureAddressMode::WRAP;
+		samplerDesc.address_v = TextureAddressMode::WRAP;
+		samplerDesc.address_w = TextureAddressMode::WRAP;
+		samplerDesc.max_anisotropy = 16;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_ANISO_WRAP]);
+
+		samplerDesc.filter = Filter::ANISOTROPIC;
+		samplerDesc.address_u = TextureAddressMode::MIRROR;
+		samplerDesc.address_v = TextureAddressMode::MIRROR;
+		samplerDesc.address_w = TextureAddressMode::MIRROR;
+		samplerDesc.max_anisotropy = 16;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_ANISO_MIRROR]);
+
+		samplerDesc.filter = Filter::ANISOTROPIC;
+		samplerDesc.address_u = TextureAddressMode::WRAP;
+		samplerDesc.address_v = TextureAddressMode::WRAP;
+		samplerDesc.address_w = TextureAddressMode::WRAP;
+		samplerDesc.max_anisotropy = 16;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_OBJECTSHADER]);
+
+		samplerDesc.filter = Filter::ANISOTROPIC;
+		samplerDesc.address_u = TextureAddressMode::CLAMP;
+		samplerDesc.address_v = TextureAddressMode::CLAMP;
+		samplerDesc.address_w = TextureAddressMode::CLAMP;
+		samplerDesc.max_anisotropy = 16;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_OBJECTSHADER_CLAMP]);
+
+		samplerDesc.filter = Filter::COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+		samplerDesc.address_u = TextureAddressMode::CLAMP;
+		samplerDesc.address_v = TextureAddressMode::CLAMP;
+		samplerDesc.address_w = TextureAddressMode::CLAMP;
+		samplerDesc.mip_lod_bias = 0.0f;
+		samplerDesc.max_anisotropy = 0;
+		samplerDesc.comparison_func = ComparisonFunc::GREATER_EQUAL;
+		device->CreateSampler(&samplerDesc, &samplers[SAMPLER_CMP_DEPTH]);
+	}
+
+
 	void Initialize() {
 		Timer timer;
+		SetUpStates();
+		LoadBuffers();
 		LoadShaders();
-		log("wi::renderer Initialized (%d ms)", (int)std::round(timer.elapsed()));
+		log("pf::renderer Initialized (%d ms)", (int)std::round(timer.elapsed()));
 	}
 
 	bool LoadShader(
 		pf::graphics::ShaderStage stage,
 		pf::graphics::Shader& shader,
 		const std::string& filename,
-		pf::graphics::ShaderModel minshadermodel ,
+		pf::graphics::ShaderModel minshadermodel,
 		const vector<std::string>& permutation_defines 
 	) {
 		std::string shaderbinaryfilename = SHADERPATH + filename;
@@ -1743,7 +2290,6 @@ namespace pf::renderer {
 			input.include_directories.push_back(sourcedir);
 			input.include_directories.push_back(sourcedir + helper::GetDirectoryFromPath(filename));
 			input.shadersourcefilename = helper::ReplaceExtension(sourcedir + filename, "hlsl");
-
 			shadercompiler::CompilerOutput output;
 			shadercompiler::Compile(input, output);
 
@@ -1763,7 +2309,6 @@ namespace pf::renderer {
 				//pf::backlog::post("shader compile FAILED: " + shaderbinaryfilename + "\n" + output.error_message, pf::backlog::LogLevel::Error);
 				SHADER_ERRORS.fetch_add(1);
 			}
-
 		}
 
 		if (device != nullptr)
@@ -1783,7 +2328,6 @@ namespace pf::renderer {
 				SHADER_MISSING.fetch_add(1);
 			}
 		}
-
 		return false;
 	}
 
@@ -1803,11 +2347,16 @@ namespace pf::renderer {
 		return &shaders[id];
 	}
 
+
+	const Sampler* GetSampler(SAMPLERTYPES id)
+	{
+		return &samplers[id];
+	}
+
 	const InputLayout* GetInputLayout(ILTYPES id)
 	{
 		return &inputLayouts[id];
 	}
-
 	const RasterizerState* GetRasterizerState(RSTYPES id)
 	{
 		return &rasterizers[id];
@@ -1820,4 +2369,464 @@ namespace pf::renderer {
 	{
 		return &blendStates[id];
 	}
+	const GPUBuffer* GetBuffer(BUFFERTYPES id)
+	{
+		return &buffers[id];
+	}
+	const Texture* GetTexture(TEXTYPES id)
+	{
+		return &textures[id];
+	}
+
+
+
+
+
+
+
+	void SetWireframeMode(WIREFRAME_MODE mode) {
+		wireframeMode = mode;
+		wireRender = (mode != WIREFRAME_DISABLED);
+	}
+	void SetWireRender(bool value) {wireRender = value;}
+	bool IsWireRender() { return wireRender; }
+	WIREFRAME_MODE GetWireframeMode() { return wireframeMode; }
+	void SetToDrawDebugBoneLines(bool param) { debugBoneLines = param; }
+	bool GetToDrawDebugBoneLines() { return debugBoneLines; }
+	void SetToDrawDebugPartitionTree(bool param) { debugPartitionTree = param; }
+	bool GetToDrawDebugPartitionTree() { return debugPartitionTree; }
+	bool GetToDrawDebugEnvProbes() { return debugEnvProbes; }
+	void SetToDrawDebugEnvProbes(bool value) { debugEnvProbes = value; }
+	void SetToDrawDebugEmitters(bool param) { debugEmitters = param; }
+	bool GetToDrawDebugEmitters() { return debugEmitters; }
+	void SetToDrawDebugForceFields(bool param) { debugForceFields = param; }
+	bool GetToDrawDebugForceFields() { return debugForceFields; }
+	void SetToDrawDebugCameras(bool param) { debugCameras = param; }
+	bool GetToDrawDebugCameras() { return debugCameras; }
+	void SetToDrawDebugColliders(bool param) { debugColliders = param; }
+	bool GetToDrawDebugColliders() { return debugColliders; }
+	void SetToDrawDebugSprings(bool param) { debugSprings = param; }
+	bool GetToDrawDebugSprings() { return debugSprings; }
+	bool GetToDrawGridHelper() { return gridHelper; }
+	void SetToDrawGridHelper(bool value) { gridHelper = value; }
+	bool GetToDrawVoxelHelper() { return VXGI_DEBUG; }
+	void SetToDrawVoxelHelper(bool value, int clipmap_level) { VXGI_DEBUG = value; VXGI_DEBUG_CLIPMAP = clipmap_level; }
+	void SetDebugLightCulling(bool enabled) { debugLightCulling = enabled; }
+	bool GetDebugLightCulling() { return debugLightCulling; }
+	void SetAdvancedLightCulling(bool enabled) { advancedLightCulling = enabled; }
+	bool GetAdvancedLightCulling() { return advancedLightCulling; }
+	void SetVariableRateShadingClassification(bool enabled) { variableRateShadingClassification = enabled; }
+	bool GetVariableRateShadingClassification() { return variableRateShadingClassification; }
+	void SetVariableRateShadingClassificationDebug(bool enabled) { variableRateShadingClassificationDebug = enabled; }
+	bool GetVariableRateShadingClassificationDebug() { return variableRateShadingClassificationDebug; }
+	void SetOcclusionCullingEnabled(bool value)
+	{
+		occlusionCulling = value;
+	}
+	bool GetOcclusionCullingEnabled() { return occlusionCulling; }
+	void SetTemporalAAEnabled(bool enabled) { temporalAA = enabled; }
+	bool GetTemporalAAEnabled() { return temporalAA; }
+	void SetTemporalAADebugEnabled(bool enabled) { temporalAADEBUG = enabled; }
+	bool GetTemporalAADebugEnabled() { return temporalAADEBUG; }
+	void SetFreezeCullingCameraEnabled(bool enabled) { freezeCullingCamera = enabled; }
+	bool GetFreezeCullingCameraEnabled() { return freezeCullingCamera; }
+	void SetVXGIEnabled(bool enabled)
+	{
+		VXGI_ENABLED = enabled;
+	}
+	bool GetVXGIEnabled() { return VXGI_ENABLED; }
+	void SetVXGIReflectionsEnabled(bool enabled) { VXGI_REFLECTIONS_ENABLED = enabled; }
+	bool GetVXGIReflectionsEnabled() { return VXGI_REFLECTIONS_ENABLED; }
+	void SetGameSpeed(float value) { GameSpeed = std::max(0.0f, value); }
+	float GetGameSpeed() { return GameSpeed; }
+	void SetShadowsEnabled(bool value)
+	{
+		SHADOWS_ENABLED = value;
+	}
+	bool IsShadowsEnabled()
+	{
+		return SHADOWS_ENABLED;
+	}
+	void SetRaytraceBounceCount(uint32_t bounces)
+	{
+		raytraceBounceCount = bounces;
+	}
+	uint32_t GetRaytraceBounceCount()
+	{
+		return raytraceBounceCount;
+	}
+	void SetRaytraceDebugBVHVisualizerEnabled(bool value)
+	{
+		raytraceDebugVisualizer = value;
+	}
+	bool GetRaytraceDebugBVHVisualizerEnabled()
+	{
+		return raytraceDebugVisualizer;
+	}
+	void SetRaytracedShadowsEnabled(bool value)
+	{
+		raytracedShadows = value;
+	}
+	bool GetRaytracedShadowsEnabled()
+	{
+		return raytracedShadows;
+	}
+	void SetTessellationEnabled(bool value)
+	{
+		tessellationEnabled = value;
+	}
+	bool GetTessellationEnabled()
+	{
+		return tessellationEnabled;
+	}
+	void SetDisableAlbedoMaps(bool value)
+	{
+		disableAlbedoMaps = value;
+	}
+	bool IsDisableAlbedoMaps()
+	{
+		return disableAlbedoMaps;
+	}
+	void SetForceDiffuseLighting(bool value)
+	{
+		forceDiffuseLighting = value;
+	}
+	bool IsForceDiffuseLighting()
+	{
+		return forceDiffuseLighting;
+	}
+	void SetScreenSpaceShadowsEnabled(bool value)
+	{
+		SCREENSPACESHADOWS = value;
+	}
+	bool GetScreenSpaceShadowsEnabled()
+	{
+		return SCREENSPACESHADOWS;
+	}
+	void SetSurfelGIEnabled(bool value)
+	{
+		SURFELGI = value;
+	}
+	bool GetSurfelGIEnabled()
+	{
+		return SURFELGI;
+	}
+	//TO DO:
+	//void SetSurfelGIDebugEnabled(SURFEL_DEBUG value)
+	//{
+	//	SURFELGI_DEBUG = value;
+	//}
+	//SURFEL_DEBUG GetSurfelGIDebugEnabled()
+	//{
+	//	return SURFELGI_DEBUG;
+	//}
+	void SetDDGIEnabled(bool value)
+	{
+		DDGI_ENABLED = value;
+	}
+	bool GetDDGIEnabled()
+	{
+		return DDGI_ENABLED;
+	}
+	void SetDDGIDebugEnabled(bool value)
+	{
+		DDGI_DEBUG_ENABLED = value;
+	}
+	bool GetDDGIDebugEnabled()
+	{
+		return DDGI_DEBUG_ENABLED;
+	}
+	void SetDDGIRayCount(uint32_t value)
+	{
+		DDGI_RAYCOUNT = value;
+	}
+	uint32_t GetDDGIRayCount()
+	{
+		return DDGI_RAYCOUNT;
+	}
+	void SetDDGIBlendSpeed(float value)
+	{
+		DDGI_BLEND_SPEED = value;
+	}
+	float GetDDGIBlendSpeed()
+	{
+		return DDGI_BLEND_SPEED;
+	}
+	void SetGIBoost(float value)
+	{
+		GI_BOOST = value;
+	}
+	float GetGIBoost()
+	{
+		return GI_BOOST;
+	}
+	void SetMeshShaderAllowed(bool value)
+	{
+		MESH_SHADER_ALLOWED = value;
+	}
+	bool IsMeshShaderAllowed()
+	{
+		return MESH_SHADER_ALLOWED && device->CheckCapability(GraphicsDeviceCapability::MESH_SHADER);
+	}
+	void SetMeshletOcclusionCullingEnabled(bool value)
+	{
+		MESHLET_OCCLUSION_CULLING = value;
+	}
+	bool IsMeshletOcclusionCullingEnabled()
+	{
+		return MESHLET_OCCLUSION_CULLING;
+	}
+	void SetCapsuleShadowEnabled(bool value)
+	{
+		CAPSULE_SHADOW_ENABLED = value;
+	}
+	bool IsCapsuleShadowEnabled()
+	{
+		return CAPSULE_SHADOW_ENABLED;
+	}
+	void SetCapsuleShadowAngle(float value)
+	{
+		CAPSULE_SHADOW_ANGLE = value;
+	}
+	float GetCapsuleShadowAngle()
+	{
+		return CAPSULE_SHADOW_ANGLE;
+	}
+	void SetCapsuleShadowFade(float value)
+	{
+		CAPSULE_SHADOW_FADE = value;
+	}
+	float GetCapsuleShadowFade()
+	{
+		return CAPSULE_SHADOW_FADE;
+	}
+	void SetShadowLODOverrideEnabled(bool value)
+	{
+		SHADOW_LOD_OVERRIDE = value;
+	}
+	bool IsShadowLODOverrideEnabled()
+	{
+		return SHADOW_LOD_OVERRIDE;
+	}
+
+	// This is responsible to manage big chunks of GPUBuffer, each of which will be used for suballocations:
+	struct GPUSubAllocator
+	{
+		static constexpr uint64_t blocksize = 256ull * 1024ull * 1024ull; // 256 MB
+		struct Block
+		{
+			allocator::PageAllocator allocator;
+			GPUBuffer buffer;
+		};
+		vector<Block> blocks;
+		std::mutex locker;
+	} static suballocator;
+
+
+
+	BufferSuballocation SuballocateGPUBuffer(uint64_t size)
+	{
+		if (size > GPUSubAllocator::blocksize / 2)
+			return {}; // invalid, larger allocations than half block size will not be suballocated
+
+		// scoped for locker
+		{
+			std::scoped_lock lock(suballocator.locker);
+
+			// See if any of the large blocks can fulfill the allocation request:
+			BufferSuballocation allocation;
+			for (auto& block : suballocator.blocks)
+			{
+				allocation.allocation = block.allocator.allocate(size);
+				if (allocation.allocation.IsValid())
+				{
+					allocation.alias = block.buffer;
+					//wilog("SuballocateGPUBuffer allocated size: %s, pages: %d, free space remaining: %s", pf::helper::GetMemorySizeText(size).c_str(), block.allocator.page_count_from_bytes(size), pf::helper::GetMemorySizeText(allocation.allocation.allocator->allocator.storageReport().totalFreeSpace * block.allocator.page_size).c_str());
+					return allocation;
+				}
+			}
+
+			// Allocation couldn't be fulfilled, create new block:
+			GPUBufferDesc desc;
+			desc.size = GPUSubAllocator::blocksize;
+			if (device->CheckCapability(GraphicsDeviceCapability::CACHE_COHERENT_UMA))
+			{
+				// In UMA mode, it is better to create UPLOAD buffer, this avoids one copy from UPLOAD to DEFAULT
+				desc.usage = Usage::UPLOAD;
+			}
+			else
+			{
+				desc.usage = Usage::DEFAULT;
+			}
+			desc.bind_flags = BindFlag::SHADER_RESOURCE | BindFlag::VERTEX_BUFFER | BindFlag::INDEX_BUFFER;
+			desc.misc_flags = ResourceMiscFlag::ALIASING_BUFFER | ResourceMiscFlag::NO_DEFAULT_DESCRIPTORS;
+			desc.alignment = device->GetMinOffsetAlignment(&desc);
+			auto& block = suballocator.blocks.emplace_back();
+			bool success = device->CreateBuffer(&desc, nullptr, &block.buffer);
+			assert(success);
+			device->SetName(&block.buffer, "GPUSubAllocator");
+			block.allocator.init(desc.size, (uint32_t)desc.alignment, true);
+			//Logger("SuballocateGPUBuffer created buffer block with size: %s, with page size: %s, page count: %d", pf::helper::GetMemorySizeText(block.allocator.total_size_in_bytes()).c_str(), pf::helper::GetMemorySizeText(block.allocator.page_size).c_str(), (int)block.allocator.page_count);
+		}
+		return SuballocateGPUBuffer(size); // retry
+	}
+	void UpdateGPUSuballocator()
+	{
+		std::scoped_lock lock(suballocator.locker);
+		for (auto& block : suballocator.blocks)
+		{
+			block.allocator.update_deferred_release(device->GetFrameCount(), device->GetBufferCount());
+		}
+		for (size_t i = 0; i < suballocator.blocks.size(); ++i)
+		{
+			if (suballocator.blocks[i].allocator.is_empty())
+			{
+				suballocator.blocks.erase(suballocator.blocks.begin() + i);
+				break;
+			}
+		}
+	}
+
+
+	void BlockCompress(const Texture& texture_src, const Texture& texture_bc, CommandList cmd, uint32_t dst_slice_offset)
+	{
+		const uint32_t block_size = GetFormatBlockSize(texture_bc.desc.format);
+		TextureDesc desc;
+		desc.width = std::max(1u, (texture_bc.desc.width + block_size - 1) / block_size);
+		desc.height = std::max(1u, (texture_bc.desc.height + block_size - 1) / block_size);
+		desc.bind_flags = BindFlag::UNORDERED_ACCESS;
+		desc.layout = ResourceState::UNORDERED_ACCESS;
+
+		Texture bc_raw_dest;
+		{
+			// Find a raw block texture that will fit the request:
+			static std::mutex locker;
+			std::scoped_lock lock(locker);
+			static Texture bc_raw_uint2;
+			static Texture bc_raw_uint4;
+			static Texture bc_raw_uint4_cubemap;
+			Texture* bc_raw = nullptr;
+			switch (texture_bc.desc.format)
+			{
+			case Format::BC1_UNORM:
+			case Format::BC1_UNORM_SRGB:
+				desc.format = Format::R32G32_UINT;
+				bc_raw = &bc_raw_uint2;
+				device->BindComputeShader(&shaders[CSTYPE_BLOCKCOMPRESS_BC1], cmd);
+				device->EventBegin("BlockCompress - BC1", cmd);
+				break;
+			case Format::BC3_UNORM:
+			case Format::BC3_UNORM_SRGB:
+				desc.format = Format::R32G32B32A32_UINT;
+				bc_raw = &bc_raw_uint4;
+				device->BindComputeShader(&shaders[CSTYPE_BLOCKCOMPRESS_BC3], cmd);
+				device->EventBegin("BlockCompress - BC3", cmd);
+				break;
+			case Format::BC4_UNORM:
+				desc.format = Format::R32G32_UINT;
+				bc_raw = &bc_raw_uint2;
+				device->BindComputeShader(&shaders[CSTYPE_BLOCKCOMPRESS_BC4], cmd);
+				device->EventBegin("BlockCompress - BC4", cmd);
+				break;
+			case Format::BC5_UNORM:
+				desc.format = Format::R32G32B32A32_UINT;
+				bc_raw = &bc_raw_uint4;
+				device->BindComputeShader(&shaders[CSTYPE_BLOCKCOMPRESS_BC5], cmd);
+				device->EventBegin("BlockCompress - BC5", cmd);
+				break;
+			case Format::BC6H_UF16:
+				desc.format = Format::R32G32B32A32_UINT;
+				if (has_flag(texture_src.desc.misc_flags, ResourceMiscFlag::TEXTURECUBE))
+				{
+					bc_raw = &bc_raw_uint4_cubemap;
+					device->BindComputeShader(&shaders[CSTYPE_BLOCKCOMPRESS_BC6H_CUBEMAP], cmd);
+					device->EventBegin("BlockCompress - BC6H - Cubemap", cmd);
+					desc.array_size = texture_src.desc.array_size; // src array size not dst!!
+				}
+				else
+				{
+					bc_raw = &bc_raw_uint4;
+					device->BindComputeShader(&shaders[CSTYPE_BLOCKCOMPRESS_BC6H], cmd);
+					device->EventBegin("BlockCompress - BC6H", cmd);
+				}
+				break;
+			default:
+				assert(0); // not supported
+				return;
+			}
+
+			if (!bc_raw->IsValid() || bc_raw->desc.width < desc.width || bc_raw->desc.height < desc.height || bc_raw->desc.array_size < desc.array_size)
+			{
+				TextureDesc bc_raw_desc = desc;
+				bc_raw_desc.width = std::max(64u, bc_raw_desc.width);
+				bc_raw_desc.height = std::max(64u, bc_raw_desc.height);
+				bc_raw_desc.width = std::max(bc_raw->desc.width, bc_raw_desc.width);
+				bc_raw_desc.height = std::max(bc_raw->desc.height, bc_raw_desc.height);
+				bc_raw_desc.width = pf::math::GetNextPowerOfTwo(bc_raw_desc.width);
+				bc_raw_desc.height = pf::math::GetNextPowerOfTwo(bc_raw_desc.height);
+				device->CreateTexture(&bc_raw_desc, nullptr, bc_raw);
+				device->SetName(bc_raw, "bc_raw");
+
+				device->ClearUAV(bc_raw, 0, cmd);
+				device->Barrier(GPUBarrier::Memory(bc_raw), cmd);
+
+				std::string info;
+				info += "BlockCompress created a new raw block texture to fit request: " + std::string(GetFormatString(texture_bc.desc.format)) + " (" + std::to_string(texture_bc.desc.width) + ", " + std::to_string(texture_bc.desc.height) + ")";
+				info += "\n\tFormat = ";
+				info += GetFormatString(bc_raw_desc.format);
+				info += "\n\tResolution = " + std::to_string(bc_raw_desc.width) + " * " + std::to_string(bc_raw_desc.height);
+				info += "\n\tArray Size = " + std::to_string(bc_raw_desc.array_size);
+				size_t total_size = 0;
+				total_size += ComputeTextureMemorySizeInBytes(bc_raw_desc);
+				info += "\n\tMemory = " + pf::helper::GetMemorySizeText(total_size) + "\n";
+				pf::backlogger::postin(info);
+			}
+
+			bc_raw_dest = *bc_raw;
+		}
+
+		for (uint32_t mip = 0; mip < texture_bc.desc.mip_levels; ++mip)
+		{
+			const uint32_t src_width = std::max(1u, texture_bc.desc.width >> mip);
+			const uint32_t src_height = std::max(1u, texture_bc.desc.height >> mip);
+			const uint32_t dst_width = (src_width + block_size - 1) / block_size;
+			const uint32_t dst_height = (src_height + block_size - 1) / block_size;
+			device->BindResource(&texture_src, 0, cmd, texture_src.desc.mip_levels == 1 ? -1 : mip);
+			device->BindUAV(&bc_raw_dest, 0, cmd);
+			device->Dispatch((dst_width + 7u) / 8u, (dst_height + 7u) / 8u, desc.array_size, cmd);
+
+			GPUBarrier barriers[] = {
+				GPUBarrier::Image(&bc_raw_dest, ResourceState::UNORDERED_ACCESS, ResourceState::COPY_SRC),
+				GPUBarrier::Image(&texture_bc, texture_bc.desc.layout, ResourceState::COPY_DST),
+			};
+			device->Barrier(barriers, arraysize(barriers), cmd);
+
+			for (uint32_t slice = 0; slice < desc.array_size; ++slice)
+			{
+				Box box;
+				box.left = 0;
+				box.right = dst_width;
+				box.top = 0;
+				box.bottom = dst_height;
+				box.front = 0;
+				box.back = 1;
+
+				device->CopyTexture(
+					&texture_bc, 0, 0, 0, mip, dst_slice_offset + slice,
+					&bc_raw_dest, 0, slice,
+					cmd,
+					&box
+				);
+			}
+
+			for (int i = 0; i < arraysize(barriers); ++i)
+			{
+				std::swap(barriers[i].image.layout_before, barriers[i].image.layout_after);
+			}
+			device->Barrier(barriers, arraysize(barriers), cmd);
+		}
+
+		device->EventEnd(cmd);
+	}
+
 }

@@ -12,3 +12,4 @@
 #include "Engine/Ecore/resource_manager.h"
 #include "Engine/Ecore/texture_helper.h"
 #include "Engine/Ecore/video.h"
+#include "Engine/Ecore/helper.h"

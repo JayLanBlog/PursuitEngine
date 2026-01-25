@@ -10,6 +10,7 @@
 #include "Component/test_component_vk.h"
 #include "Run/app_run.h"
 #include "Run/samples/sprite_app.h"
+#include "Engine/Ecore/scene_component.h"
 
 int main(int argc, char* argv[]) {
 	// Test Lua
@@ -36,7 +37,7 @@ int main(int argc, char* argv[]) {
 
 	//pf::arun::TLauncher luancher;
 	//luancher.run();
-
+	
 	pf::arun::SpriteLauncher launcher;
 	launcher.run();
 	return 0;

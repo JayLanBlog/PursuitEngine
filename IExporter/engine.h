@@ -1,6 +1,8 @@
 #pragma once
 #include "Engine/Component/font.h"
 #include "Engine/Component/rect_packer.h"
+#include "Engine/Component/sprite_font.h"
+
 #include "Engine/Device/graphic.h"
 #include "Engine/Device/graph_driver.h"
 #include "Engine/Device/vulkan_driver.h"

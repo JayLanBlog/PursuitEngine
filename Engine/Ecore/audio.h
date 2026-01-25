@@ -82,14 +82,14 @@ namespace pf::audio {
 	// SoundInstance3D can be attached to a SoundInstance for a 3D effect
 	struct SoundInstance3D
 	{
-		//XMFLOAT3 listenerPos = XMFLOAT3(0, 0, 0);
-		//XMFLOAT3 listenerUp = XMFLOAT3(0, 1, 0);
-		//XMFLOAT3 listenerFront = XMFLOAT3(0, 0, 1);
-		//XMFLOAT3 listenerVelocity = XMFLOAT3(0, 0, 0);
-		//XMFLOAT3 emitterPos = XMFLOAT3(0, 0, 0);
-		//XMFLOAT3 emitterUp = XMFLOAT3(0, 1, 0);
-		//XMFLOAT3 emitterFront = XMFLOAT3(0, 0, 1);
-		//XMFLOAT3 emitterVelocity = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 listenerPos = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 listenerUp = XMFLOAT3(0, 1, 0);
+		XMFLOAT3 listenerFront = XMFLOAT3(0, 0, 1);
+		XMFLOAT3 listenerVelocity = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 emitterPos = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 emitterUp = XMFLOAT3(0, 1, 0);
+		XMFLOAT3 emitterFront = XMFLOAT3(0, 0, 1);
+		XMFLOAT3 emitterVelocity = XMFLOAT3(0, 0, 0);
 		float emitterRadius = 0;
 	};
 	// Call this every frame the listener or the sound instance 3D orientation changes
