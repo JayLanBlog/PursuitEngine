@@ -50,6 +50,10 @@ namespace pf::renderer {
 
 	void AddDeferredBlockCompression(const graphics::Texture& texture_src, const graphics::Texture& texture_bc);
 
+	// Add box to render in next frame. It will be rendered in DrawDebugWorld()
+	void DrawBox(const primitive::AABB& aabb, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
+	void DrawBox(const XMMATRIX& boxMatrix, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
+	void DrawBox(const XMFLOAT4X4& boxMatrix, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
 
 
 	const pf::graphics::Sampler* GetSampler(pf::enums::SAMPLERTYPES id);
@@ -174,15 +178,47 @@ namespace pf::renderer {
 	const pf::vector<CustomShader>& GetCustomShaders();
 
 
+	enum MIPGENFILTER
+	{
+		MIPGENFILTER_POINT,
+		MIPGENFILTER_LINEAR,
+		MIPGENFILTER_GAUSSIAN,
+	};
+	struct MIPGEN_OPTIONS
+	{
+		int arrayIndex = -1;
+		const pf::graphics::Texture* gaussian_temp = nullptr;
+		bool preserve_coverage = false;
+		bool wide_gauss = false;
+	};
+	void GenerateMipChain(const pf::graphics::Texture& texture, MIPGENFILTER filter, pf::graphics::CommandList cmd, const MIPGEN_OPTIONS& options = {});
+
+	void Postprocess_Blur_Gaussian(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& temp,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		int mip_src = -1,
+		int mip_dst = -1,
+		bool wide = false
+	);
+	const graphics::GPUBuffer& GetIndexBufferForQuads(uint32_t max_quad_count);
 
 	// Compress a texture into Block Compressed format
-//	texture_src	: source uncompressed texture
-//	texture_bc	: destination comporessed texture, must be a supported BC format (BC1/BC3/BC4/BC5/BC6H_UFLOAT)
-//	Currently this will handle simple Texture2D with mip levels, and additionally BC6H cubemap
+	//	texture_src	: source uncompressed texture
+	//	texture_bc	: destination comporessed texture, must be a supported BC format (BC1/BC3/BC4/BC5/BC6H_UFLOAT)
+	//	Currently this will handle simple Texture2D with mip levels, and additionally BC6H cubemap
 	void BlockCompress(const pf::graphics::Texture& texture_src, const pf::graphics::Texture& texture_bc, pf::graphics::CommandList cmd, uint32_t dst_slice_offset = 0);
 
+	// Binds all common constant buffers and samplers that may be used in all shaders
+	void BindCommonResources(graphics::CommandList cmd);
 
 
 	constexpr uint8_t raytracing_inclusion_mask_shadow = 1 << 0;
 	constexpr uint8_t raytracing_inclusion_mask_reflection = 1 << 1;
+
+	// Thread-local barrier batching helpers:
+	void PushBarrier(const graphics::GPUBarrier& barrier);
+	void FlushBarriers(graphics::CommandList cmd);
+
 }

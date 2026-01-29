@@ -1,9 +1,9 @@
 #pragma once
 #include "font.h"
-#include "engine_core.h"
-
-
 #include <string>
+#include <Engine/Ecore/resource_manager.h>
+#include <Engine/Ecore/primitive.h>
+#include <Module/Filer/file_helper.h>
 
 
 

@@ -9,33 +9,26 @@
 #include "Shader/ShaderInterop_Renderer.h"
 #include "resource_manager.h"
 #include "bvh.h"
-#include "module.h"
+#include "ocean.h"
+#include "path_query.h"
 #include "engine_component.h"
-#include "module_mem.h"
-
 
 namespace pf::scene 
 {
-
 	struct NameComponent
 	{
 		std::string name;
-
 		inline void operator=(const std::string& str) { name = str; }
 		inline void operator=(std::string&& str) { name = std::move(str); }
 		inline bool operator==(const std::string& str) const { return name.compare(str) == 0; }
-
 		void Serialize(pf::Archive& archive, pf::ecs::EntitySerializer& seri);
 	};
 	struct LayerComponent
 	{
 		uint32_t layerMask = ~0u;
-
 		// Non-serialized attributes:
 		uint32_t propagationMask = ~0u; // This shouldn't be modified by user usually
-
 		constexpr uint32_t GetLayerMask() const { return layerMask & propagationMask; }
-
 		void Serialize(pf::Archive& archive, pf::ecs::EntitySerializer& seri);
 	};
 
@@ -108,11 +101,8 @@ namespace pf::scene
 	{
 		pf::ecs::Entity parentID = pf::ecs::INVALID_ENTITY;
 		uint32_t layerMask_bind; // saved child layermask at the time of binding
-
 		void Serialize(pf::Archive& archive, pf::ecs::EntitySerializer& seri);
 	};
-
-
 
 	struct alignas(32) MaterialComponent
 	{
@@ -173,6 +163,7 @@ namespace pf::scene
 			{"TERRAINBLENDED"}, //SHADERTYPE_PBR_TERRAINBLENDED
 			{"INTERIORMAPPING"}, //SHADERTYPE_INTERIORMAPPING
 		};
+
 		static_assert(SHADERTYPE_COUNT == arraysize(shaderTypeDefines), "These values must match!");
 
 		pf::enums::STENCILREF engineStencilRef = pf::enums::STENCILREF_DEFAULT;
@@ -184,6 +175,7 @@ namespace pf::scene
 		XMFLOAT4 subsurfaceScattering = XMFLOAT4(1, 1, 1, 0);
 		XMFLOAT4 extinctionColor = XMFLOAT4(0, 0.9f, 1, 1);
 		XMFLOAT4 texMulAdd = XMFLOAT4(1, 1, 0, 0); // dynamic multiplier (.xy) and addition (.zw) for UV coordinates
+		
 		float roughness = 0.2f;
 		float reflectance = 0.02f;
 		float metalness = 0.0f;
@@ -237,6 +229,7 @@ namespace pf::scene
 
 			TEXTURESLOT_COUNT
 		};
+
 		struct TextureMap
 		{
 			std::string name;
@@ -259,9 +252,8 @@ namespace pf::scene
 
 		int customShaderID = -1;
 		uint4 userdata = uint4(0, 0, 0, 0); // can be accessed by custom shader
-
 		pf::ecs::Entity cameraSource = pf::ecs::INVALID_ENTITY; // take texture from camera render
-
+		
 		// Non-serialized attributes:
 		uint32_t layerMask = ~0u;
 		int sampler_descriptor = -1; // optional, you can modify this to overwrite global sampler for this material
@@ -570,10 +562,10 @@ namespace pf::scene
 			Hinge,		// rotation around a point on the UP axis of the contraint transform
 			Cone,		// constrain to a cone shape specified by the cone angle (cone axis: UP)
 			SixDOF,		// manual specification of axes movement and rotation limits
-			SpfngTpfst,	// cone (UP axis) + rotational limits
+			SwingTwist,	// cone (UP axis) + rotational limits
 			Slider,		// constrain on the RIGHT axis between limits
 		} type = Type::Fixed;
-
+		
 		pf::ecs::Entity bodyA = pf::ecs::INVALID_ENTITY;
 		pf::ecs::Entity bodyB = pf::ecs::INVALID_ENTITY;
 
@@ -1252,7 +1244,7 @@ namespace pf::scene
 			SAFE_TO_REGISTER = 1 << 0,
 			DISABLE_DEACTIVATION = 1 << 1,
 			_DEPRECATED_FORCE_RESET = 1 << 2,
-			pfND = 1 << 3,
+			WIND = 1 << 3,
 		};
 		uint32_t _flags = DISABLE_DEACTIVATION;
 
@@ -1274,10 +1266,10 @@ namespace pf::scene
 		pf::primitive::AABB aabb;
 
 		constexpr void SetDisableDeactivation(bool value) { if (value) { _flags |= DISABLE_DEACTIVATION; } else { _flags &= ~DISABLE_DEACTIVATION; } }
-		constexpr void SetWindEnabled(bool value) { if (value) { _flags |= pfND; } else { _flags &= ~pfND; } }
+		constexpr void SetWindEnabled(bool value) { if (value) { _flags |= WIND; } else { _flags &= ~WIND; } }
 
 		constexpr bool IsDisableDeactivation() const { return _flags & DISABLE_DEACTIVATION; }
-		constexpr bool IspfndEnabled() const { return _flags & pfND; }
+		constexpr bool IsWindEnabled() const { return _flags & WIND; }
 
 		void Reset()
 		{
@@ -1869,7 +1861,7 @@ namespace pf::scene
 		float rain_splash_scale = 0.1f;
 		XMFLOAT4 rain_color = XMFLOAT4(0.6f, 0.8f, 1, 0.5f);
 
-		// TODO:	pf::Ocean::OceanParameters oceanParameters;
+		pf::Ocean::OceanParameters oceanParameters;
 		AtmosphereParameters atmosphereParameters;
 		VolumetricCloudParameters volumetricCloudParameters;
 
@@ -2495,7 +2487,7 @@ namespace pf::scene
 		pf::ecs::Entity humanoidEntity = pf::ecs::INVALID_ENTITY;
 		pf::ecs::Entity left_foot = pf::ecs::INVALID_ENTITY;
 		pf::ecs::Entity right_foot = pf::ecs::INVALID_ENTITY;
-		// TODO:	pf::PathQuery pathquery; // completed
+		pf::PathQuery pathquery; // completed
 		pf::vector<pf::ecs::Entity> animations;
 		pf::ecs::Entity currentAnimation = pf::ecs::INVALID_ENTITY;
 		XMFLOAT3 goal = XMFLOAT3(0, 0, 0);
@@ -2510,14 +2502,14 @@ namespace pf::scene
 		{
 			pf::jobsystem::context ctx;
 			volatile long process_goal_completed = 0;
-			// TODO:	pf::PathQuery pathquery_work; // working
+			pf::PathQuery pathquery_work; // working
 			~PathfindingThreadContext()
 			{
 				pf::jobsystem::Wait(ctx);
 			}
 		};
 		std::shared_ptr<PathfindingThreadContext> pathfinding_thread; // separate allocation, mustn't be reallocated while path finding thread is running
-		// TODO:	const pf::VoxelGrid* voxelgrid = nullptr;
+		const pf::VoxelGrid* voxelgrid = nullptr;
 
 		// Apply movement to the character in the next update
 		void Move(const XMFLOAT3& direction);
@@ -2593,7 +2585,7 @@ namespace pf::scene
 
 		// Set the goal for path finding, it pfll be processed the next time the scene is updated.
 		//	You can get the results by accessing the pathquery object of the character.
-	// TODO:	void SetPathGoal(const XMFLOAT3& goal, const pf::VoxelGrid* voxelgrid);
+		void SetPathGoal(const XMFLOAT3& goal, const pf::VoxelGrid* voxelgrid);
 
 		// Enable/disable the character's processing
 		void SetActive(bool value);

@@ -15,7 +15,7 @@
 namespace pf
 {
 	// This can hold an asset
-	//	It can be loaded from file or memory using wi::resourcemanager::Load()
+	//	It can be loaded from file or memory using pf::resourcemanager::Load()
 	struct Resource
 	{
 		std::shared_ptr<void> internal_state;

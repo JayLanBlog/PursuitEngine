@@ -135,7 +135,7 @@ namespace pf::image {
 		constexpr void setMaskMap(const graphics::Texture* tex) { maskMap = tex; }
 		// Set a texture that will be used to blend to the transparent part of the image with screen coordinates
 		//	Will be used if using enableBackground()
-		//	If you don't set this per image, then wi::image::SetBackground() will be used instead
+		//	If you don't set this per image, then pf::image::SetBackground() will be used instead
 		constexpr void setBackgroundMap(const graphics::Texture* tex) { backgroundMap = tex; }
 
 		constexpr bool isDrawRectEnabled() const { return _flags & DRAWRECT; }
@@ -164,7 +164,7 @@ namespace pf::image {
 		// enable full screen override. It will draw the image over the full screen, disabling any positioning and sizing setup
 		constexpr void enableFullScreen() { _flags |= FULLSCREEN; }
 		// enable background, which samples a background screen texture on transparent areas instead of alpha blending
-		//	the background tex should be bound with wi::image::SetBackground() beforehand
+		//	the background tex should be bound with pf::image::SetBackground() beforehand
 		constexpr void enableBackground() { _flags |= BACKGROUND; }
 		// enable HDR10 output mapping, if this image can be interpreted in linear space and converted to HDR10 display format
 		constexpr void enableHDR10OutputMapping() { _flags |= OUTPUT_COLOR_SPACE_HDR10_ST2084; }

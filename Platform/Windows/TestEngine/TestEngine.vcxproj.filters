@@ -447,7 +447,7 @@
     <ClCompile Include="..\..\..\Engine\Component\font.cpp">
       <Filter>engine\component</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Module\Util\profiler.cpp">
+    <ClCompile Include="..\..\..\Module\Util\profiler_p.cpp">
       <Filter>module\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Test\Profiler\test_profiler.cpp">
@@ -936,6 +936,33 @@
     <ClCompile Include="..\..\..\Thirdparty\Jolt\Physics\StateRecorderImpl.cpp">
       <Filter>Thirdparty\Jolt\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\ocean.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\fft_generator.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\voxel_grid.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\gpu_bvh.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\gpu_sortlib.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\hair_particle.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\emitted_particle.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\terrain.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\path_query.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Thirdparty\Lua\lapi.h">
@@ -1362,9 +1389,6 @@
       <Filter>engine\ecore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\Ecore\scene_decl.h">
-      <Filter>engine\ecore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Engine\Ecore\ocean.h">
       <Filter>engine\ecore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\Ecore\bvh.h">
@@ -2272,6 +2296,33 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Thirdparty\Jolt\Physics\StateRecorderImpl.h">
       <Filter>Thirdparty\Jolt\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\ocean.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\fft_generator.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\voxel_grid.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\gpu_bvh.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\gpu_sortlib.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\hair_particle.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\emitted_particle.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\terrain.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\path_query.h">
+      <Filter>engine\ecore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

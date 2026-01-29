@@ -58,7 +58,7 @@ namespace pf::font {
 
 				if (!stbtt_InitFont(&fontInfo, data, offset))
 				{
-					//wi::backlog::post("Failed to load font: " + name + " (file was unrecognized, it must be a .ttf file)");
+					//pf::backlog::post("Failed to load font: " + name + " (file was unrecognized, it must be a .ttf file)");
 				}
 
 				stbtt_GetFontVMetrics(&fontInfo, &ascent, &descent, &lineGap);
@@ -71,7 +71,7 @@ namespace pf::font {
 				}
 				else
 				{
-					//wi::backlog::post("Failed to load font: " + name + " (file could not be opened)");
+					//pf::backlog::post("Failed to load font: " + name + " (file could not be opened)");
 				}
 			}
 		};
@@ -352,7 +352,7 @@ namespace pf::font {
 
 		//static pf::eventhandler::Handle handle1 = pf::eventhandler::Subscribe(pf::eventhandler::EVENT_RELOAD_SHADERS, [](uint64_t userdata) { LoadShaders(); });
 		LoadShaders();
-		log("wi::font Initialized (%d ms)", (int)std::round(timer.elapsed()));
+		p_log("pf::font Initialized (%d ms)", (int)std::round(timer.elapsed()));
 	}
 
 	void InvalidateAtlas()
@@ -515,7 +515,7 @@ namespace pf::font {
 				}
 				// Upload the CPU-side texture atlas bitmap to the GPU:
 				pf::texturehelper::CreateTexture(texture, atlas.data(), atlasWidth, atlasHeight, Format::R8_UNORM);
-				GetDevice()->SetName(&texture, "wi::font::texture");
+				GetDevice()->SetName(&texture, "pf::font::texture");
 			}
 			else
 			{
@@ -653,7 +653,7 @@ namespace pf::font {
 			}
 			else
 			{
-				// Asserts will check that a proper canvas was set for this cmd with wi::image::SetCanvas()
+				// Asserts will check that a proper canvas was set for this cmd with pf::image::SetCanvas()
 				//	The canvas must be set to have dpi aware rendering
 				assert(canvas.width > 0);
 				assert(canvas.height > 0);

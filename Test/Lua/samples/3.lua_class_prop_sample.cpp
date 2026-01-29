@@ -35,7 +35,7 @@ public:
 				b = Luaer::SGetInt(L, 2);
 			}
 		}
-		//sprite = wi::Sprite(name, mask);
+		//sprite = pf::Sprite(name, mask);
 		test = Test(a,b);
 	}
 

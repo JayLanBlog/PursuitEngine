@@ -199,7 +199,7 @@ namespace pf::texturehelper {
 			device->SetName(&helperTextures[HELPERTEXTURE_NORMALMAPDEFAULT], "HELPERTEXTURE_NORMALMAPDEFAULT");
 		}
 
-		log("pf::texturehelper Initialized (%d ms)", (int)std::round(timer.elapsed()));
+		p_log("pf::texturehelper Initialized (%d ms)", (int)std::round(timer.elapsed()));
 
 	}
 

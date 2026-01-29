@@ -882,7 +882,7 @@ namespace pf {
 
 			case DataType::FONTSTYLE:
 			{
-				//resource->font_style = wi::font::AddFontStyle(name, filedata, filesize, true);
+				//resource->font_style = pf::font::AddFontStyle(name, filedata, filesize, true);
 				success = resource->font_style >= 0;
 			}
 			break;

@@ -1,12 +1,11 @@
 #pragma once
 #include "draw_image.h"
-#include "engine_device.h"
-#include "module_util.h"
 #include "archive.h"
-#include "ecs.h"
 
+#include <Engine/Ecore/resource_manager.h>
 #include <memory>
 #include <string>
+#include <Module/Util/random.h>
 
 namespace pf {
 	class Sprite {
@@ -123,8 +122,6 @@ namespace pf {
 		}
 
 		void Serialize(pf::Archive& archive, pf::ecs::EntitySerializer& seri);
-
-
 	};
 
 }

@@ -77,14 +77,14 @@ namespace pf::shadercompiler
 					uint32_t major = 0;
 					hr = info->GetVersion(&major, &minor);
 					assert(SUCCEEDED(hr));
-				//	wi::backlog::post("wi::shadercompiler: loaded " + library + " (version: " + std::to_string(major) + "." + std::to_string(minor) + ")");
+				//	pf::backlog::post("pf::shadercompiler: loaded " + library + " (version: " + std::to_string(major) + "." + std::to_string(minor) + ")");
 				}
 			}
 			else
 			{
-				//Logger("wi::shadercompiler: could not load library " wi::backlog::LogLevel::Error);
+				//Logger("pf::shadercompiler: could not load library " pf::backlog::LogLevel::Error);
 #ifdef PLATFORM_LINUX
-				wi::backlog::post(dlerror(), wi::backlog::LogLevel::Error); // print dlopen() error detail: https://linux.die.net/man/3/dlerror
+				pf::backlog::post(dlerror(), pf::backlog::LogLevel::Error); // print dlopen() error detail: https://linux.die.net/man/3/dlerror
 #endif // PLATFORM_LINUX
 			}
 
@@ -598,7 +598,7 @@ namespace pf::shadercompiler
 				D3DCompile = (PFN_D3DCOMPILE)wiGetProcAddress(d3dcompiler, "D3DCompile");
 				if (D3DCompile != nullptr)
 				{
-					//wi::backlog::post("wi::shadercompiler: loaded d3dcompiler_47.dll");
+					//pf::backlog::post("pf::shadercompiler: loaded d3dcompiler_47.dll");
 				}
 			}
 		}
@@ -767,7 +767,7 @@ namespace pf::shadercompiler
 
 #ifdef SHADERCOMPILER_PS5_INCLUDED
 		case ShaderFormat::PS5:
-			wi::shadercompiler::ps5::Compile(input, output);
+			pf::shadercompiler::ps5::Compile(input, output);
 			break;
 #endif // SHADERCOMPILER_PS5_INCLUDED
 

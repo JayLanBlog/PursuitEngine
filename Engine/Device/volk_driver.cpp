@@ -1545,7 +1545,7 @@ namespace pf::graphics {
 
 		while (vulkan_check(vkWaitForFences(device->device, 1, &cmd.fence, VK_TRUE, timeout_value)) == VK_TIMEOUT)
 		{
-			log_error("[CopyAllocator::submit] vkWaitForFences resulted in VK_TIMEOUT");
+			p_log_error("[CopyAllocator::submit] vkWaitForFences resulted in VK_TIMEOUT");
 			std::this_thread::yield();
 		}
 
@@ -3647,7 +3647,7 @@ namespace pf::graphics {
 			vulkan_check(vkCreateSampler(device, &createInfo, nullptr, &immutable_samplers.emplace_back()));
 		}
 
-		log("Created GraphicsDevice_Vulkan (%d ms)\nAdapter: %s", (int)std::round(timer.elapsed()), adapterName.c_str());
+		p_log("Created GraphicsDevice_Vulkan (%d ms)\nAdapter: %s", (int)std::round(timer.elapsed()), adapterName.c_str());
 	}
 	GraphicsDevice_Vulkan::~GraphicsDevice_Vulkan()
 	{
@@ -4097,7 +4097,7 @@ namespace pf::graphics {
 			}
 			else
 			{
-				log_assert(alias->mapped_data != nullptr, "Aliased buffer created with mapping request, but the aliasing storage resource was not mapped!");
+				p_log_assert(alias->mapped_data != nullptr, "Aliased buffer created with mapping request, but the aliasing storage resource was not mapped!");
 				buffer->mapped_data = (uint8_t*)alias->mapped_data + alias_offset;
 				buffer->mapped_size = desc->size;
 			}
@@ -7475,7 +7475,7 @@ namespace pf::graphics {
 			{
 				while (vulkan_check(vkWaitForFences(device, waitFenceCount, waitFences, VK_TRUE, timeout_value)) == VK_TIMEOUT)
 				{
-					log_error(
+					p_log_error(
 						"[SubmitCommandLists] vkWaitForFences resulted in VK_TIMEOUT, fence statuses:\nQUEUE_GRAPHICS = %s\nQUEUE_COMPUTE = %s\nQUEUE_COPY = %s\nQUEUE_VIDEO_DECODE = %s",
 						frame_fence[bufferindex][QUEUE_GRAPHICS] == VK_NULL_HANDLE ? "OK" : string_VkResult(vkGetFenceStatus(device, frame_fence[bufferindex][QUEUE_GRAPHICS])),
 						frame_fence[bufferindex][QUEUE_COMPUTE] == VK_NULL_HANDLE ? "OK" : string_VkResult(vkGetFenceStatus(device, frame_fence[bufferindex][QUEUE_COMPUTE])),
@@ -7789,7 +7789,7 @@ namespace pf::graphics {
 				q = &queue_sparse;
 			}
 			std::scoped_lock lock(*q->locker);
-			log_assert(q->sparse_binding_supported, "Vulkan sparse mapping was used while the feature is not available! This can result in broken rendering or crash. Try to update the graphics driver if this happens.");
+			p_log_assert(q->sparse_binding_supported, "Vulkan sparse mapping was used while the feature is not available! This can result in broken rendering or crash. Try to update the graphics driver if this happens.");
 
 			vulkan_check(vkQueueBindSparse(q->queue, (uint32_t)sparse_infos.size(), sparse_infos.data(), VK_NULL_HANDLE));
 		}
@@ -7825,7 +7825,7 @@ namespace pf::graphics {
 			);
 			if (res == VK_TIMEOUT)
 			{
-				log_error("vkAcquireNextImageKHR resulted in VK_TIMEOUT, retrying");
+				p_log_error("vkAcquireNextImageKHR resulted in VK_TIMEOUT, retrying");
 				std::this_thread::yield();
 			}
 		} while (res == VK_TIMEOUT);

@@ -31,7 +31,7 @@
 #include <atomic>
 #include <mutex>
 #include <algorithm>
-#define vulkan_assert(cond, fname) { log_assert(cond, "Vulkan error: %s failed with %s (%s:%d)", fname, string_VkResult(res), relative_path(__FILE__), __LINE__); }
+#define vulkan_assert(cond, fname) { p_log_assert(cond, "Vulkan error: %s failed with %s (%s:%d)", fname, string_VkResult(res), relative_path(__FILE__), __LINE__); }
 #define vulkan_check(call) [&]() { VkResult res = call; vulkan_assert((res >= VK_SUCCESS), extract_function_name(#call).c_str()); return res; }()
 
 
@@ -671,7 +671,7 @@ public:
 						//	Because shader compiler sometimes incorrectly loads descriptor outside of safety branch
 						//	Note: these are never freed, this is intentional
 						int index = allocate();
-						log_assert(index == 0, "Descriptor safety feature error: descriptor index must be 0!");
+						p_log_assert(index == 0, "Descriptor safety feature error: descriptor index must be 0!");
 						VkWriteDescriptorSet write = {};
 						write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 						write.descriptorType = type;
@@ -709,7 +709,7 @@ public:
 							write.pImageInfo = &image_info;
 							break;
 						default:
-							log_assert(0, "Descriptor safety feature error: descriptor type not handled!");
+							p_log_assert(0, "Descriptor safety feature error: descriptor type not handled!");
 							break;
 						}
 						vkUpdateDescriptorSets(device->device, 1, &write, 0, nullptr);

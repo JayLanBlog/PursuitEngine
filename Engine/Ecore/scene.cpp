@@ -7,7 +7,7 @@
 #include "module_util.h"
 #include "Shader/ShaderInterop_SurfelGI.h"
 #include "Shader/ShaderInterop_DDGI.h"
-
+#include "physics.h"
 
 #if __has_include(<sanitizer/asan_interface.h>)
 #include <sanitizer/asan_interface.h>
@@ -1164,7 +1164,7 @@ namespace pf::scene {
 
 		Merge(tmp);
 
-		log("Scene::Instantiate took %.2f ms", timer.elapsed_milliseconds());
+		p_log("Scene::Instantiate took %.2f ms", timer.elapsed_milliseconds());
 
 		return rootEntity;
 	}
@@ -5441,23 +5441,23 @@ namespace pf::scene {
 
 			if (video.IsPlaying())
 			{
-				video.videoinstance.flags = pf::video::VideoInstance::Flags::Playing;   //TO DO: |= pf::video::VideoInstance::Flags::Playing;
+				video.videoinstance.flags |= pf::video::VideoInstance::Flags::Playing;
 			}
 			else
 			{
-				video.videoinstance.flags = pf::video::VideoInstance::Flags::Playing; //TO DO: &= ~pf::video::VideoInstance::Flags::Playing;
+				video.videoinstance.flags &= ~pf::video::VideoInstance::Flags::Playing;
 			}
 
 			if (video.IsLooped())
 			{
-				video.videoinstance.flags  = pf::video::VideoInstance::Flags::Looped;//TO DO: |= pf::video::VideoInstance::Flags::Looped;
+				video.videoinstance.flags |= pf::video::VideoInstance::Flags::Looped;
 			}
 			else
 			{
-				video.videoinstance.flags = pf::video::VideoInstance::Flags::Looped;//&= ~pf::video::VideoInstance::Flags::Looped;
+				video.videoinstance.flags &= ~pf::video::VideoInstance::Flags::Looped;
 			}
 
-			video.videoinstance.flags = pf::video::VideoInstance::Flags::Mipmapped;// |= pf::video::VideoInstance::Flags::Mipmapped;
+			video.videoinstance.flags |= pf::video::VideoInstance::Flags::Mipmapped;
 
 			pf::video::UpdateVideo(&video.videoinstance, dt);
 		}
@@ -5635,34 +5635,34 @@ namespace pf::scene {
 				// Swimming:
 				character.swimming = false;
 				float swim_offset = 0;
-				//if (humanoid != nullptr && humanoid->bones[size_t(HumanoidComponent::HumanoidBone::Neck)] != INVALID_ENTITY)
-				//{
-				//	Entity neck_entity = humanoid->bones[size_t(HumanoidComponent::HumanoidBone::Neck)];
-				//	TransformComponent* neck_transform = transforms.GetComponent(neck_entity);
-				//	if (neck_transform != nullptr)
-				//	{
-				//		XMFLOAT3 neck_pos = neck_transform->GetPosition();
-				//		neck_pos.y += character.water_vertical_offset;
-				//		XMFLOAT3 ocean_pos = GetOceanPosAt(neck_pos);
-				//		float water_distance = ocean_pos.y - neck_pos.y;
-				//		if (water_distance > 0)
-				//		{
-				//			// Ocean is above the neck:
-				//			character.swimming = true;
-				//			swim_offset = water_distance;
-				//		}
-				//		else
-				//		{
-				//			Ray ray(neck_pos, XMFLOAT3(0, 1, 0), 0, 100);
-				//			RayIntersectionResult result = Intersects(ray, FILTER_WATER);
-				//			if (result.entity != INVALID_ENTITY)
-				//			{
-				//				character.swimming = true;
-				//				swim_offset = result.distance;
-				//			}
-				//		}
-				//	}
-				//}
+				if (humanoid != nullptr && humanoid->bones[size_t(HumanoidComponent::HumanoidBone::Neck)] != INVALID_ENTITY)
+				{
+					Entity neck_entity = humanoid->bones[size_t(HumanoidComponent::HumanoidBone::Neck)];
+					TransformComponent* neck_transform = transforms.GetComponent(neck_entity);
+					if (neck_transform != nullptr)
+					{
+						XMFLOAT3 neck_pos = neck_transform->GetPosition();
+						neck_pos.y += character.water_vertical_offset;
+						XMFLOAT3 ocean_pos = GetOceanPosAt(neck_pos);
+						float water_distance = ocean_pos.y - neck_pos.y;
+						if (water_distance > 0)
+						{
+							// Ocean is above the neck:
+							character.swimming = true;
+							swim_offset = water_distance;
+						}
+						else
+						{
+							Ray ray(neck_pos, XMFLOAT3(0, 1, 0), 0, 100);
+							RayIntersectionResult result = Intersects(ray, FILTER_WATER);
+							if (result.entity != INVALID_ENTITY)
+							{
+								character.swimming = true;
+								swim_offset = result.distance;
+							}
+						}
+					}
+				}
 
 				character.accumulator += dt;
 
@@ -5836,7 +5836,7 @@ namespace pf::scene {
 				}
 
 				// Try to put water ripple under character:
-				/*if (horizontal_velocity_length > 0.01)
+				if (horizontal_velocity_length > 0.01)
 				{
 					XMFLOAT3 ocean_pos = GetOceanPosAt(character.position);
 					if (character.position.y < ocean_pos.y)
@@ -5852,7 +5852,7 @@ namespace pf::scene {
 							PutWaterRipple(result.position);
 						}
 					}
-				}*/
+				}
 
 				XMStoreFloat3(&character.position, position);
 				XMStoreFloat3(&character.velocity, velocity);
@@ -5868,9 +5868,9 @@ namespace pf::scene {
 					if (AtomicLoad(&character.pathfinding_thread->process_goal_completed) != 0)
 					{
 						AtomicAnd(&character.pathfinding_thread->process_goal_completed, 0);
-					//	std::swap(character.pathfinding_thread->pathquery_work, character.pathquery);
+						std::swap(character.pathfinding_thread->pathquery_work, character.pathquery);
 					}
-					/*if (character.process_goal && character.voxelgrid != nullptr && !pf::jobsystem::IsBusy(character.pathfinding_thread->ctx))
+					if (character.process_goal && character.voxelgrid != nullptr && !pf::jobsystem::IsBusy(character.pathfinding_thread->ctx))
 					{
 						character.process_goal = false;
 						character.pathfinding_thread->ctx.priority = pf::jobsystem::Priority::Low;
@@ -5878,7 +5878,7 @@ namespace pf::scene {
 							character.pathfinding_thread->pathquery_work.process(character.position, character.goal, *character.voxelgrid);
 							AtomicOr(&character.pathfinding_thread->process_goal_completed, 1);
 							});
-					}*/
+					}
 				}
 			}
 
@@ -8434,7 +8434,7 @@ namespace pf::scene {
 			}
 		}
 	}
-	/*
+	
 	//TO DO :
 	void Scene::VoxelizeObject(size_t objectIndex, pf::VoxelGrid& grid, bool subtract, uint32_t lod)
 	{
@@ -8566,7 +8566,7 @@ namespace pf::scene {
 			}
 		}
 		pf::jobsystem::Wait(ctx);
-	}*/
+	}
 
 	XMFLOAT3 Scene::GetPositionOnSurface(Entity objectEntity, int vertexID0, int vertexID1, int vertexID2, const XMFLOAT2& bary) const
 	{
@@ -8673,12 +8673,12 @@ namespace pf::scene {
 
 
 	//TO DO:
-	//XMFLOAT3 Scene::GetOceanPosAt(const XMFLOAT3& worldPosition) const
-	//{
-	//	if (!ocean.IsValid())
-	//		return worldPosition;
-	//	return ocean.GetDisplacedPosition(worldPosition);
-	//}
+	XMFLOAT3 Scene::GetOceanPosAt(const XMFLOAT3& worldPosition) const
+	{
+		if (!ocean.IsValid())
+			return worldPosition;
+		return ocean.GetDisplacedPosition(worldPosition);
+	}
 
 	uint32_t Scene::ComputeObjectLODForView(const ObjectComponent& object, const AABB& aabb, const MeshComponent& mesh, const XMMATRIX& ViewProjection) const
 	{
@@ -9487,7 +9487,7 @@ namespace pf::scene {
 				{
 					names.Create(entity).name += "_nanfix";
 				}
-				log_warning("NAN was detected in transform, it will be cleared and name will be postfixed with _nanfix! Entity ID: %llu , name = %s", (unsigned long long)entity, names.GetComponent(entity)->name.c_str());
+				p_log_warning("NAN was detected in transform, it will be cleared and name will be postfixed with _nanfix! Entity ID: %llu , name = %s", (unsigned long long)entity, names.GetComponent(entity)->name.c_str());
 				transform.ClearTransform();
 			}
 		}
@@ -9513,7 +9513,7 @@ namespace pf::scene {
 				}
 			}
 		}
-		log("DeleteDuplicateColliders: removed %d duplicate colliders", cnt);
+		p_log("DeleteDuplicateColliders: removed %d duplicate colliders", cnt);
 	}
 
 	void Scene::UpdateHumanoidFacings()

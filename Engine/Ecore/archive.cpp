@@ -72,13 +72,13 @@ namespace pf {
 			(*this) >> header.version;
 			if (header.version < __archiveVersionBarrier)
 			{
-				//wi::helper::messageBox("File is not supported!\nReason: The archive version (" + std::to_string(header.version) + ") is no longer supported! This is likely because trying to open a file that was created by a version of Wicked Engine that is too old.", "Error!");
+				//pf::helper::messageBox("File is not supported!\nReason: The archive version (" + std::to_string(header.version) + ") is no longer supported! This is likely because trying to open a file that was created by a version of Wicked Engine that is too old.", "Error!");
 				Close();
 				return;
 			}
 			if (header.version > __archiveVersion)
 			{
-				//wi::helper::messageBox("File is not supported!\nReason: The archive version (" + std::to_string(header.version) + ") is higher than the program's (" + std::to_string(__archiveVersion) + ")!\nThis is likely due to trying to open an Archive file that was not created by Wicked Engine.", "Error!");
+				//pf::helper::messageBox("File is not supported!\nReason: The archive version (" + std::to_string(header.version) + ") is higher than the program's (" + std::to_string(__archiveVersion) + ")!\nThis is likely due to trying to open an Archive file that was not created by Wicked Engine.", "Error!");
 				Close();
 				return;
 			}

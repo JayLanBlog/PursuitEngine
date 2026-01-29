@@ -246,7 +246,7 @@ namespace pf {
 						BOOL priority_result = SetThreadPriority(handle, THREAD_PRIORITY_NORMAL);
 						assert(priority_result != 0);
 
-						std::wstring wthreadname = L"wi::job_" + std::to_wstring(threadID);
+						std::wstring wthreadname = L"pf::job_" + std::to_wstring(threadID);
 						HRESULT hr = SetThreadDescription(handle, wthreadname.c_str());
 						assert(SUCCEEDED(hr));
 					}
@@ -255,7 +255,7 @@ namespace pf {
 						BOOL priority_result = SetThreadPriority(handle, THREAD_PRIORITY_LOWEST);
 						assert(priority_result != 0);
 
-						std::wstring wthreadname = L"wi::job_lo_" + std::to_wstring(threadID);
+						std::wstring wthreadname = L"pf::job_lo_" + std::to_wstring(threadID);
 						HRESULT hr = SetThreadDescription(handle, wthreadname.c_str());
 						assert(SUCCEEDED(hr));
 					}
@@ -264,7 +264,7 @@ namespace pf {
 						BOOL priority_result = SetThreadPriority(handle, THREAD_PRIORITY_BELOW_NORMAL);
 						assert(priority_result != 0);
 
-						std::wstring wthreadname = L"wi::job_st_" + std::to_wstring(threadID);
+						std::wstring wthreadname = L"pf::job_st_" + std::to_wstring(threadID);
 						HRESULT hr = SetThreadDescription(handle, wthreadname.c_str());
 						assert(SUCCEEDED(hr));
 					}
@@ -285,14 +285,14 @@ namespace pf {
 
 					if (priority == Priority::High)
 					{
-						std::string thread_name = "wi::job_" + std::to_string(threadID);
+						std::string thread_name = "pf::job_" + std::to_string(threadID);
 						ret = pthread_setname_np(handle, thread_name.c_str());
 						if (ret != 0)
 							handle_error_en(ret, std::string(" pthread_setname_np[" + std::to_string(threadID) + ']').c_str());
 					}
 					else if (priority == Priority::Low)
 					{
-						std::string thread_name = "wi::job_lo_" + std::to_string(threadID);
+						std::string thread_name = "pf::job_lo_" + std::to_string(threadID);
 						ret = pthread_setname_np(handle, thread_name.c_str());
 						if (ret != 0)
 							handle_error_en(ret, std::string(" pthread_setname_np[" + std::to_string(threadID) + ']').c_str());
@@ -300,7 +300,7 @@ namespace pf {
 					}
 					else if (priority == Priority::Streaming)
 					{
-						std::string thread_name = "wi::job_st_" + std::to_string(threadID);
+						std::string thread_name = "pf::job_st_" + std::to_string(threadID);
 						ret = pthread_setname_np(handle, thread_name.c_str());
 						if (ret != 0)
 							handle_error_en(ret, std::string(" pthread_setname_np[" + std::to_string(threadID) + ']').c_str());
@@ -309,7 +309,7 @@ namespace pf {
 
 #undef handle_error_en
 #elif defined(PLATFORM_PS5)
-					wi::jobsystem::ps5::SetupWorker(worker, threadID, core, priority);
+					pf::jobsystem::ps5::SetupWorker(worker, threadID, core, priority);
 #endif // _WIN32
 				}
 			}

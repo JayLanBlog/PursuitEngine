@@ -16,8 +16,8 @@ int test_jobsystem() {
 	}
 	std::thread([] {
 		pf::jobsystem::Wait(ctx);
-		std::cout << " \n[wi::initializer] Wicked Engine Initialized (%d ms)"<< std::endl;
-		//wilog("\n[wi::initializer] Wicked Engine Initialized (%d ms)", (int)std::round(timer.elapsed()));
+		std::cout << " \n[pf::initializer] Wicked Engine Initialized (%d ms)"<< std::endl;
+		//wilog("\n[pf::initializer] Wicked Engine Initialized (%d ms)", (int)std::round(timer.elapsed()));
 		}).detach();
 
 

@@ -1,5 +1,6 @@
 #include "sprite_app.h"
 #include "Module/Util/profiler.h"
+#include <Engine/Ecore/renderer.h>
 
 namespace pf::arun {
 	void SpriteLauncher::spriteinit() {

@@ -130,7 +130,7 @@ namespace pf {
 				return true;
 			}
 
-			//wi::backlog::post("File not found: " + fileName, wi::backlog::LogLevel::Warning);
+			//pf::backlog::post("File not found: " + fileName, pf::backlog::LogLevel::Warning);
 			return false;
 		}
 
@@ -845,7 +845,7 @@ namespace pf {
 		//		uint32_t height = 0;
 		//		uint32_t depth = 0;
 		//	};
-		//	wi::vector<MipDesc> mips;
+		//	pf::vector<MipDesc> mips;
 		//	mips.reserve(desc.mip_levels);
 
 		//	uint32_t data_count = 0;
@@ -937,13 +937,13 @@ namespace pf {
 		//	else if (desc.format == Format::R16G16B16A16_UNORM || desc.format == Format::R16G16B16A16_UINT)
 		//	{
 		//		// This will be converted first to rgba8 before saving to common format:
-		//		wi::Color16* dataSrc = (wi::Color16*)texturedata.data();
-		//		wi::Color* data32 = (wi::Color*)texturedata.data();
+		//		pf::Color16* dataSrc = (pf::Color16*)texturedata.data();
+		//		pf::Color* data32 = (pf::Color*)texturedata.data();
 
 		//		for (uint32_t i = 0; i < data_count; ++i)
 		//		{
-		//			wi::Color16 pixel16 = dataSrc[i];
-		//			data32[i] = wi::Color::fromFloat4(pixel16.toFloat4());
+		//			pf::Color16 pixel16 = dataSrc[i];
+		//			data32[i] = pf::Color::fromFloat4(pixel16.toFloat4());
 		//		}
 		//	}
 		//	else if (desc.format == Format::R11G11B10_FLOAT)
@@ -1048,7 +1048,7 @@ namespace pf {
 
 		//		if (icondir.idCount < 1)
 		//		{
-		//			log_assert(0, "No valid images were found that can be added to ICO file format!");
+		//			p_log_assert(0, "No valid images were found that can be added to ICO file format!");
 		//			return false;
 		//		}
 
@@ -1324,7 +1324,7 @@ namespace pf {
 			// there doesn't seem to be an easy way to determine
 			// swapped out memory
 #elif defined(PLATFORM_PS5)
-			wi::graphics::GraphicsDevice::MemoryUsage gpumem = wi::graphics::GetDevice()->GetMemoryUsage();
+			pf::graphics::GraphicsDevice::MemoryUsage gpumem = pf::graphics::GetDevice()->GetMemoryUsage();
 			mem.process_physical = mem.total_physical = gpumem.budget;
 			mem.process_virtual = mem.total_virtual = gpumem.usage;
 #endif // defined(_WIN32)

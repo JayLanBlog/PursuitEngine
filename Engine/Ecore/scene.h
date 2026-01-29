@@ -1,13 +1,18 @@
 #pragma once
-
-#include "engine_core.h"
-#include "module_util.h"
+#include "Core/core_include.h"
 #include "sprite.h"
-#include "engine_component.h"
 #include "ecs.h"
 #include "bvh.h"
-#include "module_container.h"
+#include "ocean.h"
+#include "Module/Util/spin_lock.h"
 #include "scene_component.h"
+#include "gpu_bvh.h"
+#include "Engine/Component/sprite_font.h"
+#include "emitted_particle.h"
+#include "hair_particle.h"
+#include "terrain.h"
+#include "voxel_grid.h"
+#include "path_query.h"
 #include <string>
 #include <memory>
 
@@ -37,8 +42,8 @@ namespace pf::scene {
 		pf::ecs::ComponentManager<DecalComponent>& decals = componentLibrary.Register<DecalComponent>("pf::scene::Scene::decals", 1); // version = 1
 		pf::ecs::ComponentManager<AnimationComponent>& animations = componentLibrary.Register<AnimationComponent>("pf::scene::Scene::animations", 2); // version = 2
 		pf::ecs::ComponentManager<AnimationDataComponent>& animation_datas = componentLibrary.Register<AnimationDataComponent>("pf::scene::Scene::animation_datas");
-		//TO DO :pf::ecs::ComponentManager<EmittedParticleSystem>& emitters = componentLibrary.Register<EmittedParticleSystem>("pf::scene::Scene::emitters", 2); // version = 2
-		//TO DO :pf::ecs::ComponentManager<HairParticleSystem>& hairs = componentLibrary.Register<HairParticleSystem>("pf::scene::Scene::hairs", 3); // version = 3
+		pf::ecs::ComponentManager<EmittedParticleSystem>& emitters = componentLibrary.Register<EmittedParticleSystem>("pf::scene::Scene::emitters", 2); // version = 2
+		pf::ecs::ComponentManager<HairParticleSystem>& hairs = componentLibrary.Register<HairParticleSystem>("pf::scene::Scene::hairs", 3); // version = 3
 		pf::ecs::ComponentManager<WeatherComponent>& weathers = componentLibrary.Register<WeatherComponent>("pf::scene::Scene::weathers", 6); // version = 6
 		pf::ecs::ComponentManager<SoundComponent>& sounds = componentLibrary.Register<SoundComponent>("pf::scene::Scene::sounds", 1); // version = 1
 		pf::ecs::ComponentManager<VideoComponent>& videos = componentLibrary.Register<VideoComponent>("pf::scene::Scene::videos", 1); // version = 1
@@ -48,10 +53,10 @@ namespace pf::scene {
 		pf::ecs::ComponentManager<ScriptComponent>& scripts = componentLibrary.Register<ScriptComponent>("pf::scene::Scene::scripts");
 		pf::ecs::ComponentManager<ExpressionComponent>& expressions = componentLibrary.Register<ExpressionComponent>("pf::scene::Scene::expressions");
 		pf::ecs::ComponentManager<HumanoidComponent>& humanoids = componentLibrary.Register<HumanoidComponent>("pf::scene::Scene::humanoids", 3); // version = 3
-		//TO DO :pf::ecs::ComponentManager<pf::terrain::Terrain>& terrains = componentLibrary.Register<pf::terrain::Terrain>("pf::scene::Scene::terrains", 5); // version = 5
+		pf::ecs::ComponentManager<pf::terrain::Terrain>& terrains = componentLibrary.Register<pf::terrain::Terrain>("pf::scene::Scene::terrains", 5); // version = 5
 		pf::ecs::ComponentManager<pf::Sprite>& sprites = componentLibrary.Register<pf::Sprite>("pf::scene::Scene::sprites", 2); // version = 2
 		pf::ecs::ComponentManager<pf::SpriteFont>& fonts = componentLibrary.Register<pf::SpriteFont>("pf::scene::Scene::fonts");
-		//TO DO :pf::ecs::ComponentManager<pf::VoxelGrid>& voxel_grids = componentLibrary.Register<pf::VoxelGrid>("pf::scene::Scene::voxel_grids");
+		pf::ecs::ComponentManager<pf::VoxelGrid>& voxel_grids = componentLibrary.Register<pf::VoxelGrid>("pf::scene::Scene::voxel_grids");
 		pf::ecs::ComponentManager<MetadataComponent>& metadatas = componentLibrary.Register<MetadataComponent>("pf::scene::Scene::metadatas");
 		pf::ecs::ComponentManager<CharacterComponent>& characters = componentLibrary.Register<CharacterComponent>("pf::scene::Scene::characters");
 		pf::ecs::ComponentManager<PhysicsConstraintComponent>& constraints = componentLibrary.Register<PhysicsConstraintComponent>("pf::scene::Scene::constraints", 6); // version = 6
@@ -75,7 +80,7 @@ namespace pf::scene {
 		pf::graphics::RaytracingAccelerationStructure TLAS;
 		pf::graphics::GPUBuffer TLAS_instancesUpload[pf::graphics::GraphicsDevice::GetBufferCount()];
 		void* TLAS_instancesMapped = nullptr;
-		//TO DO :	pf::GPUBVH BVH; // this is for non-hardware accelerated raytracing
+		pf::GPUBVH BVH; // this is for non-hardware accelerated raytracing
 		mutable bool acceleration_structure_update_requested = false;
 		void SetAccelerationStructureUpdateRequested(bool value = true) { acceleration_structure_update_requested = value; }
 		bool IsAccelerationStructureUpdateRequested() const { return acceleration_structure_update_requested; }
@@ -251,7 +256,7 @@ namespace pf::scene {
 		uint32_t impostorGeometryOffset = ~0u;
 		uint32_t impostorMaterialOffset = ~0u;
 
-		//TO DO : pf::EmittedParticleSystem rainEmitter;
+		pf::EmittedParticleSystem rainEmitter;
 		MaterialComponent rainMaterial;
 		uint32_t rainInstanceOffset = ~0u;
 		uint32_t rainGeometryOffset = ~0u;
@@ -276,8 +281,8 @@ namespace pf::scene {
 		void CountCPUandGPUColliders();
 
 		// Ocean GPU state:
-	//TO DO :	pf::Ocean ocean;
-	//TO DO :	void OceanRegenerate() { ocean.Create(weather.oceanParameters); }
+		pf::Ocean ocean;
+		void OceanRegenerate() { ocean.Create(weather.oceanParameters); }
 
 		// Simple water ripple sprites:
 		mutable pf::vector<pf::Sprite> waterRipples;
@@ -311,7 +316,7 @@ namespace pf::scene {
 		void RefreshHierarchyTopdownFromParent(pf::ecs::Entity entity);
 
 		// Update all components by a given timestep (in seconds):
-		//	This is an expensive function, prefer to call it only once per frame!
+		// This is an expensive function, prefer to call it only once per frame!
 		virtual void Update(float dt);
 		// Remove everything from the scene that it owns:
 		virtual void Clear();
@@ -568,10 +573,10 @@ namespace pf::scene {
 
 		// All triangles of the object will be injected into the voxel grid
 		//	subtract: if false (default), voxels will be added, if true then voxels will be removed
-		//TO DO : void VoxelizeObject(size_t objectIndex, pf::VoxelGrid& grid, bool subtract = false, uint32_t lod = 0);
+		void VoxelizeObject(size_t objectIndex, pf::VoxelGrid& grid, bool subtract = false, uint32_t lod = 0);
 
 		// Voxelize all meshes that match the filters into a voxel grid
-		//TO DO : void VoxelizeScene(pf::VoxelGrid& voxelgrid, bool subtract = false, uint32_t filterMask = pf::enums::FILTER_ALL, uint32_t layerMask = ~0, uint32_t lod = 0);
+		void VoxelizeScene(pf::VoxelGrid& voxelgrid, bool subtract = false, uint32_t filterMask = pf::enums::FILTER_ALL, uint32_t layerMask = ~0, uint32_t lod = 0);
 
 		// Get the current position on the surface of an object, tracked by the triangle barycentrics
 		XMFLOAT3 GetPositionOnSurface(pf::ecs::Entity objectEntity, int vertexID0, int vertexID1, int vertexID2, const XMFLOAT2& bary) const;
@@ -584,7 +589,7 @@ namespace pf::scene {
 		//	If current weather doesn't have ocean enabled, returns the world position itself.
 		//	The result position is approximate because it involves reading back from GPU to the CPU, so the result can be delayed compared to the current GPU simulation.
 		//	Note that the input position to this function will be taken on the XZ plane and modified by the displacement map's XZ value, and the Y (vertical) position will be taken from the ocean water height and displacement map only.
-	//TO DO:	XMFLOAT3 GetOceanPosAt(const XMFLOAT3& worldPosition) const;
+	    XMFLOAT3 GetOceanPosAt(const XMFLOAT3& worldPosition) const;
 
 		// Computes the LOD for an object AABB for a given view projection matrix
 		uint32_t ComputeObjectLODForView(const ObjectComponent& object, const pf::primitive::AABB& aabb, const MeshComponent& mesh, const XMMATRIX& ViewProjection) const;

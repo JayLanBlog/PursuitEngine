@@ -13,14 +13,14 @@
                       (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
 
 
-#define log_level(str,level,...) {char text[1024]; snprintf(text, sizeof(text),  " %s - %d :  " str, __FILENAME__, __LINE__,## __VA_ARGS__); pf::backlogger::postin(text, level);}
+#define p_log_level(str,level,...) {char text[1024]; snprintf(text, sizeof(text),  " %s - %d :  " str, __FILENAME__, __LINE__,## __VA_ARGS__); pf::backlogger::postin(text, level);}
 //#define log_messagebox(str,...) {char text[1024]; snprintf(text, sizeof(text), str, ## __VA_ARGS__); pf::backlogger::postin(text, pf::backlogger::LogLevel::Error); pf::helper::messageBox(text, "Error!");}
-#define log_warning(str,...) {log_level(str,LogLevel::Warning, ## __VA_ARGS__);}
-#define log_error(str,...) {log_level(str, LogLevel::Error, ## __VA_ARGS__);}
-#define log(str,...) {log_level(str, LogLevel::Default, ## __VA_ARGS__);}
-#define log_assert(cond,str,...) {if(!(cond)){log_error(str, ## __VA_ARGS__); assert(cond);}}
+#define p_log_warning(str,...) {p_log_level(str,LogLevel::Warning, ## __VA_ARGS__);}
+#define p_log_error(str,...) {p_log_level(str, LogLevel::Error, ## __VA_ARGS__);}
+#define p_log(str,...) {p_log_level(str, LogLevel::Default, ## __VA_ARGS__);}
+#define p_log_assert(cond,str,...) {if(!(cond)){p_log_error(str, ## __VA_ARGS__); assert(cond);}}
 #define Logger(str,...) {\
-	log_level(str, LogLevel::Default, ## __VA_ARGS__);\
+	p_log_level(str, LogLevel::Default, ## __VA_ARGS__);\
 }
 enum class LogLevel
 {

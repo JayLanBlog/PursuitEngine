@@ -2,6 +2,7 @@
 #include "module_file.h"
 #include "draw_image.h"
 #include "texture_helper.h"
+
 using namespace pf::graphics;
 
 namespace pf {

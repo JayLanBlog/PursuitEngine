@@ -26,7 +26,7 @@ static constexpr T AlignTo(T value, T alignment)
 #define fourccXWMA 'AMWX'
 #define fourccDPDS 'sdpd'
 
-#define xaudio_assert(cond, fname) { log_assert(cond, "XAudio2 error: %s failed with %s (%s:%d)", fname, helper::GetPlatformErrorString(hr).c_str(), relative_path(__FILE__), __LINE__); }
+#define xaudio_assert(cond, fname) { p_log_assert(cond, "XAudio2 error: %s failed with %s (%s:%d)", fname, helper::GetPlatformErrorString(hr).c_str(), relative_path(__FILE__), __LINE__); }
 #define xaudio_check(call) [&]() { HRESULT hr = call; xaudio_assert(SUCCEEDED(hr), extract_function_name(#call).c_str()); return hr; }()
 
 
@@ -93,10 +93,10 @@ namespace pf::audio {
 				return;
 			}
 
-#ifdef _DEBUG
+#ifndef _DEBUG
 			XAUDIO2_DEBUG_CONFIGURATION debugConfig = {};
-			debugConfig.TraceMask = XAUDIO2_LOG_ERRORS | XAUDIO2_LOG_WARNINGS;
-			debugConfig.BreakMask = XAUDIO2_LOG_ERRORS | XAUDIO2_LOG_WARNINGS;
+			debugConfig.TraceMask = XAUDIO2_LOG_ERRORS | XAUDIO2_p_log_warningS;
+			debugConfig.BreakMask = XAUDIO2_LOG_ERRORS | XAUDIO2_p_log_warningS;
 			audioEngine->SetDebugConfiguration(&debugConfig);
 #endif // _DEBUG
 
@@ -176,7 +176,7 @@ namespace pf::audio {
 			termination_mark.AudioBytes = sizeof(termination_data);
 
 			success = true;
-			log("wi::audio Initialized [XAudio2] (%d ms)", (int)std::round(timer.elapsed()));
+			p_log("pf::audio Initialized [XAudio2] (%d ms)", (int)std::round(timer.elapsed()));
 		}
 
 		~AudioInternal()

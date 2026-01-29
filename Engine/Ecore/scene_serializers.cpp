@@ -2790,7 +2790,7 @@ namespace pf::scene
 			}
 		}
 
-		log("Scene::Serialize took %.2f seconds", timer.elapsed_seconds());
+		p_log("Scene::Serialize took %.2f seconds", timer.elapsed_seconds());
 	}
 
 	void Scene::DDGI::Serialize(pf::Archive& archive)

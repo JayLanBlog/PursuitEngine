@@ -85,6 +85,7 @@ namespace pf::video {
 		int target_display_order = 0; // the current display order that should be visible
 		int current_decode_frame = 0; // the latest decoded frame index
 		float current_time = 0; // tracking the absolute time of the playback in seconds
+
 		enum class Flags
 		{
 			Empty = 0,
@@ -94,7 +95,10 @@ namespace pf::video {
 			NeedsResolve = 1 << 3,
 			InitialFirstFrameDecoded = 1 << 4,
 			DecoderReset = 1 << 5,
+			
 		};
+
+
 		Flags flags = Flags::Empty;
 		inline bool IsValid() const { return decoder.IsValid(); }
 
@@ -103,6 +107,8 @@ namespace pf::video {
 		// Get SRGB subresource view of the latest decoded frame that can be displayed:
 		int GetCurrentFrameTextureSRGBSubresource() const { return output.subresource_srgb; }
 	};
+	
+	
 
 	bool CreateVideo(const std::string& filename, Video* video);
 	bool CreateVideoMP4(const uint8_t* filedata, size_t filesize, Video* video);
@@ -117,4 +123,34 @@ namespace pf::video {
 
 	// Set video instance state to a timer (approximately), this will take efect the next time it is decoded
 	void Seek(VideoInstance* instance, float timerSeconds);
+}
+
+
+inline pf::video::VideoInstance::Flags operator|(pf::video::VideoInstance::Flags lhs, pf::video::VideoInstance::Flags rhs) {
+	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
+	return static_cast<pf::video::VideoInstance::Flags>(static_cast<T>(lhs) | static_cast<T>(rhs));
+}
+
+
+inline pf::video::VideoInstance::Flags operator&(pf::video::VideoInstance::Flags lhs, pf::video::VideoInstance::Flags rhs) {
+	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
+	return static_cast<pf::video::VideoInstance::Flags>(static_cast<T>(lhs) & static_cast<T>(rhs));
+}
+
+
+inline pf::video::VideoInstance::Flags operator~(pf::video::VideoInstance::Flags rhs) {
+	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
+	return static_cast<pf::video::VideoInstance::Flags>(~static_cast<T>(rhs));
+}
+
+
+inline pf::video::VideoInstance::Flags& operator&=(pf::video::VideoInstance::Flags& lhs, pf::video::VideoInstance::Flags rhs) {
+	lhs = lhs & rhs;
+	return lhs;
+}
+
+
+inline pf::video::VideoInstance::Flags& operator|=(pf::video::VideoInstance::Flags& lhs, pf::video::VideoInstance::Flags rhs) {
+	lhs = lhs | rhs;
+	return lhs;
 }

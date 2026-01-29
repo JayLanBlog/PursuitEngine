@@ -207,7 +207,7 @@ namespace pf::image {
 			}
 			else
 			{
-				// Asserts will check that a proper canvas was set for this cmd with wi::image::SetCanvas()
+				// Asserts will check that a proper canvas was set for this cmd with pf::image::SetCanvas()
 				//	The canvas must be set to have dpi aware rendering
 				assert(canvas.width > 0);
 				assert(canvas.height > 0);
@@ -692,7 +692,7 @@ namespace pf::image {
 		//static eventhandler::Handle handle = eventhandler::Subscribe(eventhandler::EVENT_RELOAD_SHADERS, [](uint64_t userdata) { LoadShaders(); });
 		LoadShaders();
 
-		log("wi::image Initialized (%d ms)", (int)std::round(timer.elapsed()));
+		p_log("pf::image Initialized (%d ms)", (int)std::round(timer.elapsed()));
 
 
 	}

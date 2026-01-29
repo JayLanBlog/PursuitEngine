@@ -1246,7 +1246,7 @@ enum FRAME_OPTIONS
 
 struct alignas(16) FrameCB
 {
-	uint		options;					// wi::renderer bool options packed into bitmask (OPTION_BIT_ values)
+	uint		options;					// pf::renderer bool options packed into bitmask (OPTION_BIT_ values)
 	float		time;
 	float		time_previous;
 	float		delta_time;

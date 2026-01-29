@@ -8,8 +8,23 @@
 #include "sheen_lut.h"
 #include <Module/Util/spin_lock.h>
 
+#include "scene_component.h"
+#include "Shader/ShaderInterop_Postprocess.h"
+#include "Shader/ShaderInterop_Raytracing.h"
+#include "Shader/ShaderInterop_BVH.h"
+#include "Shader/ShaderInterop_DDGI.h"
+#include "Shader/ShaderInterop_VXGI.h"
+#include "Shader/ShaderInterop_FSR2.h"
+#include "Shader/uvsphere.hlsli"
+#include "Shader/cone.hlsli"
+
+#include <algorithm>
+#include <atomic>
+#include <mutex>
+
 using namespace pf::graphics;
 using namespace pf::enums;
+using namespace pf::scene;
 
 namespace pf::renderer {
 
@@ -34,6 +49,22 @@ namespace pf::renderer {
 #endif // SHADERDUMP_ENABLED
 
 
+	static thread_local vector<GPUBarrier> barrier_stack;
+	void FlushBarriers(CommandList cmd)
+	{
+		if (barrier_stack.empty())
+			return;
+		device->Barrier(barrier_stack.data(), (uint32_t)barrier_stack.size(), cmd);
+		barrier_stack.clear();
+	}
+	void PushBarrier(const GPUBarrier& barrier)
+	{
+		if (barrier.type == GPUBarrier::Type::BUFFER && barrier.buffer.state_before == barrier.buffer.state_after)
+			return;
+		if (barrier.type == GPUBarrier::Type::IMAGE && barrier.image.layout_before == barrier.image.layout_after)
+			return;
+		barrier_stack.push_back(barrier);
+	}
 
 
 	WIREFRAME_MODE wireframeMode = WIREFRAME_DISABLED;
@@ -92,7 +123,8 @@ namespace pf::renderer {
 
 	GPUBuffer indirectDebugStatsReadback[GraphicsDevice::GetBufferCount()];
 
-
+	vector<std::pair<XMFLOAT4X4, XMFLOAT4>> renderableBoxes;
+	vector<std::pair<XMFLOAT4X4, XMFLOAT4>> renderableBoxes_depth;
 
 	enum SKYRENDERING
 	{
@@ -128,8 +160,6 @@ namespace pf::renderer {
 		DEBUGRENDERING_COUNT
 	};
 	PipelineState PSO_debug[DEBUGRENDERING_COUNT];
-
-
 
 	SpinLock deferredMIPGenLock;
 	vector<std::pair<Texture, bool>> deferredMIPGens;
@@ -2232,7 +2262,7 @@ namespace pf::renderer {
 		SetUpStates();
 		LoadBuffers();
 		LoadShaders();
-		log("pf::renderer Initialized (%d ms)", (int)std::round(timer.elapsed()));
+		p_log("pf::renderer Initialized (%d ms)", (int)std::round(timer.elapsed()));
 	}
 
 	bool LoadShader(
@@ -2379,6 +2409,34 @@ namespace pf::renderer {
 	}
 
 
+	enum OBJECT_MESH_SHADER_PSO
+	{
+		OBJECT_MESH_SHADER_PSO_DISABLED,
+		OBJECT_MESH_SHADER_PSO_ENABLED,
+		OBJECT_MESH_SHADER_PSO_COUNT
+	};
+	union ObjectRenderingVariant
+	{
+		struct
+		{
+			uint32_t renderpass : 4;	// pf::enums::RENDERPASS
+			uint32_t shadertype : 8;	// MaterialComponent::SHADERTYPE
+			uint32_t blendmode : 4;		// pf::enums::BLENDMODE
+			uint32_t cullmode : 2;		// pf::graphics::CullMode
+			uint32_t tessellation : 1;	// bool
+			uint32_t alphatest : 1;		// bool
+			uint32_t sample_count : 4;	// 1, 2, 4, 8
+			uint32_t mesh_shader : 1;	// bool
+		} bits;
+		uint32_t value;
+	};
+
+	static_assert(sizeof(ObjectRenderingVariant) == sizeof(uint32_t));
+	inline PipelineState* GetObjectPSO(ObjectRenderingVariant variant)
+	{
+		static unordered_map<uint32_t, PipelineState> PSO_object[RENDERPASS_COUNT][MaterialComponent::SHADERTYPE_COUNT][OBJECT_MESH_SHADER_PSO_COUNT];
+		return &PSO_object[variant.bits.renderpass][variant.bits.shadertype][variant.bits.mesh_shader][variant.value];
+	}
 
 
 
@@ -2688,6 +2746,311 @@ namespace pf::renderer {
 	}
 
 
+	void GenerateMipChain(const Texture& texture, MIPGENFILTER filter, CommandList cmd, const MIPGEN_OPTIONS& options)
+	{
+		if (!texture.IsValid())
+		{
+			assert(0);
+			return;
+		}
+
+		TextureDesc desc = texture.GetDesc();
+
+		if (desc.mip_levels < 2)
+		{
+			assert(0);
+			return;
+		}
+
+		MipgenPushConstants mipgen = {};
+
+		if (options.preserve_coverage)
+		{
+			mipgen.mipgen_options |= MIPGEN_OPTION_BIT_PRESERVE_COVERAGE;
+		}
+		if (IsFormatSRGB(desc.format))
+		{
+			mipgen.mipgen_options |= MIPGEN_OPTION_BIT_SRGB;
+		}
+
+		if (desc.type == TextureDesc::Type::TEXTURE_1D)
+		{
+			assert(0); // not implemented
+		}
+		else if (desc.type == TextureDesc::Type::TEXTURE_2D)
+		{
+
+			if (has_flag(desc.misc_flags, ResourceMiscFlag::TEXTURECUBE))
+			{
+
+				if (desc.array_size > 6)
+				{
+					// Cubearray
+					assert(options.arrayIndex >= 0 && "You should only filter a specific cube in the array for now, so provide its index!");
+
+					switch (filter)
+					{
+					case MIPGENFILTER_POINT:
+						device->EventBegin("GenerateMipChain CubeArray - PointFilter", cmd);
+						device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAINCUBEARRAY_FLOAT4], cmd);
+						mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_POINT_CLAMP]);
+						break;
+					case MIPGENFILTER_LINEAR:
+						device->EventBegin("GenerateMipChain CubeArray - LinearFilter", cmd);
+						device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAINCUBEARRAY_FLOAT4], cmd);
+						mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_LINEAR_CLAMP]);
+						break;
+					default:
+						assert(0);
+						break;
+					}
+
+					for (uint32_t i = 0; i < desc.mip_levels - 1; ++i)
+					{
+						{
+							GPUBarrier barriers[] = {
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, options.arrayIndex * 6 + 0),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, options.arrayIndex * 6 + 1),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, options.arrayIndex * 6 + 2),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, options.arrayIndex * 6 + 3),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, options.arrayIndex * 6 + 4),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, options.arrayIndex * 6 + 5),
+							};
+							device->Barrier(barriers, arraysize(barriers), cmd);
+						}
+
+						mipgen.texture_output = device->GetDescriptorIndex(&texture, SubresourceType::UAV, i + 1);
+						mipgen.texture_input = device->GetDescriptorIndex(&texture, SubresourceType::SRV, i);
+						desc.width = std::max(1u, desc.width / 2);
+						desc.height = std::max(1u, desc.height / 2);
+
+						mipgen.outputResolution.x = desc.width;
+						mipgen.outputResolution.y = desc.height;
+						mipgen.outputResolution_rcp.x = 1.0f / mipgen.outputResolution.x;
+						mipgen.outputResolution_rcp.y = 1.0f / mipgen.outputResolution.y;
+						mipgen.arrayIndex = options.arrayIndex;
+						device->PushConstants(&mipgen, sizeof(mipgen), cmd);
+
+						device->Dispatch(
+							std::max(1u, (desc.width + GENERATEMIPCHAIN_2D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_2D_BLOCK_SIZE),
+							std::max(1u, (desc.height + GENERATEMIPCHAIN_2D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_2D_BLOCK_SIZE),
+							6,
+							cmd);
+
+						{
+							GPUBarrier barriers[] = {
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, options.arrayIndex * 6 + 0),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, options.arrayIndex * 6 + 1),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, options.arrayIndex * 6 + 2),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, options.arrayIndex * 6 + 3),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, options.arrayIndex * 6 + 4),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, options.arrayIndex * 6 + 5),
+							};
+							device->Barrier(barriers, arraysize(barriers), cmd);
+						}
+					}
+				}
+				else
+				{
+					// Cubemap
+					switch (filter)
+					{
+					case MIPGENFILTER_POINT:
+						device->EventBegin("GenerateMipChain Cube - PointFilter", cmd);
+						device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAINCUBE_FLOAT4], cmd);
+						mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_POINT_CLAMP]);
+						break;
+					case MIPGENFILTER_LINEAR:
+						device->EventBegin("GenerateMipChain Cube - LinearFilter", cmd);
+						device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAINCUBE_FLOAT4], cmd);
+						mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_LINEAR_CLAMP]);
+						break;
+					default:
+						assert(0); // not implemented
+						break;
+					}
+
+					for (uint32_t i = 0; i < desc.mip_levels - 1; ++i)
+					{
+						{
+							GPUBarrier barriers[] = {
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, 0),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, 1),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, 2),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, 3),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, 4),
+								GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1, 5),
+							};
+							device->Barrier(barriers, arraysize(barriers), cmd);
+						}
+
+						mipgen.texture_output = device->GetDescriptorIndex(&texture, SubresourceType::UAV, i + 1);
+						mipgen.texture_input = device->GetDescriptorIndex(&texture, SubresourceType::SRV, i);
+						desc.width = std::max(1u, desc.width / 2);
+						desc.height = std::max(1u, desc.height / 2);
+
+						mipgen.outputResolution.x = desc.width;
+						mipgen.outputResolution.y = desc.height;
+						mipgen.outputResolution_rcp.x = 1.0f / mipgen.outputResolution.x;
+						mipgen.outputResolution_rcp.y = 1.0f / mipgen.outputResolution.y;
+						mipgen.arrayIndex = 0;
+						device->PushConstants(&mipgen, sizeof(mipgen), cmd);
+
+						device->Dispatch(
+							std::max(1u, (desc.width + GENERATEMIPCHAIN_2D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_2D_BLOCK_SIZE),
+							std::max(1u, (desc.height + GENERATEMIPCHAIN_2D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_2D_BLOCK_SIZE),
+							6,
+							cmd);
+
+						{
+							GPUBarrier barriers[] = {
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, 0),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, 1),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, 2),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, 3),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, 4),
+								GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1, 5),
+							};
+							device->Barrier(barriers, arraysize(barriers), cmd);
+						}
+					}
+				}
+
+			}
+			else
+			{
+				// Texture
+				switch (filter)
+				{
+				case MIPGENFILTER_POINT:
+					device->EventBegin("GenerateMipChain 2D - PointFilter", cmd);
+					device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAIN2D_FLOAT4], cmd);
+					mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_POINT_CLAMP]);
+					break;
+				case MIPGENFILTER_LINEAR:
+					device->EventBegin("GenerateMipChain 2D - LinearFilter", cmd);
+					device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAIN2D_FLOAT4], cmd);
+					mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_LINEAR_CLAMP]);
+					break;
+				case MIPGENFILTER_GAUSSIAN:
+				{
+					assert(options.gaussian_temp != nullptr); // needed for separate filter!
+					device->EventBegin("GenerateMipChain 2D - GaussianFilter", cmd);
+					// Gaussian filter is a bit different as we do it in a separable way:
+					for (uint32_t i = 0; i < desc.mip_levels - 1; ++i)
+					{
+						Postprocess_Blur_Gaussian(texture, *options.gaussian_temp, texture, cmd, i, i + 1, options.wide_gauss);
+					}
+					device->EventEnd(cmd);
+					return;
+				}
+				break;
+				default:
+					assert(0);
+					break;
+				}
+
+				for (uint32_t i = 0; i < desc.mip_levels - 1; ++i)
+				{
+					device->Barrier(GPUBarrier::Image(&texture, texture.desc.layout, ResourceState::UNORDERED_ACCESS, i + 1), cmd);
+
+					mipgen.texture_output = device->GetDescriptorIndex(&texture, SubresourceType::UAV, i + 1);
+					mipgen.texture_input = device->GetDescriptorIndex(&texture, SubresourceType::SRV, i);
+					desc.width = std::max(1u, desc.width / 2);
+					desc.height = std::max(1u, desc.height / 2);
+
+					mipgen.outputResolution.x = desc.width;
+					mipgen.outputResolution.y = desc.height;
+					mipgen.outputResolution_rcp.x = 1.0f / mipgen.outputResolution.x;
+					mipgen.outputResolution_rcp.y = 1.0f / mipgen.outputResolution.y;
+					mipgen.arrayIndex = options.arrayIndex >= 0 ? (uint)options.arrayIndex : 0;
+					device->PushConstants(&mipgen, sizeof(mipgen), cmd);
+
+					device->Dispatch(
+						std::max(1u, (desc.width + GENERATEMIPCHAIN_2D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_2D_BLOCK_SIZE),
+						std::max(1u, (desc.height + GENERATEMIPCHAIN_2D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_2D_BLOCK_SIZE),
+						1,
+						cmd
+					);
+
+					device->Barrier(GPUBarrier::Image(&texture, ResourceState::UNORDERED_ACCESS, texture.desc.layout, i + 1), cmd);
+				}
+			}
+
+
+			device->EventEnd(cmd);
+		}
+		else if (desc.type == TextureDesc::Type::TEXTURE_3D)
+		{
+			switch (filter)
+			{
+			case MIPGENFILTER_POINT:
+				device->EventBegin("GenerateMipChain 3D - PointFilter", cmd);
+				device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAIN3D_FLOAT4], cmd);
+				mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_POINT_CLAMP]);
+				break;
+			case MIPGENFILTER_LINEAR:
+				device->EventBegin("GenerateMipChain 3D - LinearFilter", cmd);
+				device->BindComputeShader(&shaders[CSTYPE_GENERATEMIPCHAIN3D_FLOAT4], cmd);
+				mipgen.sampler_index = device->GetDescriptorIndex(&samplers[SAMPLER_LINEAR_CLAMP]);
+				break;
+			default:
+				assert(0); // not implemented
+				break;
+			}
+
+			for (uint32_t i = 0; i < desc.mip_levels - 1; ++i)
+			{
+				mipgen.texture_output = device->GetDescriptorIndex(&texture, SubresourceType::UAV, i + 1);
+				mipgen.texture_input = device->GetDescriptorIndex(&texture, SubresourceType::SRV, i);
+				desc.width = std::max(1u, desc.width / 2);
+				desc.height = std::max(1u, desc.height / 2);
+				desc.depth = std::max(1u, desc.depth / 2);
+
+				{
+					GPUBarrier barriers[] = {
+						GPUBarrier::Image(&texture,texture.desc.layout,ResourceState::UNORDERED_ACCESS,i + 1),
+					};
+					device->Barrier(barriers, arraysize(barriers), cmd);
+				}
+
+				mipgen.outputResolution.x = desc.width;
+				mipgen.outputResolution.y = desc.height;
+				mipgen.outputResolution.z = desc.depth;
+				mipgen.outputResolution_rcp.x = 1.0f / mipgen.outputResolution.x;
+				mipgen.outputResolution_rcp.y = 1.0f / mipgen.outputResolution.y;
+				mipgen.outputResolution_rcp.z = 1.0f / mipgen.outputResolution.z;
+				mipgen.arrayIndex = options.arrayIndex >= 0 ? (uint)options.arrayIndex : 0;
+				mipgen.mipgen_options = 0;
+				device->PushConstants(&mipgen, sizeof(mipgen), cmd);
+
+				device->Dispatch(
+					std::max(1u, (desc.width + GENERATEMIPCHAIN_3D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_3D_BLOCK_SIZE),
+					std::max(1u, (desc.height + GENERATEMIPCHAIN_3D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_3D_BLOCK_SIZE),
+					std::max(1u, (desc.depth + GENERATEMIPCHAIN_3D_BLOCK_SIZE - 1) / GENERATEMIPCHAIN_3D_BLOCK_SIZE),
+					cmd);
+
+				{
+					GPUBarrier barriers[] = {
+						GPUBarrier::Image(&texture,ResourceState::UNORDERED_ACCESS,texture.desc.layout,i + 1),
+					};
+					device->Barrier(barriers, arraysize(barriers), cmd);
+				}
+			}
+
+
+			device->EventEnd(cmd);
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+	void BindCommonResources(CommandList cmd)
+	{
+		device->BindConstantBuffer(&buffers[BUFFERTYPE_FRAMECB], CBSLOT_RENDERER_FRAME, cmd);
+	}
+
 	void BlockCompress(const Texture& texture_src, const Texture& texture_bc, CommandList cmd, uint32_t dst_slice_offset)
 	{
 		const uint32_t block_size = GetFormatBlockSize(texture_bc.desc.format);
@@ -2827,6 +3190,378 @@ namespace pf::renderer {
 		}
 
 		device->EventEnd(cmd);
+	}
+	void Postprocess_Blur_Gaussian(
+		const Texture& input,
+		const Texture& temp,
+		const Texture& output,
+		CommandList cmd,
+		int mip_src,
+		int mip_dst,
+		bool wide
+	)
+	{
+		device->EventBegin("Postprocess_Blur_Gaussian", cmd);
+
+		SHADERTYPE cs = CSTYPE_POSTPROCESS_BLUR_GAUSSIAN_FLOAT4;
+		switch (output.GetDesc().format)
+		{
+		case Format::R16_UNORM:
+		case Format::R8_UNORM:
+		case Format::R16_FLOAT:
+		case Format::R32_FLOAT:
+			cs = wide ? CSTYPE_POSTPROCESS_BLUR_GAUSSIAN_WIDE_FLOAT1 : CSTYPE_POSTPROCESS_BLUR_GAUSSIAN_FLOAT1;
+			break;
+		case Format::R11G11B10_FLOAT:
+		case Format::R16G16B16A16_UNORM:
+		case Format::R8G8B8A8_UNORM:
+		case Format::B8G8R8A8_UNORM:
+		case Format::R10G10B10A2_UNORM:
+		case Format::R16G16B16A16_FLOAT:
+		case Format::R32G32B32A32_FLOAT:
+			cs = wide ? CSTYPE_POSTPROCESS_BLUR_GAUSSIAN_WIDE_FLOAT4 : CSTYPE_POSTPROCESS_BLUR_GAUSSIAN_FLOAT4;
+			break;
+		default:
+			assert(0); // implement format!
+			break;
+		}
+		device->BindComputeShader(&shaders[cs], cmd);
+
+		PushBarrier(GPUBarrier::Image(&temp, temp.desc.layout, ResourceState::UNORDERED_ACCESS, mip_dst));
+		FlushBarriers(cmd);
+
+		if (mip_dst < 0)
+		{
+			device->ClearUAV(&temp, 0, cmd);
+			device->Barrier(GPUBarrier::Memory(&temp), cmd);
+		}
+
+		// Horizontal:
+		{
+			const TextureDesc& desc = temp.GetDesc();
+
+			PostProcess postprocess;
+			postprocess.resolution.x = desc.width;
+			postprocess.resolution.y = desc.height;
+			if (mip_dst > 0)
+			{
+				postprocess.resolution.x >>= mip_dst;
+				postprocess.resolution.y >>= mip_dst;
+			}
+			postprocess.resolution_rcp.x = 1.0f / postprocess.resolution.x;
+			postprocess.resolution_rcp.y = 1.0f / postprocess.resolution.y;
+			postprocess.params0.x = 1;
+			postprocess.params0.y = 0;
+			device->PushConstants(&postprocess, sizeof(postprocess), cmd);
+
+			device->BindResource(&input, 0, cmd, mip_src);
+			device->BindUAV(&temp, 0, cmd, mip_dst);
+
+			device->Dispatch(
+				(postprocess.resolution.x + POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT - 1) / POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT,
+				postprocess.resolution.y,
+				1,
+				cmd
+			);
+
+		}
+
+		PushBarrier(GPUBarrier::Image(&temp, ResourceState::UNORDERED_ACCESS, temp.desc.layout, mip_dst));
+		PushBarrier(GPUBarrier::Image(&output, output.desc.layout, ResourceState::UNORDERED_ACCESS, mip_dst));
+		FlushBarriers(cmd);
+
+		if (mip_dst < 0)
+		{
+			device->ClearUAV(&output, 0, cmd);
+			device->Barrier(GPUBarrier::Memory(&output), cmd);
+		}
+
+		// Vertical:
+		{
+			const TextureDesc& desc = output.GetDesc();
+
+			PostProcess postprocess;
+			postprocess.resolution.x = desc.width;
+			postprocess.resolution.y = desc.height;
+			if (mip_dst > 0)
+			{
+				postprocess.resolution.x >>= mip_dst;
+				postprocess.resolution.y >>= mip_dst;
+			}
+			postprocess.resolution_rcp.x = 1.0f / postprocess.resolution.x;
+			postprocess.resolution_rcp.y = 1.0f / postprocess.resolution.y;
+			postprocess.params0.x = 0;
+			postprocess.params0.y = 1;
+			device->PushConstants(&postprocess, sizeof(postprocess), cmd);
+
+			device->BindResource(&temp, 0, cmd, mip_dst); // <- also mip_dst because it's second pass!
+			device->BindUAV(&output, 0, cmd, mip_dst);
+
+			device->Dispatch(
+				postprocess.resolution.x,
+				(postprocess.resolution.y + POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT - 1) / POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT,
+				1,
+				cmd
+			);
+
+			device->Barrier(GPUBarrier::Image(&output, ResourceState::UNORDERED_ACCESS, output.desc.layout, mip_dst), cmd);
+
+		}
+
+		device->EventEnd(cmd);
+	}
+	void Postprocess_Blur_Bilateral(
+		const Texture& input,
+		const Texture& lineardepth,
+		const Texture& temp,
+		const Texture& output,
+		CommandList cmd,
+		float depth_threshold,
+		int mip_src,
+		int mip_dst,
+		bool wide
+	)
+	{
+		device->EventBegin("Postprocess_Blur_Bilateral", cmd);
+
+		SHADERTYPE cs = CSTYPE_POSTPROCESS_BLUR_BILATERAL_FLOAT4;
+		switch (output.GetDesc().format)
+		{
+		case Format::R16_UNORM:
+		case Format::R8_UNORM:
+		case Format::R16_FLOAT:
+		case Format::R32_FLOAT:
+			cs = wide ? CSTYPE_POSTPROCESS_BLUR_BILATERAL_WIDE_FLOAT1 : CSTYPE_POSTPROCESS_BLUR_BILATERAL_FLOAT1;
+			break;
+		case Format::R11G11B10_FLOAT:
+		case Format::R16G16B16A16_UNORM:
+		case Format::R8G8B8A8_UNORM:
+		case Format::B8G8R8A8_UNORM:
+		case Format::R10G10B10A2_UNORM:
+		case Format::R16G16B16A16_FLOAT:
+		case Format::R32G32B32A32_FLOAT:
+			cs = wide ? CSTYPE_POSTPROCESS_BLUR_BILATERAL_WIDE_FLOAT4 : CSTYPE_POSTPROCESS_BLUR_BILATERAL_FLOAT4;
+			break;
+		default:
+			assert(0); // implement format!
+			break;
+		}
+		device->BindComputeShader(&shaders[cs], cmd);
+
+		PushBarrier(GPUBarrier::Image(&temp, temp.desc.layout, ResourceState::UNORDERED_ACCESS, mip_dst));
+		FlushBarriers(cmd);
+
+		if (mip_dst < 0)
+		{
+			device->ClearUAV(&temp, 0, cmd);
+			device->Barrier(GPUBarrier::Memory(&temp), cmd);
+		}
+
+		// Horizontal:
+		{
+			const TextureDesc& desc = temp.GetDesc();
+
+			PostProcess postprocess;
+			postprocess.resolution.x = desc.width;
+			postprocess.resolution.y = desc.height;
+			if (mip_dst > 0)
+			{
+				postprocess.resolution.x >>= mip_dst;
+				postprocess.resolution.y >>= mip_dst;
+			}
+			postprocess.resolution_rcp.x = 1.0f / postprocess.resolution.x;
+			postprocess.resolution_rcp.y = 1.0f / postprocess.resolution.y;
+			postprocess.params0.x = 1;
+			postprocess.params0.y = 0;
+			postprocess.params0.w = depth_threshold;
+			device->PushConstants(&postprocess, sizeof(postprocess), cmd);
+
+			device->BindResource(&input, 0, cmd, mip_src);
+			device->BindUAV(&temp, 0, cmd, mip_dst);
+
+			device->Dispatch(
+				(postprocess.resolution.x + POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT - 1) / POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT,
+				postprocess.resolution.y,
+				1,
+				cmd
+			);
+
+		}
+
+		PushBarrier(GPUBarrier::Image(&temp, ResourceState::UNORDERED_ACCESS, temp.desc.layout, mip_dst));
+		PushBarrier(GPUBarrier::Image(&output, output.desc.layout, ResourceState::UNORDERED_ACCESS, mip_dst));
+		FlushBarriers(cmd);
+
+		if (mip_dst < 0)
+		{
+			device->ClearUAV(&output, 0, cmd);
+			device->Barrier(GPUBarrier::Memory(&output), cmd);
+		}
+
+		// Vertical:
+		{
+			const TextureDesc& desc = output.GetDesc();
+
+			PostProcess postprocess;
+			postprocess.resolution.x = desc.width;
+			postprocess.resolution.y = desc.height;
+			if (mip_dst > 0)
+			{
+				postprocess.resolution.x >>= mip_dst;
+				postprocess.resolution.y >>= mip_dst;
+			}
+			postprocess.resolution_rcp.x = 1.0f / postprocess.resolution.x;
+			postprocess.resolution_rcp.y = 1.0f / postprocess.resolution.y;
+			postprocess.params0.x = 0;
+			postprocess.params0.y = 1;
+			postprocess.params0.w = depth_threshold;
+			device->PushConstants(&postprocess, sizeof(postprocess), cmd);
+
+			device->BindResource(&temp, 0, cmd, mip_dst); // <- also mip_dst because it's second pass!
+			device->BindUAV(&output, 0, cmd, mip_dst);
+
+			device->Dispatch(
+				postprocess.resolution.x,
+				(postprocess.resolution.y + POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT - 1) / POSTPROCESS_BLUR_GAUSSIAN_THREADCOUNT,
+				1,
+				cmd
+			);
+
+			device->Barrier(GPUBarrier::Image(&output, ResourceState::UNORDERED_ACCESS, output.desc.layout, mip_dst), cmd);
+
+		}
+
+		device->EventEnd(cmd);
+	}
+
+	void Workaround(const int bug, CommandList cmd)
+	{
+		if (bug == 1)
+		{
+			//PE: Strange DX12 bug, we must change the pso/pipeline state, just one time.
+			//PE: After this there will be no "black dots" or culling/depth errors.
+			//PE: This bug only happen on some nvidia cards ?
+			//PE: https://github.com/turanszkij/WickedEngine/issues/450#issuecomment-1143647323
+
+			//PE: We MUST use RENDERPASS_VOXELIZE (DSSTYPE_DEPTHDISABLED) or it will not work ?
+			jobsystem::Wait(object_pso_job_ctx);
+			ObjectRenderingVariant variant = {};
+			variant.bits.renderpass = RENDERPASS_VOXELIZE;
+			variant.bits.blendmode = BLENDMODE_OPAQUE;
+			variant.bits.sample_count = 1;
+			const PipelineState* pso = GetObjectPSO(variant);
+
+			device->EventBegin("Workaround 1", cmd);
+			device->RenderPassBegin(nullptr, 0, cmd);
+			device->BindPipelineState(pso, cmd);
+			device->DrawIndexedInstanced(0, 0, 0, 0, 0, cmd); //PE: Just need predraw(cmd);
+			device->RenderPassEnd(cmd);
+			device->EventEnd(cmd);
+		}
+		return;
+	}
+
+	void DrawBox(const pf::primitive::AABB& aabb, const XMFLOAT4& color, bool depth)
+	{
+		DrawBox(aabb.getAsBoxMatrix(), color, depth);
+	}
+	void DrawBox(const XMMATRIX& boxMatrix, const XMFLOAT4& color, bool depth)
+	{
+		XMFLOAT4X4 m;
+		XMStoreFloat4x4(&m, boxMatrix);
+		DrawBox(m, color, depth);
+	}
+	void DrawBox(const XMFLOAT4X4& boxMatrix, const XMFLOAT4& color, bool depth)
+	{
+		if (depth)
+			renderableBoxes_depth.push_back(std::make_pair(boxMatrix, color));
+		else
+			renderableBoxes.push_back(std::make_pair(boxMatrix, color));
+	}
+
+
+	const GPUBuffer& GetIndexBufferForQuads(uint32_t max_quad_count)
+	{
+		const size_t required_max_index = max_quad_count * 4u;
+
+		static std::mutex locker;
+		std::scoped_lock lock(locker);
+
+		if (required_max_index < 65536u)
+		{
+			// 16-bit request:
+			max_quad_count = std::max(65535u / 4u, max_quad_count); // minimum a full 16 bit index buffer request, avoid allocating multiple 16-bit small requests
+			const size_t required_index_count = max_quad_count * 6u;
+
+			static GPUBuffer indexBufferForQuads16;
+			if (!indexBufferForQuads16.IsValid() || indexBufferForQuads16.desc.size / indexBufferForQuads16.desc.stride < required_index_count)
+			{
+				GPUBufferDesc bd;
+				bd.bind_flags = BindFlag::SHADER_RESOURCE | BindFlag::INDEX_BUFFER;
+				if (device->CheckCapability(GraphicsDeviceCapability::RAYTRACING))
+				{
+					bd.misc_flags |= ResourceMiscFlag::RAY_TRACING;
+				}
+				bd.format = Format::R16_UINT;
+				bd.stride = GetFormatStride(bd.format);
+				bd.size = bd.stride * required_index_count;
+				auto fill_ib = [&](void* dst)
+				{
+					uint16_t* primitiveData = (uint16_t*)dst;
+					for (uint16_t particleID = 0; particleID < uint16_t(max_quad_count); ++particleID)
+					{
+						uint16_t v0 = particleID * 4;
+						uint32_t i0 = particleID * 6;
+						primitiveData[i0 + 0] = v0 + 0;
+						primitiveData[i0 + 1] = v0 + 1;
+						primitiveData[i0 + 2] = v0 + 2;
+						primitiveData[i0 + 3] = v0 + 2;
+						primitiveData[i0 + 4] = v0 + 1;
+						primitiveData[i0 + 5] = v0 + 3;
+					}
+				};
+				device->CreateBuffer2(&bd, fill_ib, &indexBufferForQuads16);
+				device->SetName(&indexBufferForQuads16, "pf::renderer::indexBufferForQuads16bit");
+			}
+			return indexBufferForQuads16;
+		}
+
+		// 32-bit request below:
+		max_quad_count = math::GetNextPowerOfTwo(max_quad_count); // reduce allocations by making larger fitting allocations
+		const size_t required_index_count = max_quad_count * 6u;
+
+		static GPUBuffer indexBufferForQuads32;
+		if (!indexBufferForQuads32.IsValid() || indexBufferForQuads32.desc.size / indexBufferForQuads32.desc.stride < required_index_count)
+		{
+			GPUBufferDesc bd;
+			bd.bind_flags = BindFlag::SHADER_RESOURCE | BindFlag::INDEX_BUFFER;
+			if (device->CheckCapability(GraphicsDeviceCapability::RAYTRACING))
+			{
+				bd.misc_flags |= ResourceMiscFlag::RAY_TRACING;
+			}
+			bd.format = Format::R32_UINT;
+			bd.stride = GetFormatStride(bd.format);
+			bd.size = bd.stride * required_index_count;
+			auto fill_ib = [&](void* dst)
+			{
+				uint32_t* primitiveData = (uint32_t*)dst;
+				for (uint particleID = 0; particleID < max_quad_count; ++particleID)
+				{
+					uint32_t v0 = particleID * 4;
+					uint32_t i0 = particleID * 6;
+					primitiveData[i0 + 0] = v0 + 0;
+					primitiveData[i0 + 1] = v0 + 1;
+					primitiveData[i0 + 2] = v0 + 2;
+					primitiveData[i0 + 3] = v0 + 2;
+					primitiveData[i0 + 4] = v0 + 1;
+					primitiveData[i0 + 5] = v0 + 3;
+				}
+			};
+			device->CreateBuffer2(&bd, fill_ib, &indexBufferForQuads32);
+			device->SetName(&indexBufferForQuads32, "pf::renderer::indexBufferForQuads32bit");
+		}
+
+		return indexBufferForQuads32;
 	}
 
 }
