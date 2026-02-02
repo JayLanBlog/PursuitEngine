@@ -1,11 +1,23 @@
 #pragma once
-#include "Core/core_include.h"
-#include "enums.h"
-#include "Engine/Device/graph_driver.h"
-#include "module.h"
 
-namespace pf::renderer {
 
+#include <memory>
+#include <limits>
+#include "scene.h"
+#include <Engine/Ecore/enums.h>
+#include <Module/Mem/pAllocator.h>
+#include <Engine/Ecore/primitive.h>
+#include <Shader/ShaderInterop_SurfelGI.h>
+
+namespace pf
+{
+	struct VoxelGrid;
+	struct PathQuery;
+	struct TrailRenderer;
+}
+
+namespace pf::renderer
+{
 	constexpr pf::graphics::Format format_depthbuffer_main = pf::graphics::Format::D32_FLOAT_S8X24_UINT;
 	constexpr pf::graphics::Format format_rendertarget_main = pf::graphics::Format::R11G11B10_FLOAT;
 	constexpr pf::graphics::Format format_idbuffer = pf::graphics::Format::R32_UINT;
@@ -15,46 +27,27 @@ namespace pf::renderer {
 	constexpr pf::graphics::Format format_rendertarget_envprobe = pf::graphics::Format::R11G11B10_FLOAT;
 	constexpr pf::graphics::Format format_depthbuffer_envprobe = pf::graphics::Format::D16_UNORM;
 
+	constexpr uint8_t raytracing_inclusion_mask_shadow = 1 << 0;
+	constexpr uint8_t raytracing_inclusion_mask_reflection = 1 << 1;
 
-	constexpr uint32_t CombineStencilrefs(enums::STENCILREF engineStencilRef, uint8_t userStencilRef)
+	constexpr uint32_t CombineStencilrefs(pf::enums::STENCILREF engineStencilRef, uint8_t userStencilRef)
 	{
 		return (userStencilRef << 4) | static_cast<uint8_t>(engineStencilRef);
 	}
-
-	void Initialize();
-	struct BufferSuballocation
+	constexpr XMUINT2 GetEntityCullingTileCount(XMUINT2 internalResolution)
 	{
-		pf::graphics::GPUBuffer alias;
-		pf::allocator::PageAllocator::Allocation allocation;
-	};
-
-	// Sub-allocate (thread-safe) from a global GPU buffer for memory aliasing purpose:
-//	The buffer will be DEFAULT usage, useable as vertex buffer, index buffer and shader resource
-//	The purpose is to suballocate smaller GPUBuffers inside a larger GPUBuffer and bind the large GPUBuffer once as index buffer,
-//	while the small buffers can be allocated/deallocated from it with memory aliasing and also used regularly by themselves
-	BufferSuballocation SuballocateGPUBuffer(uint64_t size);
-	void UpdateGPUSuballocator(); // called every frame for deferred release of GPU suballocations
-
-
-
-	bool LoadShader(
-		pf::graphics::ShaderStage stage,
-		pf::graphics::Shader& shader,
-		const std::string& filename,
-		pf::graphics::ShaderModel minshadermodel = pf::graphics::ShaderModel::SM_6_0,
-		const vector<std::string>& permutation_defines = {}
-	);
-
-	// Add a texture that should be mipmapped whenever it is feasible to do so
-	void AddDeferredMIPGen(const graphics::Texture& texture, bool preserve_coverage = false);
-
-	void AddDeferredBlockCompression(const graphics::Texture& texture_src, const graphics::Texture& texture_bc);
-
-	// Add box to render in next frame. It will be rendered in DrawDebugWorld()
-	void DrawBox(const primitive::AABB& aabb, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
-	void DrawBox(const XMMATRIX& boxMatrix, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
-	void DrawBox(const XMFLOAT4X4& boxMatrix, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
-
+		return XMUINT2(
+			(internalResolution.x + TILED_CULLING_BLOCKSIZE - 1) / TILED_CULLING_BLOCKSIZE,
+			(internalResolution.y + TILED_CULLING_BLOCKSIZE - 1) / TILED_CULLING_BLOCKSIZE
+		);
+	}
+	constexpr XMUINT2 GetVisibilityTileCount(XMUINT2 internalResolution)
+	{
+		return XMUINT2(
+			(internalResolution.x + VISIBILITY_BLOCKSIZE - 1) / VISIBILITY_BLOCKSIZE,
+			(internalResolution.y + VISIBILITY_BLOCKSIZE - 1) / VISIBILITY_BLOCKSIZE
+		);
+	}
 
 	const pf::graphics::Sampler* GetSampler(pf::enums::SAMPLERTYPES id);
 	const pf::graphics::Shader* GetShader(pf::enums::SHADERTYPE id);
@@ -65,14 +58,1074 @@ namespace pf::renderer {
 	const pf::graphics::GPUBuffer* GetBuffer(pf::enums::BUFFERTYPES id);
 	const pf::graphics::Texture* GetTexture(pf::enums::TEXTYPES id);
 
+	// Returns a buffer preinitialized for quad index buffer laid out as:
+	//	vertexID * 4 + [0, 1, 2, 2, 1, 3]
+	//	Note: it will return 16-bit or 32-bit index buffer depending on max_quad_count
+	const pf::graphics::GPUBuffer& GetIndexBufferForQuads(uint32_t max_quad_count);
+
+	struct BufferSuballocation
+	{
+		pf::graphics::GPUBuffer alias;
+		pf::allocator::PageAllocator::Allocation allocation;
+	};
+	// Sub-allocate (thread-safe) from a global GPU buffer for memory aliasing purpose:
+	//	The buffer will be DEFAULT usage, useable as vertex buffer, index buffer and shader resource
+	//	The purpose is to suballocate smaller GPUBuffers inside a larger GPUBuffer and bind the large GPUBuffer once as index buffer,
+	//	while the small buffers can be allocated/deallocated from it with memory aliasing and also used regularly by themselves
+	BufferSuballocation SuballocateGPUBuffer(uint64_t size);
+	void UpdateGPUSuballocator(); // called every frame for deferred release of GPU suballocations
+
+	void ModifyObjectSampler(const pf::graphics::SamplerDesc& desc);
+
+	// Initializes the renderer
+	void Initialize();
+
+	// Clears the scene and the associated renderer resources
+	void ClearWorld(pf::scene::Scene& scene);
+
+	// Returns the shader binary directory
+	const std::string& GetShaderPath();
+	// Sets the shader binary directory
+	void SetShaderPath(const std::string& path);
+	// Returns the shader source directory
+	const std::string& GetShaderSourcePath();
+	// Sets the shader source directory
+	void SetShaderSourcePath(const std::string& path);
+	// Reload shaders
+	void ReloadShaders();
+	// Returns how many shaders are embedded (if wiShaderDump.h is used)
+	//	wiShaderDump.h can be generated by OfflineShaderCompiler.exe using shaderdump argument
+	size_t GetShaderDumpCount();
+	size_t GetShaderErrorCount();
+	size_t GetShaderMissingCount();
+
+	bool LoadShader(
+		pf::graphics::ShaderStage stage,
+		pf::graphics::Shader& shader,
+		const std::string& filename,
+		pf::graphics::ShaderModel minshadermodel = pf::graphics::ShaderModel::SM_6_0,
+		const pf::vector<std::string>& permutation_defines = {}
+	);
+
+	// Whether background pipeline compilations are active (returns number of active jobs)
+	int IsPipelineCreationActive();
+
+	struct Visibility
+	{
+		// User fills these:
+		uint32_t layerMask = ~0u;
+		const pf::scene::Scene* scene = nullptr;
+		const pf::scene::CameraComponent* camera = nullptr;
+		enum FLAGS
+		{
+			EMPTY = 0,
+			ALLOW_OBJECTS = 1 << 0,
+			ALLOW_LIGHTS = 1 << 1,
+			ALLOW_DECALS = 1 << 2,
+			ALLOW_ENVPROBES = 1 << 3,
+			ALLOW_EMITTERS = 1 << 4,
+			ALLOW_HAIRS = 1 << 5,
+			ALLOW_COLLIDERS = 1 << 6,
+			ALLOW_REQUEST_REFLECTION = 1 << 7,
+			ALLOW_OCCLUSION_CULLING = 1 << 8,
+			ALLOW_SHADOW_ATLAS_PACKING = 1 << 9,
+
+			ALLOW_EVERYTHING = ~0u
+		};
+		uint32_t flags = EMPTY;
+
+		// pf::renderer::UpdateVisibility() fills these:
+		pf::primitive::Frustum frustum;
+		pf::vector<uint32_t> visibleObjects;
+		pf::vector<uint32_t> visibleDecals;
+		pf::vector<uint32_t> visibleEnvProbes;
+		pf::vector<uint32_t> visibleEmitters;
+		pf::vector<uint32_t> visibleHairs;
+		pf::vector<uint32_t> visibleLights;
+		pf::vector<pf::scene::ColliderComponent> visibleColliders;
+		pf::rectpacker::State shadow_packer;
+		pf::rectpacker::Rect rain_blocker_shadow_rect;
+		pf::vector<pf::rectpacker::Rect> visibleLightShadowRects;
+
+		std::atomic<uint32_t> object_counter;
+		std::atomic<uint32_t> light_counter;
+
+		pf::SpinLock locker;
+		bool planar_reflection_visible = false;
+		float closestRefPlane = std::numeric_limits<float>::max();
+		XMFLOAT4 reflectionPlane = XMFLOAT4(0, 1, 0, 0);
+		std::atomic_bool volumetriclight_request{ false };
+		std::atomic_bool transparents_visible{ false };
+		std::atomic_bool mesh_blend_visible{ false };
+
+		void Clear()
+		{
+			visibleObjects.clear();
+			visibleLights.clear();
+			visibleDecals.clear();
+			visibleEnvProbes.clear();
+			visibleEmitters.clear();
+			visibleHairs.clear();
+			visibleColliders.clear();
+
+			object_counter.store(0);
+			light_counter.store(0);
+
+			closestRefPlane = std::numeric_limits<float>::max();
+			planar_reflection_visible = false;
+			volumetriclight_request.store(false);
+			transparents_visible.store(false);
+			mesh_blend_visible.store(false);
+		}
+
+		bool IsRequestedPlanarReflections() const
+		{
+			return planar_reflection_visible;
+		}
+		bool IsRequestedVolumetricLights() const
+		{
+			return volumetriclight_request.load();
+		}
+		bool IsTransparentsVisible() const
+		{
+			return transparents_visible.load();
+		}
+		bool IsMeshBlendVisible() const
+		{
+			return mesh_blend_visible.load();
+		}
+	};
+
+	// Performs frustum culling.
+	void UpdateVisibility(Visibility& vis);
+	// Prepares the scene for rendering
+	void UpdatePerFrameData(
+		pf::scene::Scene& scene,
+		const Visibility& vis,
+		FrameCB& frameCB,
+		float dt
+	);
+	// Updates the GPU state according to the previously called UpdatePerFrameData()
+	void UpdateRenderData(
+		const Visibility& vis,
+		const FrameCB& frameCB,
+		pf::graphics::CommandList cmd
+	);
+
+	// Updates those GPU states that can be async
+	void UpdateRenderDataAsync(
+		const Visibility& vis,
+		const FrameCB& frameCB,
+		pf::graphics::CommandList cmd
+	);
+
+	// Copies the texture streaming requests from GPU to CPU
+	void TextureStreamingReadbackCopy(
+		const pf::scene::Scene& scene,
+		pf::graphics::CommandList cmd
+	);
+
+	// Updates the ocean, can be on async compute
+	void UpdateOcean(
+		const Visibility& vis,
+		pf::graphics::CommandList cmd
+	);
+	// Readback the ocean, can be on async compute or async copy
+	void ReadbackOcean(
+		const Visibility& vis,
+		pf::graphics::CommandList cmd
+	);
+
+	void UpdateRaytracingAccelerationStructures(const pf::scene::Scene& scene, pf::graphics::CommandList cmd);
+
+	// Binds all common constant buffers and samplers that may be used in all shaders
+	void BindCommonResources(pf::graphics::CommandList cmd);
+	// Updates the per camera constant buffer need to call for each different camera that is used when calling DrawScene() and the like
+	//	camera_previous : camera from previous frame, used for reprojection effects.
+	//	camera_reflection : camera that renders planar reflection
+	void BindCameraCB(
+		const pf::scene::CameraComponent& camera,
+		const pf::scene::CameraComponent& camera_previous,
+		const pf::scene::CameraComponent& camera_reflection,
+		pf::graphics::CommandList cmd
+	);
+
+
+	enum DRAWSCENE_FLAGS
+	{
+		DRAWSCENE_OPAQUE = 1 << 0, // include opaque objects
+		DRAWSCENE_TRANSPARENT = 1 << 1, // include transparent objects
+		DRAWSCENE_OCCLUSIONCULLING = 1 << 2, // enable skipping objects based on occlusion culling results
+		DRAWSCENE_TESSELLATION = 1 << 3, // enable tessellation
+		DRAWSCENE_HAIRPARTICLE = 1 << 4, // include hair particles
+		DRAWSCENE_IMPOSTOR = 1 << 5, // include impostors
+		DRAWSCENE_OCEAN = 1 << 6, // include ocean
+		DRAWSCENE_SKIP_PLANAR_REFLECTION_OBJECTS = 1 << 7, // don't draw subsets which have planar reflection material
+		DRAWSCENE_FOREGROUND_ONLY = 1 << 8, // only include objects that are tagged as foreground
+		DRAWSCENE_MAINCAMERA = 1 << 9, // If this is active, then ObjectComponent with SetNotVisibleInMainCamera(true) won't be drawn
+		DRAWSCENE_WIREFRAME_OVERLAY = 1 << 10, // draw wireframe overlay
+	};
+
+	// Draw the world from a camera. You must call BindCameraCB() at least once in this command list prior to this
+	void DrawScene(
+		const Visibility& vis,
+		pf::enums::RENDERPASS renderPass,
+		pf::graphics::CommandList cmd,
+		uint32_t flags = DRAWSCENE_OPAQUE
+	);
+
+	// Process deferred requests such as AddDeferredMIPGen and AddDeferredBlockCompression:
+	void ProcessDeferredTextureRequests(pf::graphics::CommandList cmd);
+
+	// Compute volumetric cloud shadow data
+	void ComputeVolumetricCloudShadows(
+		pf::graphics::CommandList cmd,
+		const pf::graphics::Texture* weatherMapFirst = nullptr,
+		const pf::graphics::Texture* weatherMapSecond = nullptr
+	);
+
+	// Compute essential SkyAtmosphere textures for lighting, skyviewlut and cameravolume.
+	void ComputeSkyAtmosphereTextures(pf::graphics::CommandList cmd);
+	// Update SkyViewLut independently, used primarily for environtment probes.
+	void ComputeSkyAtmosphereSkyViewLut(pf::graphics::CommandList cmd);
+	// Update CameraVolumeLut independently, used primarily for environtment probes.
+	void ComputeSkyAtmosphereCameraVolumeLut(pf::graphics::CommandList cmd);
+
+	// Draw skydome centered to camera.
+	void DrawSky(const pf::scene::Scene& scene, pf::graphics::CommandList cmd);
+	// Draw shadow maps for each visible light that has associated shadow maps
+	void DrawSun(pf::graphics::CommandList cmd);
+	// Draw shadow maps for each visible light that has associated shadow maps
+	void DrawShadowmaps(
+		const Visibility& vis,
+		pf::graphics::CommandList cmd
+	);
+	// Draw debug world. You must also enable what parts to draw, eg. SetToDrawGridHelper, etc, see implementation for details what can be enabled.
+	void DrawDebugWorld(
+		const pf::scene::Scene& scene,
+		const pf::scene::CameraComponent& camera,
+		const pf::Canvas& canvas,
+		pf::graphics::CommandList cmd
+	);
+	// Draw wireframe overlay on top of scene geometry when wireframe mode is enabled
+	void DrawWireframeOverlay(
+		const Visibility& vis,
+		pf::enums::RENDERPASS renderPass,
+		pf::graphics::CommandList cmd
+	);
+	// Draw Soft offscreen particles.
+	void DrawSoftParticles(
+		const Visibility& vis,
+		bool distortion,
+		pf::graphics::CommandList cmd
+	);
+	// Draw the sprites and fonts from the scene
+	void DrawSpritesAndFonts(
+		const pf::scene::Scene& scene,
+		const pf::scene::CameraComponent& camera,
+		bool distortion,
+		pf::graphics::CommandList cmd
+	);
+	// Draw simple light visualizer geometries
+	//	instance_replication is used to render them into multiple texture slices
+	void DrawLightVisualizers(
+		const Visibility& vis,
+		pf::graphics::CommandList cmd,
+		uint32_t instance_replication = 1
+	);
+	// Draw volumetric light scattering effects
+	void DrawVolumeLights(
+		const Visibility& vis,
+		pf::graphics::CommandList cmd
+	);
+	// Draw Lens Flares for lights that have them enabled
+	void DrawLensFlares(
+		const Visibility& vis,
+		pf::graphics::CommandList cmd,
+		const pf::graphics::Texture* texture_directional_occlusion = nullptr
+	);
+	// Call once per frame to re-render out of date environment probes
+	void RefreshEnvProbes(const Visibility& vis, pf::graphics::CommandList cmd);
+	// Call once per frame to re-render out of date impostors
+	void RefreshImpostors(const pf::scene::Scene& scene, pf::graphics::CommandList cmd);
+	// Call once per frame to render lightmaps
+	void RefreshLightmaps(const pf::scene::Scene& scene, pf::graphics::CommandList cmd);
+	// Call once per frame to render wetmaps
+	void RefreshWetmaps(const Visibility& vis, pf::graphics::CommandList cmd);
+	// Call once per frame to render PaintDecalIntoMeshSpaceTexture requests
+	void PaintDecals(const pf::scene::Scene& scene, pf::graphics::CommandList cmd);
+
+	// Run a compute shader that will resolve a MSAA depth buffer to a single-sample texture
+	void ResolveMSAADepthBuffer(const pf::graphics::Texture& dst, const pf::graphics::Texture& src, pf::graphics::CommandList cmd);
+	void DownsampleDepthBuffer(const pf::graphics::Texture& src, pf::graphics::CommandList cmd);
+
+	struct TiledLightResources
+	{
+		XMUINT2 tileCount = {};
+		pf::graphics::GPUBuffer entityTiles; // culled entity indices
+	};
+	void CreateTiledLightResources(TiledLightResources& res, XMUINT2 resolution);
+	// Compute light grid tiles
+	void ComputeTiledLightCulling(
+		const TiledLightResources& res,
+		const Visibility& vis,
+		const pf::graphics::Texture& debugUAV,
+		pf::graphics::CommandList cmd
+	);
+
+	struct LuminanceResources
+	{
+		pf::graphics::GPUBuffer luminance; // result luminance value
+	};
+	void CreateLuminanceResources(LuminanceResources& res, XMUINT2 resolution);
+	void ComputeLuminance(
+		const LuminanceResources& res,
+		const pf::graphics::Texture& sourceImage,
+		pf::graphics::CommandList cmd,
+		float adaption_rate = 1,
+		float eyeadaptionkey = 0.115f
+	);
+
+	struct BloomResources
+	{
+		pf::graphics::Texture texture_bloom;
+		pf::graphics::Texture texture_temp;
+	};
+	void CreateBloomResources(BloomResources& res, XMUINT2 resolution);
+	void ComputeBloom(
+		const BloomResources& res,
+		const pf::graphics::Texture& input,
+		pf::graphics::CommandList cmd,
+		float threshold = 1.0f, // cutoff value, pixels below this will not contribute to bloom
+		float exposure = 1.0f,
+		const pf::graphics::GPUBuffer* buffer_luminance = nullptr
+	);
+
+	void ComputeShadingRateClassification(
+		const pf::graphics::Texture& output,
+		const pf::graphics::Texture& debugUAV,
+		pf::graphics::CommandList cmd
+	);
+
+	struct VisibilityResources
+	{
+		XMUINT2 tile_count = {};
+		pf::graphics::GPUBuffer bins;
+		pf::graphics::GPUBuffer binned_tiles;
+		pf::graphics::Texture texture_payload_0;
+		pf::graphics::Texture texture_payload_1;
+		pf::graphics::Texture texture_normals;
+		pf::graphics::Texture texture_roughness;
+
+		// You can request any of these extra outputs to be written by VisibilityResolve:
+		const pf::graphics::Texture* depthbuffer = nullptr; // depth buffer that matches with post projection
+		const pf::graphics::Texture* lineardepth = nullptr; // depth buffer in linear space in [0,1] range
+		const pf::graphics::Texture* primitiveID_resolved = nullptr; // resolved from MSAA texture_visibility input
+
+		inline bool IsValid() const { return bins.IsValid(); }
+	};
+	void CreateVisibilityResources(VisibilityResources& res, XMUINT2 resolution);
+	void Visibility_Prepare(
+		const VisibilityResources& res,
+		const pf::graphics::Texture& input_primitiveID, // can be MSAA
+		pf::graphics::CommandList cmd
+	);
+	void Visibility_Surface(
+		const VisibilityResources& res,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+	void Visibility_Surface_Reduced(
+		const VisibilityResources& res,
+		pf::graphics::CommandList cmd
+	);
+	void Visibility_Shade(
+		const VisibilityResources& res,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+	void Visibility_Velocity(
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+
+	// Surfel GI: diffuse GI with ray tracing from surfels
+	struct SurfelGIResources
+	{
+		pf::graphics::Texture result_halfres;
+		pf::graphics::Texture result;
+	};
+	void CreateSurfelGIResources(SurfelGIResources& res, XMUINT2 resolution);
+	void SurfelGI_Coverage(
+		const SurfelGIResources& res,
+		const pf::scene::Scene& scene,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& debugUAV,
+		pf::graphics::CommandList cmd
+	);
+	void SurfelGI(
+		const SurfelGIResources& res,
+		const pf::scene::Scene& scene,
+		pf::graphics::CommandList cmd
+	);
+
+	// DDGI: Dynamic Diffuse Global Illumination (probe-based ray tracing)
+	void DDGI(
+		const pf::scene::Scene& scene,
+		pf::graphics::CommandList cmd
+	);
+
+	// VXGI: Voxel-based Global Illumination (voxel cone tracing-based)
+	struct VXGIResources
+	{
+		pf::graphics::Texture diffuse;
+		pf::graphics::Texture specular;
+		mutable bool pre_clear = true;
+
+		bool IsValid() const { return diffuse.IsValid(); }
+	};
+	void CreateVXGIResources(VXGIResources& res, XMUINT2 resolution);
+	void VXGI_Voxelize(
+		const Visibility& vis,
+		pf::graphics::CommandList cmd
+	);
+	// Resolve VXGI to screen
+	void VXGI_Resolve(
+		const VXGIResources& res,
+		const pf::scene::Scene& scene,
+		pf::graphics::Texture texture_lineardepth,
+		pf::graphics::CommandList cmd
+	);
+
+	void Postprocess_Blur_Gaussian(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& temp,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		int mip_src = -1,
+		int mip_dst = -1,
+		bool wide = false
+	);
+	void Postprocess_Blur_Bilateral(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& temp,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float depth_threshold = 1.0f,
+		int mip_src = -1,
+		int mip_dst = -1,
+		bool wide = false
+	);
+	struct SSAOResources
+	{
+		pf::graphics::Texture temp;
+	};
+	void CreateSSAOResources(SSAOResources& res, XMUINT2 resolution);
+	void Postprocess_SSAO(
+		const SSAOResources& res,
+		const pf::graphics::Texture& output,
+		const pf::graphics::Texture& lineardepth,
+		pf::graphics::CommandList cmd,
+		float range = 1.0f,
+		uint32_t samplecount = 16,
+		float power = 1.0f
+	);
+	void Postprocess_HBAO(
+		const SSAOResources& res,
+		const pf::scene::CameraComponent& camera,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float power = 1.0f
+	);
+	struct MSAOResources
+	{
+		mutable bool cleared = false;
+		pf::graphics::Texture texture_lineardepth_downsize1;
+		pf::graphics::Texture texture_lineardepth_tiled1;
+		pf::graphics::Texture texture_lineardepth_downsize2;
+		pf::graphics::Texture texture_lineardepth_tiled2;
+		pf::graphics::Texture texture_lineardepth_downsize3;
+		pf::graphics::Texture texture_lineardepth_tiled3;
+		pf::graphics::Texture texture_lineardepth_downsize4;
+		pf::graphics::Texture texture_lineardepth_tiled4;
+		pf::graphics::Texture texture_ao_merged1;
+		pf::graphics::Texture texture_ao_hq1;
+		pf::graphics::Texture texture_ao_smooth1;
+		pf::graphics::Texture texture_ao_merged2;
+		pf::graphics::Texture texture_ao_hq2;
+		pf::graphics::Texture texture_ao_smooth2;
+		pf::graphics::Texture texture_ao_merged3;
+		pf::graphics::Texture texture_ao_hq3;
+		pf::graphics::Texture texture_ao_smooth3;
+		pf::graphics::Texture texture_ao_merged4;
+		pf::graphics::Texture texture_ao_hq4;
+	};
+	void CreateMSAOResources(MSAOResources& res, XMUINT2 resolution);
+	void Postprocess_MSAO(
+		const MSAOResources& res,
+		const pf::scene::CameraComponent& camera,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float power = 1.0f
+	);
+	struct RTAOResources
+	{
+		pf::graphics::Texture normals;
+		pf::graphics::Texture denoised;
+
+		mutable int frame = 0;
+		pf::graphics::GPUBuffer tiles;
+		pf::graphics::GPUBuffer metadata;
+		pf::graphics::Texture scratch[2];
+		pf::graphics::Texture moments[2];
+	};
+	void CreateRTAOResources(RTAOResources& res, XMUINT2 resolution);
+	void Postprocess_RTAO(
+		const RTAOResources& res,
+		const pf::scene::Scene& scene,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float range = 1.0f,
+		float power = 1.0f
+	);
+	struct RTDiffuseResources
+	{
+		mutable int frame = 0;
+		pf::graphics::Texture texture_rayIndirectDiffuse;
+		pf::graphics::Texture texture_spatial;
+		pf::graphics::Texture texture_spatial_variance;
+		pf::graphics::Texture texture_temporal[2];
+		pf::graphics::Texture texture_temporal_variance[2];
+	};
+	void CreateRTDiffuseResources(RTDiffuseResources& res, XMUINT2 resolution);
+	void Postprocess_RTDiffuse(
+		const RTDiffuseResources& res,
+		const pf::scene::Scene& scene,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float range = 1000.0f
+	);
+	struct SSGIResources
+	{
+		mutable bool cleared = false;
+		pf::graphics::Texture texture_atlas_depth;
+		pf::graphics::Texture texture_atlas_color;
+		pf::graphics::Texture texture_depth_mips;
+		pf::graphics::Texture texture_normal_mips;
+		pf::graphics::Texture texture_diffuse_mips;
+	};
+	void CreateSSGIResources(SSGIResources& res, XMUINT2 resolution);
+	void Postprocess_SSGI(
+		const SSGIResources& res,
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& input_depth,
+		const pf::graphics::Texture& input_normal,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float depthRejection = 8
+	);
+	struct RTReflectionResources
+	{
+		mutable int frame = 0;
+		pf::graphics::Texture texture_rayIndirectSpecular;
+		pf::graphics::Texture texture_rayDirectionPDF;
+		pf::graphics::Texture texture_rayLengths;
+		pf::graphics::Texture texture_resolve;
+		pf::graphics::Texture texture_resolve_variance;
+		pf::graphics::Texture texture_resolve_reprojectionDepth;
+		pf::graphics::Texture texture_temporal[2];
+		pf::graphics::Texture texture_temporal_variance[2];
+	};
+	void CreateRTReflectionResources(RTReflectionResources& res, XMUINT2 resolution);
+	void Postprocess_RTReflection(
+		const RTReflectionResources& res,
+		const pf::scene::Scene& scene,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float range = 1000.0f,
+		float roughnessCutoff = 0.5f
+	);
+	struct SSRResources
+	{
+		mutable int frame = 0;
+		pf::graphics::Texture texture_tile_minmax_roughness_horizontal;
+		pf::graphics::Texture texture_tile_minmax_roughness;
+		pf::graphics::Texture texture_depth_hierarchy;
+		pf::graphics::Texture texture_rayIndirectSpecular;
+		pf::graphics::Texture texture_rayDirectionPDF;
+		pf::graphics::Texture texture_rayLengths;
+		pf::graphics::Texture texture_resolve;
+		pf::graphics::Texture texture_resolve_variance;
+		pf::graphics::Texture texture_resolve_reprojectionDepth;
+		pf::graphics::Texture texture_temporal[2];
+		pf::graphics::Texture texture_temporal_variance[2];
+		pf::graphics::GPUBuffer buffer_tile_tracing_statistics;
+		pf::graphics::GPUBuffer buffer_tiles_tracing_earlyexit;
+		pf::graphics::GPUBuffer buffer_tiles_tracing_cheap;
+		pf::graphics::GPUBuffer buffer_tiles_tracing_expensive;
+	};
+	void CreateSSRResources(SSRResources& res, XMUINT2 resolution);
+	void Postprocess_SSR(
+		const SSRResources& res,
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float roughnessCutoff = 0.6f
+	);
+	struct RTShadowResources
+	{
+		pf::graphics::Texture raytraced;
+		pf::graphics::Texture temporal[2];
+		pf::graphics::Texture normals;
+
+		mutable int frame = 0;
+		pf::graphics::GPUBuffer tiles;
+		pf::graphics::GPUBuffer metadata;
+		pf::graphics::Texture scratch[4][2];
+		pf::graphics::Texture moments[4][2];
+		pf::graphics::Texture denoised;
+	};
+	void CreateRTShadowResources(RTShadowResources& res, XMUINT2 resolution);
+	void Postprocess_RTShadow(
+		const RTShadowResources& res,
+		const pf::scene::Scene& scene,
+		const pf::graphics::GPUBuffer& entityTiles_Opaque,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+	struct ScreenSpaceShadowResources
+	{
+		pf::graphics::Texture lowres;
+	};
+	void CreateScreenSpaceShadowResources(ScreenSpaceShadowResources& res, XMUINT2 resolution);
+	void Postprocess_ScreenSpaceShadow(
+		const ScreenSpaceShadowResources& res,
+		const pf::graphics::GPUBuffer& entityTiles_Opaque,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float range = 1,
+		uint32_t samplecount = 16
+	);
+	void Postprocess_LightShafts(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		const XMFLOAT2& center,
+		float strength = 0.1f
+	);
+	struct DepthOfFieldResources
+	{
+		pf::graphics::Texture texture_tilemax_horizontal;
+		pf::graphics::Texture texture_tilemin_horizontal;
+		pf::graphics::Texture texture_tilemax;
+		pf::graphics::Texture texture_tilemin;
+		pf::graphics::Texture texture_neighborhoodmax;
+		pf::graphics::Texture texture_presort;
+		pf::graphics::Texture texture_prefilter;
+		pf::graphics::Texture texture_main;
+		pf::graphics::Texture texture_postfilter;
+		pf::graphics::Texture texture_alpha1;
+		pf::graphics::Texture texture_alpha2;
+		pf::graphics::GPUBuffer buffer_tile_statistics;
+		pf::graphics::GPUBuffer buffer_tiles_earlyexit;
+		pf::graphics::GPUBuffer buffer_tiles_cheap;
+		pf::graphics::GPUBuffer buffer_tiles_expensive;
+
+		bool IsValid() const { return texture_tilemax_horizontal.IsValid(); }
+	};
+	void CreateDepthOfFieldResources(DepthOfFieldResources& res, XMUINT2 resolution);
+	void Postprocess_DepthOfField(
+		const DepthOfFieldResources& res,
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float coc_scale = 10,
+		float max_coc = 18
+	);
+	void Postprocess_Outline(
+		const pf::graphics::Texture& input,
+		pf::graphics::CommandList cmd,
+		float threshold = 0.1f,
+		float thickness = 1.0f,
+		const XMFLOAT4& color = XMFLOAT4(0, 0, 0, 1)
+	);
+	struct MotionBlurResources
+	{
+		pf::graphics::Texture texture_tilemin_horizontal;
+		pf::graphics::Texture texture_tilemax_horizontal;
+		pf::graphics::Texture texture_tilemax;
+		pf::graphics::Texture texture_tilemin;
+		pf::graphics::Texture texture_neighborhoodmax;
+		pf::graphics::GPUBuffer buffer_tile_statistics;
+		pf::graphics::GPUBuffer buffer_tiles_earlyexit;
+		pf::graphics::GPUBuffer buffer_tiles_cheap;
+		pf::graphics::GPUBuffer buffer_tiles_expensive;
+
+		bool IsValid() const { return texture_tilemax_horizontal.IsValid(); }
+	};
+	void CreateMotionBlurResources(MotionBlurResources& res, XMUINT2 resolution);
+	void Postprocess_MotionBlur(
+		float dt, // delta time in seconds
+		const MotionBlurResources& res,
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float strength = 100.0f
+	);
+	struct AerialPerspectiveResources
+	{
+		pf::graphics::Texture texture_output;
+	};
+	void CreateAerialPerspectiveResources(AerialPerspectiveResources& res, XMUINT2 resolution);
+	void Postprocess_AerialPerspective(
+		const AerialPerspectiveResources& res,
+		pf::graphics::CommandList cmd
+	);
+	struct VolumetricCloudResources
+	{
+		mutable int frame = -1;
+		XMUINT2 final_resolution = {};
+		pf::graphics::Texture texture_cloudRender;
+		pf::graphics::Texture texture_cloudDepth;
+		pf::graphics::Texture texture_reproject[2];
+		pf::graphics::Texture texture_reproject_depth[2];
+		pf::graphics::Texture texture_reproject_additional[2];
+		pf::graphics::Texture texture_cloudMask;
+
+		void ResetFrame() const { frame = -1; }
+		void AdvanceFrame() const { frame++; }
+		int GetTemporalOutputIndex() const { return frame % 2; }
+		int GetTemporalInputIndex() const { return 1 - GetTemporalOutputIndex(); }
+	};
+	void CreateVolumetricCloudResources(VolumetricCloudResources& res, XMUINT2 resolution);
+	void Postprocess_VolumetricClouds(
+		const VolumetricCloudResources& res,
+		pf::graphics::CommandList cmd,
+		const pf::scene::CameraComponent& camera,
+		const pf::scene::CameraComponent& camera_previous,
+		const pf::scene::CameraComponent& camera_reflection,
+		const bool jitterEnabled,
+		const pf::graphics::Texture* weatherMapFirst = nullptr,
+		const pf::graphics::Texture* weatherMapSecond = nullptr
+	);
+	void Postprocess_VolumetricClouds_Upsample(
+		const VolumetricCloudResources& res,
+		pf::graphics::CommandList cmd
+	);
+	void Postprocess_FXAA(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+	struct TemporalAAResources
+	{
+		mutable int frame = 0;
+		pf::graphics::Texture texture_temporal[2];
+
+		bool IsValid() const { return texture_temporal[0].IsValid(); }
+		const pf::graphics::Texture* GetCurrent() const { return &texture_temporal[frame % arraysize(texture_temporal)]; }
+		const pf::graphics::Texture* GetHistory() const { return &texture_temporal[(frame + 1) % arraysize(texture_temporal)]; }
+	};
+	void CreateTemporalAAResources(TemporalAAResources& res, XMUINT2 resolution);
+	void Postprocess_TemporalAA(
+		const TemporalAAResources& res,
+		const pf::graphics::Texture& input,
+		pf::graphics::CommandList cmd
+	);
+	void Postprocess_Sharpen(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float amount = 1.0f
+	);
+	void Postprocess_CRT(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float flicker_amount = 0,
+		float flicker_timer = 0,
+		bool srgb = true // if true, then srgb->linear->crt filter->srgb conversion will be done
+	);
+	enum class Tonemap
+	{
+		Reinhard,
+		ACES
+	};
+	void Postprocess_Tonemap(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float exposure,
+		float brightness,
+		float contrast,
+		float saturation,
+		bool dither,
+		const pf::graphics::Texture* texture_colorgradinglut = nullptr,
+		const pf::graphics::Texture* texture_distortion = nullptr,
+		const pf::graphics::GPUBuffer* buffer_luminance = nullptr,
+		const pf::graphics::Texture* texture_bloom = nullptr,
+		pf::graphics::ColorSpace display_colorspace = pf::graphics::ColorSpace::SRGB,
+		Tonemap tonemap = Tonemap::Reinhard,
+		const pf::graphics::Texture* texture_distortion_overlay = nullptr,
+		float hdr_calibration = 1
+	);
+	void Postprocess_FSR(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& temp,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float sharpness = 1.0f
+	);
+	struct FSR2Resources
+	{
+		struct Fsr2Constants
+		{
+			int32_t   renderSize[2];
+			int32_t   displaySize[2];
+			uint32_t  lumaMipDimensions[2];
+			uint32_t  lumaMipLevelToUse;
+			uint32_t  frameIndex;
+			float     displaySizeRcp[2];
+			float     jitterOffset[2];
+			float     deviceToViewDepth[4];
+			float     depthClipUVScale[2];
+			float     postLockStatusUVScale[2];
+			float     reactiveMaskDimRcp[2];
+			float     motionVectorScale[2];
+			float     downscaleFactor[2];
+			float     preExposure;
+			float     tanHalfFOV;
+			float     motionVectorJitterCancellation[2];
+			float     jitterPhaseCount;
+			float     lockInitialLifetime;
+			float     lockTickDelta;
+			float     deltaTime;
+			float     dynamicResChangeFactor;
+			float     lumaMipRcp;
+		};
+		mutable Fsr2Constants fsr2_constants = {};
+		pf::graphics::Texture adjusted_color;
+		pf::graphics::Texture luminance_current;
+		pf::graphics::Texture luminance_history;
+		pf::graphics::Texture exposure;
+		pf::graphics::Texture previous_depth;
+		pf::graphics::Texture dilated_depth;
+		pf::graphics::Texture dilated_motion;
+		pf::graphics::Texture dilated_reactive;
+		pf::graphics::Texture disocclusion_mask;
+		pf::graphics::Texture lock_status[2];
+		pf::graphics::Texture reactive_mask;
+		pf::graphics::Texture lanczos_lut;
+		pf::graphics::Texture maximum_bias_lut;
+		pf::graphics::Texture spd_global_atomic;
+		pf::graphics::Texture output_internal[2];
+
+		bool IsValid() const { return adjusted_color.IsValid(); }
+
+		XMFLOAT2 GetJitter() const;
+	};
+	void CreateFSR2Resources(FSR2Resources& res, XMUINT2 render_resolution, XMUINT2 presentation_resolution);
+	void Postprocess_FSR2(
+		const FSR2Resources& res,
+		const pf::scene::CameraComponent& camera,
+		const pf::graphics::Texture& input_pre_alpha,
+		const pf::graphics::Texture& input_post_alpha,
+		const pf::graphics::Texture& input_depth,
+		const pf::graphics::Texture& input_velocity,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float dt, // delta time in seconds
+		float sharpness = 0.5f
+	);
+	void Postprocess_Chromatic_Aberration(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		float amount = 1.0f
+	);
+	void Postprocess_Upsample_Bilateral(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& lineardepth,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		bool is_pixelshader = false,
+		float threshold = 1.0f
+	);
+	void Postprocess_Downsample4x(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		bool hdrToSRGB = false
+	);
+	void Postprocess_Lineardepth(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+	void Postprocess_NormalsFromDepth(
+		const pf::graphics::Texture& depthbuffer,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+	void Postprocess_Underwater(
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+	struct MeshBlendResources
+	{
+		pf::graphics::Texture mask;
+		pf::graphics::Texture tmp;
+		pf::graphics::Texture expand[2];
+
+		bool IsValid() const { return mask.IsValid(); }
+	};
+	void CreateMeshBlendResources(MeshBlendResources& res, XMUINT2 resolution);
+	void PostProcess_MeshBlend_EdgeProcess( // this part can be run on async compute, it doesn't need color buffer, only the primID
+		const MeshBlendResources& res,
+		pf::graphics::CommandList cmd
+	);
+	void PostProcess_MeshBlend_Resolve( // this part can only be run on gfx queue, it will use renderpass internally (to support MSAA)
+		const MeshBlendResources& res,
+		const pf::graphics::Texture& output,
+		const pf::graphics::RenderPassImage* renderpass_images,
+		uint32_t renderpass_image_count,
+		pf::graphics::CommandList cmd
+	);
+	void Postprocess_Custom(
+		const pf::graphics::Shader& computeshader,
+		const pf::graphics::Texture& input,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd,
+		const XMFLOAT4& params0 = XMFLOAT4(0, 0, 0, 0),
+		const XMFLOAT4& params1 = XMFLOAT4(0, 0, 0, 0),
+		const char* debug_name = "Postprocess_Custom"
+	);
+
+	void YUV_to_RGB(
+		const pf::graphics::Texture& input,
+		int input_subresource_luminance,
+		int input_subresource_chrominance,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+
+	// This performs copies from separate depth and stencil shader resource textures
+	//	into hardware depthStencil buffer that supports depth/stencil testing
+	//	This is only supported by QUEUE_GRAPHICS!
+	//	stencil_bits_to_copy : bitmask can be specified to mask out stencil bits that will be copied
+	//	depthstencil_already_cleared : if false, it will be fully cleared if required; if true, it will be left intact
+	void CopyDepthStencil(
+		const pf::graphics::Texture* input_depth,
+		const pf::graphics::Texture* input_stencil,
+		const pf::graphics::Texture& output_depth_stencil,
+		pf::graphics::CommandList cmd,
+		uint8_t stencil_bits_to_copy = 0xFF,
+		bool depthstencil_already_cleared = false
+	);
+
+	// The input texture mask is scaled into the stencil of the current render pass with the specified viewport
+	void ScaleStencilMask(
+		const pf::graphics::Viewport& vp,
+		const pf::graphics::Texture& input,
+		pf::graphics::CommandList cmd
+	);
+
+	// Extract stencil from a depth stencil texture into a R8_UINT format texture
+	void ExtractStencil(
+		const pf::graphics::Texture& input_depthstencil,
+		const pf::graphics::Texture& output,
+		pf::graphics::CommandList cmd
+	);
+
+	// Render the scene with ray tracing
+	void RayTraceScene(
+		const pf::scene::Scene& scene,
+		const pf::graphics::Texture& output,
+		int accumulation_sample,
+		pf::graphics::CommandList cmd,
+		const pf::graphics::Texture* output_albedo = nullptr,
+		const pf::graphics::Texture* output_normal = nullptr,
+		const pf::graphics::Texture* output_depth = nullptr,
+		const pf::graphics::Texture* output_stencil = nullptr,
+		const pf::graphics::Texture* output_depth_stencil = nullptr,
+		const pf::graphics::Texture* output_primitiveID = nullptr
+	);
+	// Render the scene BVH with ray tracing to the screen
+	void RayTraceSceneBVH(const pf::scene::Scene& scene, pf::graphics::CommandList cmd);
+
+	// Render occluders against a depth buffer
+	void OcclusionCulling_Reset(const Visibility& vis, pf::graphics::CommandList cmd);
+	void OcclusionCulling_Render(const pf::scene::CameraComponent& camera, const Visibility& vis, pf::graphics::CommandList cmd);
+	void OcclusionCulling_Resolve(const Visibility& vis, pf::graphics::CommandList cmd);
+
+	void ComputeReprojectedDepthPyramid(
+		const pf::graphics::Texture& input_depth,
+		const pf::graphics::Texture& input_velocity,
+		const pf::graphics::Texture& output_depth_pyramid,
+		pf::graphics::CommandList cmd
+	);
+
+	enum MIPGENFILTER
+	{
+		MIPGENFILTER_POINT,
+		MIPGENFILTER_LINEAR,
+		MIPGENFILTER_GAUSSIAN,
+	};
+	struct MIPGEN_OPTIONS
+	{
+		int arrayIndex = -1;
+		const pf::graphics::Texture* gaussian_temp = nullptr;
+		bool preserve_coverage = false;
+		bool wide_gauss = false;
+	};
+	void GenerateMipChain(const pf::graphics::Texture& texture, MIPGENFILTER filter, pf::graphics::CommandList cmd, const MIPGEN_OPTIONS& options = {});
+
+	// Compress a texture into Block Compressed format
+	//	texture_src	: source uncompressed texture
+	//	texture_bc	: destination comporessed texture, must be a supported BC format (BC1/BC3/BC4/BC5/BC6H_UFLOAT)
+	//	Currently this will handle simple Texture2D with mip levels, and additionally BC6H cubemap
+	void BlockCompress(const pf::graphics::Texture& texture_src, const pf::graphics::Texture& texture_bc, pf::graphics::CommandList cmd, uint32_t dst_slice_offset = 0);
+
+	enum BORDEREXPANDSTYLE
+	{
+		BORDEREXPAND_DISABLE,
+		BORDEREXPAND_WRAP,
+		BORDEREXPAND_CLAMP,
+	};
+	// Performs copy operation even between different texture formats
+	//	NOTE: DstMIP can be specified as -1 to use main subresource, otherwise the subresource (>=0) must have been generated explicitly!
+	//	Can also expand border region according to desired sampler func
+	void CopyTexture2D(
+		const pf::graphics::Texture& dst, int DstMIP, int DstX, int DstY,
+		const pf::graphics::Texture& src, int SrcMIP, int SrcX, int SrcY,
+		pf::graphics::CommandList cmd,
+		BORDEREXPANDSTYLE borderExpand = BORDEREXPAND_DISABLE,
+		bool srgb_convert = false
+	);
+
+	void DrawWaterRipples(const Visibility& vis, pf::graphics::CommandList cmd);
+
+
+	void DrawWaveEffect(const XMFLOAT4& color, pf::graphics::CommandList cmd);
+
+
+
+	void SetShadowProps2D(int max_resolution);
+	void SetShadowPropsCube(int max_resolution);
+
 	enum WIREFRAME_MODE
 	{
 		WIREFRAME_DISABLED = 0,
 		WIREFRAME_ONLY = 1,
 		WIREFRAME_OVERLAY = 2,
 	};
-
-	//const param config
 
 	void SetWireRender(bool value);
 	bool IsWireRender();
@@ -138,8 +1191,8 @@ namespace pf::renderer {
 	bool GetScreenSpaceShadowsEnabled();
 	void SetSurfelGIEnabled(bool value);
 	bool GetSurfelGIEnabled();
-	//void SetSurfelGIDebugEnabled(SURFEL_DEBUG value);
-	//SURFEL_DEBUG GetSurfelGIDebugEnabled();
+	void SetSurfelGIDebugEnabled(SURFEL_DEBUG value);
+	SURFEL_DEBUG GetSurfelGIDebugEnabled();
 	void SetDDGIEnabled(bool value);
 	bool GetDDGIEnabled();
 	void SetDDGIDebugEnabled(bool value);
@@ -164,7 +1217,134 @@ namespace pf::renderer {
 	void SetShadowLODOverrideEnabled(bool value); // Allow shadowmap rendering to request custom LOD for objects (can result in shadow mismatch, but increased GPU performance)
 	bool IsShadowLODOverrideEnabled();
 
+	// Gets pick ray according to the current screen resolution and pointer coordinates. Can be used as input into RayIntersectWorld()
+	pf::primitive::Ray GetPickRay(long cursorX, long cursorY, const pf::Canvas& canvas, const pf::scene::CameraComponent& camera = pf::scene::GetCamera());
 
+
+	// Add box to render in next frame. It will be rendered in DrawDebugWorld()
+	void DrawBox(const pf::primitive::AABB& aabb, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
+	void DrawBox(const XMMATRIX& boxMatrix, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
+	void DrawBox(const XMFLOAT4X4& boxMatrix, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
+	// Add sphere to render in next frame. It will be rendered in DrawDebugWorld()
+	void DrawSphere(const pf::primitive::Sphere& sphere, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
+	// Add capsule to render in next frame. It will be rendered in DrawDebugWorld()
+	void DrawCapsule(const pf::primitive::Capsule& capsule, const XMFLOAT4& color = XMFLOAT4(1, 1, 1, 1), bool depth = true);
+
+	struct RenderableLine
+	{
+		XMFLOAT3 start = XMFLOAT3(0, 0, 0);
+		XMFLOAT3 end = XMFLOAT3(0, 0, 0);
+		XMFLOAT4 color_start = XMFLOAT4(1, 1, 1, 1);
+		XMFLOAT4 color_end = XMFLOAT4(1, 1, 1, 1);
+	};
+	// Add line to render in the next frame. It will be rendered in DrawDebugWorld()
+	void DrawLine(const RenderableLine& line, bool depth = false);
+
+	struct RenderableLine2D
+	{
+		XMFLOAT2 start = XMFLOAT2(0, 0);
+		XMFLOAT2 end = XMFLOAT2(0, 0);
+		XMFLOAT4 color_start = XMFLOAT4(1, 1, 1, 1);
+		XMFLOAT4 color_end = XMFLOAT4(1, 1, 1, 1);
+	};
+	// Add 2D line to render in the next frame. It will be rendered in DrawDebugWorld() in screen space
+	void DrawLine(const RenderableLine2D& line);
+
+	void DrawAxis(const XMMATRIX& matrix, float size, bool depth = false);
+
+	struct RenderablePoint
+	{
+		XMFLOAT3 position = XMFLOAT3(0, 0, 0);
+		float size = 1.0f;
+		XMFLOAT4 color = XMFLOAT4(1, 1, 1, 1);
+	};
+	// Add point to render in the next frame. It will be rendered in DrawDebugWorld() as an X
+	void DrawPoint(const RenderablePoint& point, bool depth = false);
+
+	struct RenderableTriangle
+	{
+		XMFLOAT3 positionA = XMFLOAT3(0, 0, 0);
+		XMFLOAT4 colorA = XMFLOAT4(1, 1, 1, 1);
+		XMFLOAT3 positionB = XMFLOAT3(0, 0, 0);
+		XMFLOAT4 colorB = XMFLOAT4(1, 1, 1, 1);
+		XMFLOAT3 positionC = XMFLOAT3(0, 0, 0);
+		XMFLOAT4 colorC = XMFLOAT4(1, 1, 1, 1);
+	};
+	// Add triangle to render in the next frame. It will be rendered in DrawDebugWorld()
+	void DrawTriangle(const RenderableTriangle& triangle, bool wireframe = false, bool depth = true);
+
+	struct DebugTextParams
+	{
+		XMFLOAT3 position = XMFLOAT3(0, 0, 0);
+		int pixel_height = 32;
+		float scaling = 1;
+		XMFLOAT4 color = XMFLOAT4(1, 1, 1, 1);
+		enum FLAGS // do not change values, it's bound to lua manually!
+		{
+			NONE = 0,
+			DEPTH_TEST = 1 << 0,		// text can be occluded by geometry
+			CAMERA_FACING = 1 << 1,		// text will be rotated to face the camera
+			CAMERA_SCALING = 1 << 2,	// text will be always the same size, independent of distance to camera
+		};
+		uint32_t flags = NONE;
+	};
+	// Add text to render in the next frame. It will be rendered in DrawDebugWorld()
+	//	The memory to text doesn't need to be retained by the caller, as it will be copied internally
+	void DrawDebugText(const char* text, const DebugTextParams& params);
+
+	struct PaintRadius
+	{
+		pf::ecs::Entity objectEntity = pf::ecs::INVALID_ENTITY;
+		int subset = -1;
+		uint32_t uvset = 0;
+		float radius = 0;
+		XMUINT2 center = {};
+		XMUINT2 dimensions = {};
+		float rotation = 0;
+		uint shape = 0; // 0: circle, 1 : square
+	};
+	void DrawPaintRadius(const PaintRadius& paintrad);
+
+	struct PaintTextureParams
+	{
+		pf::graphics::Texture editTex; // UAV writable texture
+		pf::graphics::Texture brushTex; // splat texture (optional)
+		pf::graphics::Texture revealTex; // mask texture that can be revealed (optional)
+		PaintTexturePushConstants push = {}; // shader parameters
+	};
+	void PaintIntoTexture(const PaintTextureParams& params);
+	pf::Resource CreatePaintableTexture(uint32_t width, uint32_t height, uint32_t mips = 0, pf::Color initialColor = pf::Color::Transparent());
+
+	struct PaintDecalParams
+	{
+		pf::ecs::Entity objectEntity = pf::ecs::INVALID_ENTITY;
+		XMFLOAT4X4 decalMatrix = pf::math::IDENTITY_MATRIX;
+		pf::graphics::Texture in_texture;
+		pf::graphics::Texture out_texture;
+		float slopeBlendPower = 0;
+	};
+	// Render a decal into a texture mapped onto a mesh (supports skinned mesh)
+	//	objectEntity : entity that has an ObjectComponent in the scene
+	//	decalMatrix : decal projection matrix in world space
+	//	in_texture : texture containing the source decal
+	//	out_texture : texture containing the result decal(s) wrapped onto the object
+	void PaintDecalIntoObjectSpaceTexture(const PaintDecalParams& params);
+
+	// Add voxel grid to be drawn in debug rendering phase.
+	//	WARNING: This retains pointer until next call to DrawDebugScene(), so voxel grid must not be destroyed until then!
+	void DrawVoxelGrid(const pf::VoxelGrid* voxelgrid);
+
+	// Add path query to be drawn in debug rendering phase.
+	//	WARNING: This retains pointer until next call to DrawDebugScene(), so path query must not be destroyed until then!
+	void DrawPathQuery(const pf::PathQuery* pathquery);
+
+	// Add trail to be drawn in debug rendering phase.
+	//	WARNING: This retains pointer until next call to DrawDebugScene(), so trail must not be destroyed until then!
+	void DrawTrail(const pf::TrailRenderer* trail);
+
+	// Add a texture that should be mipmapped whenever it is feasible to do so
+	void AddDeferredMIPGen(const pf::graphics::Texture& texture, bool preserve_coverage = false);
+	void AddDeferredBlockCompression(const pf::graphics::Texture& texture_src, const pf::graphics::Texture& texture_bc);
 
 	struct CustomShader
 	{
@@ -177,48 +1357,9 @@ namespace pf::renderer {
 	int RegisterCustomShader(const CustomShader& customShader);
 	const pf::vector<CustomShader>& GetCustomShaders();
 
-
-	enum MIPGENFILTER
-	{
-		MIPGENFILTER_POINT,
-		MIPGENFILTER_LINEAR,
-		MIPGENFILTER_GAUSSIAN,
-	};
-	struct MIPGEN_OPTIONS
-	{
-		int arrayIndex = -1;
-		const pf::graphics::Texture* gaussian_temp = nullptr;
-		bool preserve_coverage = false;
-		bool wide_gauss = false;
-	};
-	void GenerateMipChain(const pf::graphics::Texture& texture, MIPGENFILTER filter, pf::graphics::CommandList cmd, const MIPGEN_OPTIONS& options = {});
-
-	void Postprocess_Blur_Gaussian(
-		const pf::graphics::Texture& input,
-		const pf::graphics::Texture& temp,
-		const pf::graphics::Texture& output,
-		pf::graphics::CommandList cmd,
-		int mip_src = -1,
-		int mip_dst = -1,
-		bool wide = false
-	);
-	const graphics::GPUBuffer& GetIndexBufferForQuads(uint32_t max_quad_count);
-
-	// Compress a texture into Block Compressed format
-	//	texture_src	: source uncompressed texture
-	//	texture_bc	: destination comporessed texture, must be a supported BC format (BC1/BC3/BC4/BC5/BC6H_UFLOAT)
-	//	Currently this will handle simple Texture2D with mip levels, and additionally BC6H cubemap
-	void BlockCompress(const pf::graphics::Texture& texture_src, const pf::graphics::Texture& texture_bc, pf::graphics::CommandList cmd, uint32_t dst_slice_offset = 0);
-
-	// Binds all common constant buffers and samplers that may be used in all shaders
-	void BindCommonResources(graphics::CommandList cmd);
-
-
-	constexpr uint8_t raytracing_inclusion_mask_shadow = 1 << 0;
-	constexpr uint8_t raytracing_inclusion_mask_reflection = 1 << 1;
-
 	// Thread-local barrier batching helpers:
-	void PushBarrier(const graphics::GPUBarrier& barrier);
-	void FlushBarriers(graphics::CommandList cmd);
+	void PushBarrier(const pf::graphics::GPUBarrier& barrier);
+	void FlushBarriers(pf::graphics::CommandList cmd);
 
-}
+};
+

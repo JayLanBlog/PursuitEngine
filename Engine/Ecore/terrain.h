@@ -7,7 +7,8 @@
 #include "color.h"
 #include "hair_particle.h"
 #include "Module/Container/pvector.h"
-
+#include "module.h"
+#include "Module/Util/noise.h"
 #include <memory>
 
 

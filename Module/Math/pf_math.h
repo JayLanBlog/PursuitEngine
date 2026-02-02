@@ -537,4 +537,16 @@ namespace pf::math {
 
 		return true;
 	}
+	inline uint32_t Pack_R11G11B10_FLOAT(const XMFLOAT3& color)
+	{
+		XMFLOAT3PK pk;
+		XMStoreFloat3PK(&pk, XMLoadFloat3(&color));
+		return pk.v;
+	}
+	// Returns an element of a precomputed halton sequence. Specify which iteration to get with idx >= 0
+	const XMFLOAT4& GetHaltonSequence(int idx);
+
+	void ConstructTriangleEquilateral(float radius, XMFLOAT4& A, XMFLOAT4& B, XMFLOAT4& C);
+
+	void GetBarycentric(const XMVECTOR& p, const XMVECTOR& a, const XMVECTOR& b, const XMVECTOR& c, float& u, float& v, float& w, bool clamp);
 }

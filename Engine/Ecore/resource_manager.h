@@ -106,7 +106,7 @@ namespace pf
 
 		//// Update all streaming resources, call it once per frame on the main thread
 		////	Launching or finalizing background streaming jobs is attempted here
-		//void UpdateStreamingResources(float dt);
+		void UpdateStreamingResources(float dt);
 
 		//// Returns true if any of the loaded resources are outdated compared to their files
 		//bool CheckResourcesOutdated();

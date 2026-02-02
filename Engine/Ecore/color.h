@@ -119,10 +119,10 @@ namespace pf {
 			return Color((uint8_t)(saturate(value.x) * 255), (uint8_t)(saturate(value.y) * 255), (uint8_t)(saturate(value.z) * 255));
 		}
 
-		//static constexpr Color lerp(Color a, Color b, float i)
-		//{
-		//	return fromFloat4(math::Lerp(a.toFloat4(), b.toFloat4(), i));
-		//}
+		static constexpr Color lerp(Color a, Color b, float i)
+		{
+			return fromFloat4(math::Lerp(a.toFloat4(), b.toFloat4(), i));
+		}
 
 		
 		static constexpr Color Red() { return Color(255, 0, 0, 255); }
@@ -193,11 +193,9 @@ namespace pf {
 			return Color16(uint16_t(value.x * 65535), uint16_t(value.y * 65535), uint16_t(value.z * 65535));
 		}
 
-		//static constexpr Color16 lerp(Color16 a, Color16 b, float i)
-		//{
-		//	return fromFloat4(math::Lerp(a.toFloat4(), b.toFloat4(), i));
-		//}
-
+		static constexpr Color16 lerp(Color16 a, Color16 b, float i)
+		{
+			return fromFloat4(math::Lerp(a.toFloat4(), b.toFloat4(), i));
+		}
 	};
-
 }

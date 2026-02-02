@@ -500,7 +500,6 @@ namespace pf::shadercompiler
 		static char* prev_locale;
 		// we need to use a mutex anyway, so no point in using atomic_int
 		static int scope = 0;
-
 		{
 			std::scoped_lock lock(locale_mut);
 			if (scope++ == 0) {
@@ -509,6 +508,7 @@ namespace pf::shadercompiler
 			}
 		}
 #endif
+
 		ComPtr<IDxcResult> pResults;
 		hr = dxcCompiler->Compile(
 			&Source,						// Source buffer.
@@ -517,6 +517,7 @@ namespace pf::shadercompiler
 			&includehandler,		// User-provided interface to handle #include directives (optional).
 			IID_PPV_ARGS(&pResults)	// Compiler output status, buffer, and errors.
 		);
+
 #ifndef _WIN32
 		{
 			std::scoped_lock lock(locale_mut);
@@ -526,11 +527,11 @@ namespace pf::shadercompiler
 			}
 		}
 #endif
+		
 		assert(SUCCEEDED(hr));
-
 		ComPtr<IDxcBlobUtf8> pErrors = nullptr;
 			hr = pResults->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), nullptr);
-		Logger("GetOutput .. %d", hr);
+		//Logger("GetOutput .. %d", hr);
 		assert(SUCCEEDED(hr));
 		if (pErrors != nullptr && pErrors->GetStringLength() != 0)
 		{
@@ -803,7 +804,7 @@ namespace pf::shadercompiler
 	}
 	bool IsShaderOutdated(const std::string& shaderfilename)
 	{
-	//	Logger("IsShaderOutdated : %s ", shaderfilename.c_str());
+		
 #ifdef SHADERCOMPILER_ENABLED
 		std::string filepath = shaderfilename;
 		helper::MakePathAbsolute(filepath);
@@ -824,6 +825,7 @@ namespace pf::shadercompiler
 		Archive dependencyLibrary(dependencylibrarypath);
 		if (dependencyLibrary.IsOpen())
 		{
+			//Logger("dependencyLibrary : %s ", shaderfilename.c_str());
 			std::string rootdir = dependencyLibrary.GetSourceDirectory();
 			vector<std::string> dependencies;
 			dependencyLibrary >> dependencies;

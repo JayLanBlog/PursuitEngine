@@ -1331,5 +1331,142 @@ namespace pf {
 			return mem;
 		}
 
+
+		std::wstring GetClipboardText()
+		{
+			std::wstring wstr;
+
+#ifdef PLATFORM_WINDOWS_DESKTOP
+			if (!::OpenClipboard(NULL))
+				return wstr;
+			HANDLE wbuf_handle = ::GetClipboardData(CF_UNICODETEXT);
+			if (wbuf_handle == NULL)
+			{
+				::CloseClipboard();
+				return wstr;
+			}
+			if (const WCHAR* wbuf_global = (const WCHAR*)::GlobalLock(wbuf_handle))
+			{
+				wstr = wbuf_global;
+			}
+			::GlobalUnlock(wbuf_handle);
+			::CloseClipboard();
+#endif // PLATFORM_WINDOWS_DESKTOP
+
+			return wstr;
+		}
+
+		void Sleep(float milliseconds)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds((int)milliseconds));
+		}
+
+		void QuickSleep(float milliseconds)
+		{
+			const std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+			const double seconds = double(milliseconds) / 1000.0;
+			const int sleep_millisec_accuracy = 1;
+			const double sleep_sec_accuracy = double(sleep_millisec_accuracy) / 1000.0;
+			while (std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - t1).count() < seconds)
+			{
+				if (seconds - (std::chrono::high_resolution_clock::now() - t1).count() > sleep_sec_accuracy)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(sleep_millisec_accuracy));
+				}
+			}
+		}
+		void SetClipboardText(const std::wstring& wstr)
+		{
+#ifdef PLATFORM_WINDOWS_DESKTOP
+			if (!::OpenClipboard(NULL))
+				return;
+			const int wbuf_length = (int)wstr.length() + 1;
+			HGLOBAL wbuf_handle = ::GlobalAlloc(GMEM_MOVEABLE, (SIZE_T)wbuf_length * sizeof(WCHAR));
+			if (wbuf_handle == NULL)
+			{
+				::CloseClipboard();
+				return;
+			}
+			WCHAR* wbuf_global = (WCHAR*)::GlobalLock(wbuf_handle);
+			std::memcpy(wbuf_global, wstr.c_str(), wbuf_length * sizeof(wchar_t));
+			::GlobalUnlock(wbuf_handle);
+			::EmptyClipboard();
+			if (::SetClipboardData(CF_UNICODETEXT, wbuf_handle) == NULL)
+				::GlobalFree(wbuf_handle);
+			::CloseClipboard();
+#endif // PLATFORM_WINDOWS_DESKTOP
+		}
+		
+		int StringConvert(const char* from, wchar_t* to, int dest_size_in_characters)
+		{
+			if (!from || !to || dest_size_in_characters <= 0)
+				return 0;
+
+			const unsigned char* src = reinterpret_cast<const unsigned char*>(from);
+			int written = 0;
+
+			while (*src && written < dest_size_in_characters - 1)
+			{
+				uint32_t codepoint = 0;
+				unsigned char c = *src;
+
+				if (c < 0x80)
+				{
+					codepoint = c;
+					++src;
+				}
+				else if ((c & 0xE0) == 0xC0)
+				{
+					if (!src[1])
+						break;
+					codepoint = ((c & 0x1F) << 6) | (src[1] & 0x3F);
+					src += 2;
+				}
+				else if ((c & 0xF0) == 0xE0)
+				{
+					if (!src[1] || !src[2])
+						break;
+					codepoint = ((c & 0x0F) << 12) | ((src[1] & 0x3F) << 6) | (src[2] & 0x3F);
+					src += 3;
+				}
+				else if ((c & 0xF8) == 0xF0)
+				{
+					if (!src[1] || !src[2] || !src[3])
+						break;
+					codepoint = ((c & 0x07) << 18) | ((src[1] & 0x3F) << 12) | ((src[2] & 0x3F) << 6) | (src[3] & 0x3F);
+					src += 4;
+				}
+				else
+				{
+					++src;
+					continue;
+				}
+
+				if constexpr (sizeof(wchar_t) >= 4)
+				{
+					to[written++] = static_cast<wchar_t>(codepoint);
+				}
+				else
+				{
+					if (codepoint <= 0xFFFF)
+					{
+						to[written++] = static_cast<wchar_t>(codepoint);
+					}
+					else
+					{
+						if (written + 1 >= dest_size_in_characters - 1)
+							break;
+						codepoint -= 0x10000;
+						to[written++] = static_cast<wchar_t>((codepoint >> 10) + 0xD800);
+						to[written++] = static_cast<wchar_t>((codepoint & 0x3FF) + 0xDC00);
+					}
+				}
+			}
+
+			to[written] = 0;
+			return written;
+		}
+
+
 	}
 }

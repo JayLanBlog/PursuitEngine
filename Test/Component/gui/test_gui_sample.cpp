@@ -1,0 +1,162 @@
+#include "test_gui_sample.h"
+#include <Engine/Ecore/renderer.h>
+
+namespace pf::arun {
+	
+	void GUISample::intialize() {
+		// SDL3 建议只初始化真正需要的子系统
+		if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+			// SDL3 中返回 false 表示失败
+			SDL_Log("失败: %s", SDL_GetError());
+		}
+
+		pf::graphics::GetDevice() = graphicsDevice_c.get();
+		canvas_c.init(imageW_c, imageH_c);
+		canvas_p.init(imageW_c / 2.0, imageH_c / 2.0);
+		SwapChainDesc desc = swapChain_c.desc;
+
+		if (!swapChain_c.IsValid())
+		{
+			// initialize for the first time
+			desc.buffer_count = 3;
+			if (graphicsDevice_c->CheckCapability(GraphicsDeviceCapability::R9G9B9E5_SHAREDEXP_RENDERABLE))
+			{
+				desc.format = Format::R9G9B9E5_SHAREDEXP;
+			}
+			else
+			{
+				desc.format = Format::R10G10B10A2_UNORM;
+			}
+		}
+
+		desc.width = canvas_c.GetLogicalWidth();
+		desc.height = canvas_c.GetLogicalHeight();
+		desc.allow_hdr = allow_hdr_c;
+		bool success = graphicsDevice_c->CreateSwapChain(&desc, window_c, &swapChain_c);
+		assert(success);
+		pf::image::Initialize();
+		pf::font::Initialize();
+		pf::renderer::SetShaderPath(pf::renderer::GetShaderPath() + "spirv/");
+		pf::renderer::Initialize();
+		pf::profiler::SetEnabled(true);
+	
+		infodisplay_str_c = "Hello Test Engine";
+
+		int guiW = 400, guiH = 100;
+		//for gui
+		label.Create("Label1");
+		label.SetText("Wicked Engine Test Framework");
+		label.font.params.h_align = font::WIFALIGN_CENTER;
+		
+		label.SetSize(XMFLOAT2(guiW, guiH));
+		gui.AddWidget(&label);
+		//label.SetPos(XMFLOAT2(10, 10));
+		canvas_gui.init(guiW, guiH);
+
+		audioTest.Create("AudioTest");
+		audioTest.SetText("Play Test Audio");
+		audioTest.SetSize(XMFLOAT2(guiW, guiH));
+		audioTest.SetPos(XMFLOAT2(-118, -30));
+
+		audioTest.OnClick([&](pf::gui::EventArgs args) {
+			static bool playing = false;
+			/*if (!sound.IsValid())
+			{
+				pf::audio::CreateSound(CONTENT_DIR "models/water.wav", &sound);
+				pf::audio::CreateSoundInstance(&sound, &soundinstance);
+				pf::audio::SetVolume(volume.GetValue() / 100.0f, &soundinstance);
+			}*/
+
+			if (playing)
+			{
+				//pf::audio::Stop(&soundinstance);
+				audioTest.SetText("Play Test Audio");
+			}
+			else
+			{
+				//pf::audio::Play(&soundinstance);
+				audioTest.SetText("Stop Test Audio");
+			}
+
+			playing = !playing;
+			});
+		gui.AddWidget(&audioTest);
+	}
+	
+	void GUISample::render() {
+		if (!isInitialize_c) {
+			intialize();
+			isInitialize_c = true;
+		}
+		font::UpdateAtlas(canvas_c.GetDPIScaling());
+		//sprite.Update(canvas_c.GetDPIScaling());
+		gui.Update(canvas_gui,canvas_gui.GetDPIScaling());
+		rendertargetPreHDR10_c = {};
+		ColorSpace colorspace = graphicsDevice_c->GetSwapChainColorSpace(&swapChain_c);
+		if (!rendertargetPreHDR10_c.IsValid()) {
+			//	Logger("rendertargetPreHDR10 is not valid");
+			TextureDesc desc;
+			desc.width = swapChain_c.desc.width;
+			desc.height = swapChain_c.desc.height;
+			desc.format = Format::R11G11B10_FLOAT;
+			desc.bind_flags = BindFlag::RENDER_TARGET | BindFlag::SHADER_RESOURCE;
+			// try to set background color for swapchain color as if it's using hdr scaling:
+			desc.clear.color[0] = swapChain_c.desc.clear_color[0] * 9;
+			desc.clear.color[1] = swapChain_c.desc.clear_color[1] * 9;
+			desc.clear.color[2] = swapChain_c.desc.clear_color[2] * 9;
+			desc.clear.color[3] = swapChain_c.desc.clear_color[3];
+			bool success = graphicsDevice_c->CreateTexture(&desc, nullptr, &rendertargetPreHDR10_c);
+			assert(success);
+			graphicsDevice_c->SetName(&rendertargetPreHDR10_c, "Application::rendertargetPreHDR10");
+		}
+		profiler::BeginFrame();
+		CommandList cmd = graphicsDevice_c->BeginCommandList();
+		//auto range = pf::profiler::BeginRangeGPU("TLauncher render", cmd);
+		//profiler::BeginFrame();
+		//auto range = pf::profiler::BeginRangeCPU("Compose");
+		splash_screen_c = {};
+		// splash screen no longer needed after initialization, it is deleted
+		// static bool startup_script = false;
+		Viewport viewport;
+		viewport.width = (float)swapChain_c.desc.width;
+		viewport.height = (float)swapChain_c.desc.height;
+		graphicsDevice_c->BindViewports(1, &viewport, cmd);
+		graphicsDevice_c->RenderPassBegin(&rendertargetPreHDR10_c, cmd, true);
+
+		font::Params params = font::Params(
+			4 + canvas_c.PhysicalToLogical((uint32_t)rect.left),
+			4 + canvas_c.PhysicalToLogical((uint32_t)rect.top),
+			size,
+			font::WIFALIGN_LEFT,
+			font::WIFALIGN_TOP,
+			Color::White(),
+			Color::Shadow()
+		);
+
+		font::SetCanvas(canvas_c);
+		params.shadow_softness = 0.4f;
+		params.cursor = pf::font::Draw(infodisplay_str_c, params, cmd);
+
+		//sprite.Draw(cmd);
+		profiler::DrawData(canvas_p, 4, 10, cmd, colorspace);
+
+		//Draw Font
+		graphicsDevice_c->RenderPassEnd(cmd);
+		//profiler::DrawData(canvas_c, 4, 10, cmd, colorspace);
+		//pf::profiler::EndRange(range); // BVH rebuild
+		//pf::profiler::EndFrame(cmd);
+		//In HDR10, we perform a final mapping from linear to HDR10, into the swapchain4
+		graphicsDevice_c->RenderPassBegin(&swapChain_c, cmd);
+		pf::image::Params fx;
+		fx.enableFullScreen();
+		fx.enableHDR10OutputMapping();
+		pf::image::Draw(&rendertargetPreHDR10_c, fx, cmd);
+		//font::SetCanvas(canvas_gui);
+		gui.Render(canvas_gui, cmd);
+
+		graphicsDevice_c->RenderPassEnd(cmd);
+		pf::profiler::EndFrame(cmd);
+		graphicsDevice_c->SubmitCommandLists();
+	}
+
+}

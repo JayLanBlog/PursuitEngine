@@ -5838,10 +5838,9 @@ namespace pf::graphics {
 			{
 				multisampling.alphaToCoverageEnable = VK_FALSE;
 			}
+
 			multisampling.alphaToOneEnable = VK_FALSE;
-
 			pipelineInfo.pMultisampleState = &multisampling;
-
 
 			// Blending:
 			uint32_t numBlendAttachments = 0;

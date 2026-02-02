@@ -291,6 +291,19 @@ namespace pf {
 			}
 			return ret;
 		}
+		pf::jobsystem::context streaming_ctx;
+		pf::vector<std::shared_ptr<ResourceInternal>> streaming_texture_jobs;
+		struct StreamingTextureReplace
+		{
+			std::shared_ptr<ResourceInternal> resource;
+			Texture texture;
+			int srgb_subresource = -1;
+		};
+		std::mutex streaming_replacement_mutex;
+		pf::vector<StreamingTextureReplace> streaming_texture_replacements;
+		float streaming_threshold = 0.8f;
+		float streaming_fade_speed = 4;
+
 
 		bool LoadResourceDirectly(
 			const std::string& name,
@@ -899,7 +912,205 @@ namespace pf {
 			return success;
 		}
 
+		void UpdateStreamingResources(float dt) {
+			streaming_replacement_mutex.lock(); // streaming_replacement_mutex is not a long lock, it can only be held by the single streaming thread, so we don't need to try_lock
+			for (auto& replace : streaming_texture_replacements)
+			{
+				replace.resource->texture = replace.texture;
+				replace.resource->srgb_subresource = replace.srgb_subresource;
+			}
+			streaming_texture_replacements.clear();
+			streaming_replacement_mutex.unlock();
 
+			// Update resource min lod clamps smoothly:
+			GraphicsDevice* device = GetDevice();
+			if (!locker.try_lock()) // Use try lock as this is on the main thread which shouldn't hitch on long locking!
+				return; // Streaming is not that important, we can abandon it if some resource loading is holding the lock
+			for (auto& x : resources)
+			{
+				std::weak_ptr<ResourceInternal>& weak_resource = x.second;
+				std::shared_ptr<ResourceInternal> resource = weak_resource.lock();
+				if (resource != nullptr && resource->texture.IsValid() && has_flag(resource->flags, Flags::STREAMING))
+				{
+					const TextureDesc& desc = resource->texture.desc;
+					const float mip_offset = float(resource->streaming_texture.mip_count - desc.mip_levels);
+					float min_lod_clamp_absolute_next = resource->streaming_texture.min_lod_clamp_absolute - dt * streaming_fade_speed;
+					min_lod_clamp_absolute_next = std::max(mip_offset, min_lod_clamp_absolute_next);
+					if (pf::math::float_equal(min_lod_clamp_absolute_next, resource->streaming_texture.min_lod_clamp_absolute))
+						continue;
+					resource->streaming_texture.min_lod_clamp_absolute = min_lod_clamp_absolute_next;
+
+					const float min_lod_clamp_relative = min_lod_clamp_absolute_next - mip_offset;
+
+					device->DeleteSubresources(&resource->texture);
+
+					device->CreateSubresource(
+						&resource->texture,
+						SubresourceType::SRV,
+						0, -1,
+						0, -1,
+						nullptr,
+						nullptr,
+						nullptr,
+						min_lod_clamp_relative
+					);
+					resource->srgb_subresource = -1;
+
+					Format srgb_format = GetFormatSRGB(desc.format);
+					if (srgb_format != Format::UNKNOWN && srgb_format != desc.format)
+					{
+						resource->srgb_subresource = device->CreateSubresource(
+							&resource->texture,
+							SubresourceType::SRV,
+							0, -1,
+							0, -1,
+							&srgb_format,
+							nullptr,
+							nullptr,
+							min_lod_clamp_relative
+						);
+					}
+				}
+			}
+
+			// If previous streaming jobs were not finished, we cancel this until next frame:
+			if (pf::jobsystem::IsBusy(streaming_ctx))
+			{
+				locker.unlock();
+				return;
+			}
+
+			streaming_texture_jobs.clear();
+
+			// Gather the streaming jobs:
+			for (auto& x : resources)
+			{
+				std::weak_ptr<ResourceInternal>& weak_resource = x.second;
+				std::shared_ptr<ResourceInternal> resource = weak_resource.lock();
+				if (resource != nullptr && resource->texture.IsValid() && resource->streaming_texture.mip_count > 1)
+				{
+					streaming_texture_jobs.push_back(resource);
+				}
+			}
+			locker.unlock();
+
+			if (streaming_texture_jobs.empty())
+				return;
+
+			// One low priority thread will be responsible for streaming, to not cause any hitching while rendering:
+			streaming_ctx.priority = pf::jobsystem::Priority::Streaming;
+			pf::jobsystem::Execute(streaming_ctx, [](pf::jobsystem::JobArgs args) {
+				for (auto& resource : streaming_texture_jobs)
+				{
+					TextureDesc desc = resource->texture.desc;
+					uint32_t requested_resolution = resource->streaming_resolution.fetch_and(0); // set to zero while returning prev value
+					if (requested_resolution > 0)
+					{
+						requested_resolution = 1u << (31u - firstbithigh(requested_resolution)); // largest power of two
+					}
+					GraphicsDevice* device = GetDevice();
+					const GraphicsDevice::MemoryUsage memory_usage = device->GetMemoryUsage();
+					const float memory_percent = float(double(memory_usage.usage) / double(memory_usage.budget));
+					const bool memory_shortage = memory_percent > streaming_threshold;
+					const bool stream_in = requested_resolution >= std::min(desc.width, desc.height);
+					const uint32_t target_unload_delay = memory_shortage ? 4 : 255;
+
+					int mip_offset = int(resource->streaming_texture.mip_count - desc.mip_levels);
+					if (stream_in)
+					{
+						resource->streaming_unload_delay = 0; // unloading will be immediately halted
+						if (mip_offset == 0)
+							continue; // There aren't any more mip levels, cancel
+						// Mip level streaming IN:
+						desc.width <<= 1;
+						desc.height <<= 1;
+						if (requested_resolution < std::min(desc.width, desc.height))
+							continue; // Increased resolution would be too much, cancel
+						desc.mip_levels++;
+						mip_offset--;
+					}
+					else
+					{
+						resource->streaming_unload_delay++; // one more frame that this wants to unload
+						if (resource->streaming_unload_delay < target_unload_delay)
+							continue; // only unload mips if it's been wanting to unload for a couple frames, or there is memory shortage
+						if (ComputeTextureMemorySizeInBytes(desc) <= streaming_texture_min_size)
+							continue; // Don't reduce the texture below, because of min resource alignment, this would not reduce memory usage further
+						// Mip level streaming OUT, fast decay:
+						while (ComputeTextureMemorySizeInBytes(desc) > streaming_texture_min_size && desc.width > requested_resolution && desc.height > requested_resolution)
+						{
+							desc.width >>= 1;
+							desc.height >>= 1;
+							desc.mip_levels--;
+							mip_offset++;
+						}
+					}
+					if (desc.mip_levels <= resource->streaming_texture.mip_count)
+					{
+						// memory offset of the first mip level in current streaming range:
+						const size_t mip_data_offset = resource->streaming_texture.streaming_data[mip_offset].data_offset;
+						const uint8_t* firstmipdata = resource->filedata.data();
+
+						static pf::vector<uint8_t> streaming_file; // make this static to not reallocate for each file loading
+						if (firstmipdata == nullptr)
+						{
+							// If file data is not available, then open the file partially with the streaming file parameters:
+							size_t filesize = resource->container_filesize - mip_data_offset;
+							size_t fileoffset = resource->container_fileoffset + mip_data_offset;
+							if (!pf::helper::FileRead(
+								resource->container_filename,
+								streaming_file,
+								filesize,
+								fileoffset
+							))
+							{
+								continue;
+							}
+							firstmipdata = streaming_file.data();
+						}
+						else
+						{
+							// If file data is available, we can use that for streaming:
+							firstmipdata += mip_data_offset;
+						}
+
+						// Convert relative to absolute GPU initialization data
+						SubresourceData initdata[16] = {};
+						for (uint32_t mip = 0; mip < desc.mip_levels; ++mip)
+						{
+							auto& streaming_data = resource->streaming_texture.streaming_data[mip_offset + mip];
+							initdata[mip].data_ptr = firstmipdata + streaming_data.data_offset - mip_data_offset;
+							initdata[mip].row_pitch = streaming_data.row_pitch;
+							initdata[mip].slice_pitch = streaming_data.slice_pitch;
+						}
+
+						// The replacement struct will store the newly created texture until replacement can be made later:
+						StreamingTextureReplace replace;
+						replace.resource = resource;
+						replace.srgb_subresource = -1;
+						bool success = device->CreateTexture(&desc, initdata, &replace.texture);
+						assert(success);
+						device->SetName(&replace.texture, resource->filename.c_str());
+
+						Format srgb_format = GetFormatSRGB(desc.format);
+						if (srgb_format != Format::UNKNOWN && srgb_format != desc.format)
+						{
+							replace.srgb_subresource = device->CreateSubresource(
+								&replace.texture,
+								SubresourceType::SRV,
+								0, -1,
+								0, -1,
+								&srgb_format
+							);
+						}
+
+						streaming_replacement_mutex.lock();
+						streaming_texture_replacements.push_back(replace);
+						streaming_replacement_mutex.unlock();
+					}
+				}
+				});
+		}
 
 		Resource Load(
 			const std::string& name,

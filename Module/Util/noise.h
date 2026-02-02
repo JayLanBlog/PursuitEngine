@@ -1,8 +1,7 @@
 
 #pragma once
 #include "Core/core_include.h"
-#include "engine_core.h"
-
+#include "Engine/Ecore/archive.h"
 #include "random.h"
 // Note: these should be implemented independently of math library optimizations to be cross platform deterministic!
 //	Otherwise the terrain generation might be different across platforms

@@ -1,7 +1,7 @@
 #include "gpu_sortlib.h"
 #include <Engine/Ecore/renderer.h>
 #include <Shader/ShaderInterop_GPUSortLib.h>
-
+#include "module.h"
 
 using namespace pf::graphics;
 

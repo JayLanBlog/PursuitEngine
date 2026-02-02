@@ -135,6 +135,27 @@ namespace pf{
 
 		//bool saveTextureToMemoryFile(const vector<uint8_t>& texturedata, const graphics::TextureDesc& desc, const std::string& fileExtension, vector<uint8_t>& filedata);
 		
+
+		void StringConvert(const std::string& from, std::wstring& to);
+
+		void StringConvert(const std::wstring& from, std::string& to);
+
+		// Parameter - to - must be pre-allocated!
+		// dest_size_in_characters : number of characters in the pre-allocated string memory
+		// returns result string length
+		int StringConvert(const char* from, wchar_t* to, int dest_size_in_characters);
+
+		// Parameter - to - must be pre-allocated!
+		// dest_size_in_characters : number of characters in the pre-allocated string memory
+		// returns result string length
+		int StringConvert(const wchar_t* from, char* to, int dest_size_in_characters);
+
+		// Returns string for paste operation
+		std::wstring GetClipboardText();
+
+		// Copies text to clipboard
+		void SetClipboardText(const std::wstring& wstr);
+
 		struct MemoryUsage
 		{
 			uint64_t total_physical = 0;	// size of physical memory on whole system (in bytes)
@@ -144,5 +165,9 @@ namespace pf{
 		};
 		MemoryUsage GetMemoryUsage();
 
+		// Puts the current thread to sleeping state for a given time (OS can overtake)
+		void Sleep(float milliseconds);
+
+		void QuickSleep(float milliseconds);
 	}
 }

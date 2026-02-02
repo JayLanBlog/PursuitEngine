@@ -183,6 +183,7 @@ namespace pf::graphics
 		VkPipelineDynamicStateCreateInfo dynamicStateInfo = {};
 		VkPipelineDynamicStateCreateInfo dynamicStateInfo_MeshShader = {};
 
+		int msample = 0;
 
 		VkBuffer		nullBuffer = VK_NULL_HANDLE;
 		VmaAllocation	nullBufferAllocation = VK_NULL_HANDLE;

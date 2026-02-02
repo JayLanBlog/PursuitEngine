@@ -205,6 +205,12 @@
     <Filter Include="Thirdparty\Jolt\Physics\Collision\Shape">
       <UniqueIdentifier>{65a37935-0e8c-4288-bc35-c47880c3d964}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Component\gui">
+      <UniqueIdentifier>{5e97db73-11b4-4a90-b6ab-c0cc7e20d688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader\compressonator">
+      <UniqueIdentifier>{f15b48cc-3d1e-44bf-877e-78f9d968ea8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp">
@@ -962,6 +968,48 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Engine\Ecore\path_query.cpp">
       <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Component\pgui.cpp">
+      <Filter>engine\component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\localization.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Thirdparty\Utility\pugixml.cpp">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\p_input.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\xInput.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\raw_input.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\sdl_input.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Component\gui\test_gui_sample.cpp">
+      <Filter>src\Component\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\render_path2d.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\render_path3d.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\trail_render.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Run\samples\test_render_path.cpp">
+      <Filter>src\Run\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Ecore\fade_manager.cpp">
+      <Filter>engine\ecore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Runtime\runner.cpp">
+      <Filter>engine\runtime</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2323,6 +2371,54 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\Ecore\path_query.h">
       <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Component\pgui.h">
+      <Filter>engine\component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\localization.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\pugixml.hpp">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\pugiconfig.hpp">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\input.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\xInput.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\raw_input.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\sdl_input.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Component\gui\test_gui_sample.h">
+      <Filter>src\Component\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\render_path.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\render_path2d.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\render_path3d.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\trail_renderer.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Run\samples\test_render_path.h">
+      <Filter>src\Run\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Ecore\fade_manager.h">
+      <Filter>engine\ecore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Runtime\runner.h">
+      <Filter>engine\runtime</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

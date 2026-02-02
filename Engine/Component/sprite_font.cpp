@@ -53,7 +53,7 @@ namespace pf {
 	{
 		if (IsHidden())
 			return;
-
+		size_t si = GetCurrentTextLength();
 		pf::font::Draw(text.c_str(), GetCurrentTextLength(), params, cmd);
 	}
 
