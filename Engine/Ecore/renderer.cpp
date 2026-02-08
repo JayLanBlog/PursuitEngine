@@ -16990,6 +16990,7 @@ namespace pf::renderer
 			return;
 		}
 
+
 		device->EventBegin("Postprocess_Tonemap", cmd);
 
 		device->Barrier(GPUBarrier::Image(&output, output.desc.layout, ResourceState::UNORDERED_ACCESS), cmd);

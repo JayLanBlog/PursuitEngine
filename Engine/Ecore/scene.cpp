@@ -43,7 +43,8 @@ namespace pf::scene {
 		if (dt > 0)
 		{
 			// Because this also spawns render tasks, this must not be during dt == 0 (eg. background loading)
-		/*	
+
+		
 			//TO DO:	
 			for (size_t i = 0; i < terrains.GetCount(); ++i)
 			{
@@ -52,7 +53,7 @@ namespace pf::scene {
 				terrain.scene = this;
 				terrain.Generation_Update(camera);
 			}
-			*/
+			
 		}
 
 		// count colliders in background thread before procedural anim system
@@ -64,7 +65,7 @@ namespace pf::scene {
 
 		StartBuildTopDownHierarchy();
 
-		instanceArraySize = objects.GetCount();//TO DO : +hairs.GetCount() + emitters.GetCount();
+		instanceArraySize = objects.GetCount()+hairs.GetCount() + emitters.GetCount();
 		if (impostors.GetCount() > 0)
 		{
 			impostorInstanceOffset = uint32_t(instanceArraySize);
@@ -243,7 +244,7 @@ namespace pf::scene {
 		RunAnimationUpdateSystem(ctx);
 
 		//TO DO : pf::physics::RunPhysicsUpdateSystem(ctx, *this, dt);
-
+		pf::physics::RunPhysicsUpdateSystem(ctx, *this, dt);
 		RunTransformUpdateSystem(ctx);
 
 		pf::jobsystem::Wait(ctx); // dependencies
@@ -366,6 +367,7 @@ namespace pf::scene {
 		RunProceduralAnimationUpdateSystem(ctx);
 
 		//pf::physics::OverrideWehicleWheelTransforms(*this);
+		pf::physics::OverrideWehicleWheelTransforms(*this);
 
 		RunArmatureUpdateSystem(ctx);
 
@@ -444,8 +446,8 @@ namespace pf::scene {
 			else
 			{
 				//TO DO
-				// Software GPU BVH:
-			//	BVH.Update(*this);
+				//Software GPU BVH:
+				BVH.Update(*this);
 			}
 		}
 
@@ -559,7 +561,7 @@ namespace pf::scene {
 		if (pf::renderer::GetDDGIEnabled())
 		{
 			ddgi.frame_index++;
-			if (!TLAS.IsValid())//TO DO: && !BVH.IsValid())
+			if (!TLAS.IsValid() && !BVH.IsValid())
 			{
 				ddgi.frame_index = 0;
 			}
@@ -800,7 +802,8 @@ namespace pf::scene {
 		}
 
 		{
-			/*TO DO : for (size_t voxelgridIndex = 0; voxelgridIndex < voxel_grids.GetCount(); ++voxelgridIndex)
+			/*TO DO : */
+			for (size_t voxelgridIndex = 0; voxelgridIndex < voxel_grids.GetCount(); ++voxelgridIndex)
 			{
 				pf::VoxelGrid& voxelgrid = voxel_grids[voxelgridIndex];
 				Entity entity = voxel_grids.GetEntity(voxelgridIndex);
@@ -811,7 +814,7 @@ namespace pf::scene {
 					voxelgrid.center = transform->GetPosition();
 					voxelgrid.set_voxelsize(transform->GetScale());
 				}
-			}*/
+			}
 		}
 
 		// Shader scene resources:
@@ -1424,7 +1427,7 @@ namespace pf::scene {
 		names.Create(entity) = name;
 
 		//TO DO : emitters.Create(entity).count = 10;
-
+		emitters.Create(entity).count = 10;
 		TransformComponent& transform = transforms.Create(entity);
 		transform.Translate(position);
 		transform.UpdateTransform();
@@ -1443,7 +1446,7 @@ namespace pf::scene {
 		names.Create(entity) = name;
 
 		//TO DO :hairs.Create(entity);
-
+		hairs.Create(entity);
 		TransformComponent& transform = transforms.Create(entity);
 		transform.Translate(position);
 		transform.UpdateTransform();
@@ -2010,6 +2013,7 @@ namespace pf::scene {
 					LightComponent* target_light = nullptr;
 					SoundComponent* target_sound = nullptr;
 					//TO DO : EmittedParticleSystem* target_emitter = nullptr;
+					EmittedParticleSystem* target_emitter = nullptr;
 					CameraComponent* target_camera = nullptr;
 					ScriptComponent* target_script = nullptr;
 					MaterialComponent* target_material = nullptr;
@@ -2104,8 +2108,9 @@ namespace pf::scene {
 						channel.path < AnimationComponent::AnimationChannel::Path::_EMITTER_RANGE_END
 						)
 					{
-						//TO DO : target_emitter = emitters.GetComponent(channel.target);
-						/*if (target_emitter == nullptr)
+						//TO DO : 
+						target_emitter = emitters.GetComponent(channel.target);
+						if (target_emitter == nullptr)
 							continue;
 						switch (channel.path)
 						{
@@ -2114,7 +2119,7 @@ namespace pf::scene {
 							break;
 						default:
 							break;
-						}*/
+						}
 					}
 					else if (
 						channel.path >= AnimationComponent::AnimationChannel::Path::CAMERA_FOV &&
@@ -2646,7 +2651,6 @@ namespace pf::scene {
 						}
 					}
 
-					/*TO DO:
 					if (target_emitter != nullptr)
 					{
 						switch (channel.path)
@@ -2659,8 +2663,7 @@ namespace pf::scene {
 						default:
 							break;
 						}
-					}*/
-
+					}
 					if (target_camera != nullptr)
 					{
 						switch (channel.path)
@@ -4446,14 +4449,14 @@ namespace pf::scene {
 				if (softbody != nullptr)
 				{
 					//TO DO:
-					//if (pf::physics::IsEnabled())
-					//{
-					//	// this will be registered as soft body in the next physics update
-					//	softbody->_flags |= SoftBodyPhysicsComponent::SAFE_TO_REGISTER;
+					if (pf::physics::IsEnabled())
+					{
+						// this will be registered as soft body in the next physics update
+						softbody->_flags |= SoftBodyPhysicsComponent::SAFE_TO_REGISTER;
 
-					//	// soft body manipulated with the object matrix
-					//	softbody->worldMatrix = transform.world;
-					//}
+						// soft body manipulated with the object matrix
+						softbody->worldMatrix = transform.world;
+					}
 
 					if (softbody->physicsobject != nullptr)
 					{
@@ -5201,45 +5204,45 @@ namespace pf::scene {
 			weather = weathers[0];
 			weather.most_important_light_index = ~0;
 
-		/*TO DO:	if (weather.IsOceanEnabled() && !ocean.IsValid())
+			if (weather.IsOceanEnabled() && !ocean.IsValid())
 			{
 				OceanRegenerate();
 			}
 			if (!weather.IsOceanEnabled())
 			{
 				ocean = {};
-			}*/
+			}
 
 			// Ocean occlusion status:
-			//if (!pf::renderer::GetFreezeCullingCameraEnabled() && weather.IsOceanEnabled())
-			//{
-			//	ocean.occlusionHistory <<= 1u; // advance history by 1 frame
-			//	int query_id = ocean.occlusionQueries[queryheap_idx];
-			//	if (queryResultBuffer[queryheap_idx].mapped_data != nullptr && query_id >= 0)
-			//	{
-			//		uint64_t visible = ((uint64_t*)queryResultBuffer[queryheap_idx].mapped_data)[query_id];
-			//		if (visible)
-			//		{
-			//			ocean.occlusionHistory |= 1; // visible
-			//		}
-			//	}
-			//	else
-			//	{
-			//		ocean.occlusionHistory |= 1; // visible
-			//	}
-			//}
-			//ocean.occlusionQueries[queryheap_idx] = -1; // invalidate query
+			if (!pf::renderer::GetFreezeCullingCameraEnabled() && weather.IsOceanEnabled())
+			{
+				ocean.occlusionHistory <<= 1u; // advance history by 1 frame
+				int query_id = ocean.occlusionQueries[queryheap_idx];
+				if (queryResultBuffer[queryheap_idx].mapped_data != nullptr && query_id >= 0)
+				{
+					uint64_t visible = ((uint64_t*)queryResultBuffer[queryheap_idx].mapped_data)[query_id];
+					if (visible)
+					{
+						ocean.occlusionHistory |= 1; // visible
+					}
+				}
+				else
+				{
+					ocean.occlusionHistory |= 1; // visible
+				}
+			}
+			ocean.occlusionQueries[queryheap_idx] = -1; // invalidate query
 		}
 
-		/*if (ocean.IsValid())
+		if (ocean.IsValid())
 		{
 			ocean.params = weather.oceanParameters;
-		}*/
+		}
 
 		if (weather.rain_amount > 0)
 		{
 			GraphicsDevice* device = pf::graphics::GetDevice();
-			/*rainEmitter.opacityCurveControlPeakStart = 0;
+			rainEmitter.opacityCurveControlPeakStart = 0;
 			rainEmitter._flags |= pf::EmittedParticleSystem::FLAG_USE_RAIN_BLOCKER;
 			rainEmitter.shaderType = pf::EmittedParticleSystem::PARTICLESHADERTYPE::SOFT_LIGHTING;
 			rainEmitter.SetCollidersDisabled(true);
@@ -5259,7 +5262,7 @@ namespace pf::scene {
 				weather.windDirection.x * weather.windSpeed,
 				-weather.rain_speed,
 				weather.windDirection.z * weather.windSpeed
-			);*/
+			);
 			rainMaterial.SetUseVertexColors(true);
 			rainMaterial.shaderType = MaterialComponent::SHADERTYPE_PBR;
 			rainMaterial.subsurfaceScattering = XMFLOAT4(1, 1, 1, 2);
@@ -5313,13 +5316,13 @@ namespace pf::scene {
 
 			ShaderGeometry geometry = shader_geometry_null;
 			geometry.indexOffset = 0;
-		//TO DO	geometry.indexCount = rainEmitter.GetMaxParticleCount() * 6;
+			geometry.indexCount = rainEmitter.GetMaxParticleCount() * 6;
 			geometry.materialIndex = rainMaterialOffset;
-		//	geometry.ib = device->GetDescriptorIndex(&rainEmitter.primitiveBuffer, SubresourceType::SRV);
-	/*		geometry.vb_pos_wind = rainEmitter.vb_pos.descriptor_srv;
+			geometry.ib = device->GetDescriptorIndex(&rainEmitter.primitiveBuffer, SubresourceType::SRV);
+	        geometry.vb_pos_wind = rainEmitter.vb_pos.descriptor_srv;
 			geometry.vb_nor = rainEmitter.vb_nor.descriptor_srv;
 			geometry.vb_uvs = rainEmitter.vb_uvs.descriptor_srv;
-			geometry.vb_col = rainEmitter.vb_col.descriptor_srv;*/
+			geometry.vb_col = rainEmitter.vb_col.descriptor_srv;
 			geometry.flags = SHADERMESH_FLAG_DOUBLE_SIDED | SHADERMESH_FLAG_EMITTEDPARTICLE;
 
 			std::memcpy(geometryArrayMapped + rainGeometryOffset, &geometry, sizeof(geometry));

@@ -38,7 +38,7 @@ namespace pf {
 		alwaysactive = pf::arguments::HasArgument("alwaysactive");
 
 		// Note: lua is always initialized immediately on main thread by pf::initializer, so this is safe to do:
-		//assert(pf::initializer::IsInitializeFinished(pf::initializer::INITIALIZED_SYSTEM_LUA));
+		// assert(pf::initializer::IsInitializeFinished(pf::initializer::INITIALIZED_SYSTEM_LUA));
 
 	}
 
@@ -68,6 +68,7 @@ namespace pf {
 	}
 
 	void Application::Run() {
+
 		if (!initialized)
 		{
 			// Initialize in a lazy way, so the user application doesn't have to call this explicitly
@@ -230,10 +231,12 @@ namespace pf {
 				const std::string startup_luab_filename = workingdir + "startup.luab";
 				if (pf::helper::FileExists(startup_luab_filename))
 				{
-					/*if (pf::lua::RunBinaryFile(startup_luab_filename))
+					/*
+					if (pf::lua::RunBinaryFile(startup_luab_filename))
 					{
 						pf::backlog::post("Executed startup file: " + startup_luab_filename);
-					}*/
+					}
+					*/
 				}
 			}
 		}
@@ -355,6 +358,7 @@ namespace pf {
 		{
 			graphicsDevice->RenderPassBegin(&swapChain, cmd);
 		}
+
 		Compose(cmd);
 		graphicsDevice->RenderPassEnd(cmd);
 

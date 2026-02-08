@@ -114,13 +114,16 @@ namespace pf
 		//// Reload all resources that are outdated
 		//void ReloadOutdatedResources();
 
+		// Check if a resource is currently loaded
+		bool Contains(const std::string& name);
+
 		struct ResourceSerializer
 		{
 			vector<Resource> resources;
 		};
 
-		//void Serialize_READ(Archive& archive, ResourceSerializer& resources);
-		//void Serialize_WRITE(Archive& archive, const unordered_set<std::string>& resource_names);
+		void Serialize_READ(Archive& archive, ResourceSerializer& resources);
+		void Serialize_WRITE(Archive& archive, const unordered_set<std::string>& resource_names);
 	}
 
 }

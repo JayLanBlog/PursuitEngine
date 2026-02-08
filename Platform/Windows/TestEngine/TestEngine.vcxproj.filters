@@ -1011,6 +1011,9 @@
     <ClCompile Include="..\..\..\Engine\Runtime\runner.cpp">
       <Filter>engine\runtime</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Test\Run\samples\test_render_path2d_main.cpp">
+      <Filter>src\Run\samples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Thirdparty\Lua\lapi.h">
@@ -2419,6 +2422,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Engine\Runtime\runner.h">
       <Filter>engine\runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Run\samples\test_render_path2d_main.h">
+      <Filter>src\Run\samples</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -11,7 +11,6 @@
 #include <memory>
 #include <string>
 
-
 namespace pf
 {
 	class RenderPath;

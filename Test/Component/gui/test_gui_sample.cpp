@@ -79,7 +79,9 @@ namespace pf::arun {
 			}
 
 			playing = !playing;
+			
 			});
+		
 		gui.AddWidget(&audioTest);
 	}
 	

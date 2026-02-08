@@ -35,6 +35,7 @@ typedef void* HMODULE;
 #include "SDL3/SDL_vulkan.h"
 #endif
 
+#define WICKEDENGINE_BUILD_VULKAN
 
 namespace platform
 {
@@ -89,6 +90,12 @@ namespace platform
 #ifdef ENABLESDL3
 		float scale = SDL_GetWindowDisplayScale(window);
 		dest->dpi = scale * 96.0f;
+
+	/*	int window_width, window_height;
+		SDL_GetWindowSize(window, &dest->width, &dest->height);
+		SDL_GetWindowSizeInPixels(window, &window_width, &window_height);
+		dest->dpi = ((float)dest->width / (float)window_width) * 96.f;*/
+
 #else
 		dest->dpi = (float)GetDpiForWindow(window);
 #endif

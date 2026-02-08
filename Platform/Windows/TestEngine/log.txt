@@ -1,5 +1,75 @@
-[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (372 ms)
+[Info]  volk_driver.cpp - 3650 :  Created GraphicsDevice_Vulkan (900 ms)
 Adapter: NVIDIA GeForce RTX 3060 Laptop GPU
-[Info]  draw_image.cpp - 695 :  pf::image Initialized (23 ms)
-[Info]  font.cpp - 355 :  pf::font Initialized (18 ms)
-[Info]  renderer.cpp - 2835 :  pf::renderer Initialized (7510 ms)
+[Info]  initializer.cpp - 53 :  
+[pf::initializer] Initializing Wicked Engine, please wait...
+Version: 0.71.852
+Platform: Windows
+[Info] 
+CPU: AMD Ryzen 7 5800H with Radeon Graphics         
+	Features available: SSE; SSE 2; SSE 3; SSE 4.1; SSE 4.2; AVX; FMA3; F16C; AVX 2; AVX 512; 
+	Features used: SSE; SSE 2; SSE 3; SSE 4.1; AVX; FMA3; F16C; 
+[Info]  initializer.cpp - 136 :  
+RAM: 31.9 GB
+[Info]  initializer.cpp - 145 :  
+No embedded shaders found, shaders will be compiled at runtime if needed.
+	Shader source path: E:/WorkLearn/game/PursuitEngine/Platform/Windows/TestEngine/../../../Shader/
+	Shader binary path: E:/WorkLearn/game/PursuitEngine/Platform/Windows/TestEngine/Res/shaders/spirv/
+[Info] 
+[Info]  job_system.cpp - 316 :  pf::jobsystem Initialized with 16 cores in 3.38 ms
+	High priority threads: 15
+	Low priority threads: 14
+	Streaming threads: 1
+[Info] 
+[Info] [SDL Input] No controller config loaded...
+[Info]  p_input.cpp - 136 :  pf::input Initialized (1 ms)
+[Info]  physics_jolt.cpp - 1797 :  pf::physics Initialized [Jolt Physics 5.4.0] (2 ms)
+[Info]  trail_render.cpp - 441 :  pf::TrailRenderer Initialized (28 ms)
+[Info]  texture_helper.cpp - 202 :  pf::texturehelper Initialized (36 ms)
+[Info]  font.cpp - 355 :  pf::font Initialized (111 ms)
+[Info]  gpu_bvh.cpp - 424 :  pf::GPUBVH Initialized (107 ms)
+[Info]  gpu_sortlib.cpp - 40 :  pf::gpusortlib Initialized (149 ms)
+[Info] [Shader check] Started checking 78 registered shaders for changes...
+[Info]  draw_image.cpp - 695 :  pf::image Initialized (274 ms)
+[Info] [Shader check] All up to date
+[Info]  ocean.cpp - 593 :  pf::Ocean Initialized (778 ms)
+[Info]  hair_particle.cpp - 819 :  pf::HairParticleSystem Initialized (1194 ms)
+[Info]  emitted_particle.cpp - 1103 :  pf::EmittedParticleSystem Initialized (1684 ms)
+[Info]  renderer.cpp - 2835 :  pf::renderer Initialized (1951 ms)
+[Info]  initializer.cpp - 171 :  
+[pf::initializer] Wicked Engine Initialized (1957 ms)
+[Info] [Shader check] Started checking 377 registered shaders for changes...
+[Info] Created envprobe depth buffer for request
+	Resolution = 64 * 64 * 6
+	Sample Count = 1
+	Mip Levels = 1
+	Format = D16_UNORM
+	Memory = 48.0 KB
+
+[Info] Created envprobe render target for request
+	Resolution = 64 * 64 * 6
+	Sample Count = 1
+	Mip Levels = 3
+	Format = R11G11B10_FLOAT
+	Memory = 126.0 KB
+
+[Info] Created envprobe filtering target for request
+	Resolution = 64 * 64 * 6
+	Sample Count = 1
+	Mip Levels = 3
+	Format = R11G11B10_FLOAT
+	Memory = 126.0 KB
+
+[Info] BlockCompress created a new raw block texture to fit request: BC6H_UF16 (64, 64)
+	Format = R32G32B32A32_UINT
+	Resolution = 64 * 64
+	Array Size = 6
+	Memory = 384.0 KB
+
+[Info]  pgui.cpp - 26 :  pf::gui Initialized (0 ms)
+[Info] [Shader check] All up to date
+[Info] [Shader check] Started checking 377 registered shaders for changes...
+[Info] [Shader check] All up to date
+[Info] [Shader check] Started checking 377 registered shaders for changes...
+[Info] [Shader check] All up to date
+[Info]  renderer.cpp - 2760 :  SuballocateGPUBuffer created buffer block with size: 256.0 MB, with page size: 64.0 KB, page count: 4096
+[Info]  scene_serializers.cpp - 2795 :  Scene::Serialize took 0.03 seconds

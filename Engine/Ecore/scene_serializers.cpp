@@ -1617,7 +1617,7 @@ namespace pf::scene
 			archive >> windRandomness;
 			archive >> windWaveSize;
 
-		/*	//TO DO:
+			//TO DO:
 			archive >> oceanParameters.dmap_dim;
 			archive >> oceanParameters.patch_length;
 			archive >> oceanParameters.time_scale;
@@ -1640,7 +1640,7 @@ namespace pf::scene
 			}
 			archive >> oceanParameters.waterHeight;
 			archive >> oceanParameters.surfaceDetail;
-			archive >> oceanParameters.surfaceDisplacementTolerance;*/
+			archive >> oceanParameters.surfaceDisplacementTolerance;
 
 			if (archive.GetVersion() >= 32)
 			{
@@ -1870,6 +1870,7 @@ namespace pf::scene
 			}
 			if (seri.GetVersion() >= 6)
 			{
+				archive >> oceanParameters.extinctionColor;
 				//TO DO : archive >> oceanParameters.extinctionColor;
 			}
 		}
@@ -1892,7 +1893,7 @@ namespace pf::scene
 			archive << windRandomness;
 			archive << windWaveSize;
 
-		/*	TO DO:
+			//TO DO:
 			archive << oceanParameters.dmap_dim;
 			archive << oceanParameters.patch_length;
 			archive << oceanParameters.time_scale;
@@ -1904,7 +1905,7 @@ namespace pf::scene
 			archive << oceanParameters.waterColor;
 			archive << oceanParameters.waterHeight;
 			archive << oceanParameters.surfaceDetail;
-			archive << oceanParameters.surfaceDisplacementTolerance;*/
+			archive << oceanParameters.surfaceDisplacementTolerance;
 
 			if (archive.GetVersion() >= 32)
 			{
@@ -2095,6 +2096,7 @@ namespace pf::scene
 			}
 			if (seri.GetVersion() >= 6)
 			{
+				archive << oceanParameters.extinctionColor;
 				//TO DO : archive << oceanParameters.extinctionColor;
 			}
 		}
@@ -2702,8 +2704,8 @@ namespace pf::scene
 			aabbs_tmp.Serialize(archive, seri);
 			animations.Serialize(archive, seri);
 			//TO DO:
-			//emitters.Serialize(archive, seri);
-			//hairs.Serialize(archive, seri);
+			emitters.Serialize(archive, seri);
+			hairs.Serialize(archive, seri);
 			weathers.Serialize(archive, seri);
 			if (archive.GetVersion() >= 30)
 			{
@@ -2758,8 +2760,8 @@ namespace pf::scene
 		pf::jobsystem::Wait(seri.ctx); // This is needed before emitter material fixup that is below, because material CreateRenderDatas might be pending!
 
 		// Fixup old emittedparticle distortion basecolor slot -> normalmap slot
-		/*
-		TO DO:
+		
+		//TO DO:
 		if (archive.GetVersion() < 89)
 		{
 			for (size_t i = 0; i < emitters.GetCount(); ++i)
@@ -2774,7 +2776,7 @@ namespace pf::scene
 					material->CreateRenderData(true);
 				}
 			}
-		}*/
+		}
 
 		if (archive.GetVersion() >= 90)
 		{
@@ -2785,7 +2787,7 @@ namespace pf::scene
 			else
 			{
 				archive.PatchUnknownJumpPosition(jump_before);
-				//pf::resourcemanager::Serialize_WRITE(archive, seri.resource_registration);
+				pf::resourcemanager::Serialize_WRITE(archive, seri.resource_registration);
 				archive.PatchUnknownJumpPosition(jump_after);
 			}
 		}
@@ -3177,22 +3179,22 @@ namespace pf::scene
 				{
 					bool component_exists;
 					archive >> component_exists;
-			/* TO DO:		
+			
 			if (component_exists)
 					{
 						auto& component = scene.emitters.Create(entity);
 						component.Serialize(archive, seri);
-					}*/
+					}
 				}
 				{
 					bool component_exists;
 					archive >> component_exists;
-			/*TO DO:	
+			//TO DO:	
 			if (component_exists)
 					{
 						auto& component = scene.hairs.Create(entity);
 						component.Serialize(archive, seri);
-					}*/
+					}
 				}
 				{
 					bool component_exists;
@@ -3489,8 +3491,8 @@ namespace pf::scene
 					}
 				}
 				{
-					/*
-					TO DO:
+					
+					//TO DO:
 					auto component = scene.emitters.GetComponent(entity);
 					if (component != nullptr)
 					{
@@ -3500,11 +3502,11 @@ namespace pf::scene
 					else
 					{
 						archive << false;
-					}*/
+					}
 				}
 				{
-					/*
-					TO DO:
+					
+					//TO DO:
 					auto component = scene.hairs.GetComponent(entity);
 					if (component != nullptr)
 					{
@@ -3514,7 +3516,7 @@ namespace pf::scene
 					else
 					{
 						archive << false;
-					}*/
+					}
 				}
 				{
 					auto component = scene.weathers.GetComponent(entity);
@@ -3668,7 +3670,7 @@ namespace pf::scene
 			{
 				archive.PatchUnknownJumpPosition(jump_before);
 				//TO DO:
-				//pf::resourcemanager::Serialize_WRITE(archive, seri.resource_registration);
+				pf::resourcemanager::Serialize_WRITE(archive, seri.resource_registration);
 				archive.PatchUnknownJumpPosition(jump_after);
 			}
 		}

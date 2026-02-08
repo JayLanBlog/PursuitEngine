@@ -1220,5 +1220,169 @@ namespace pf {
 
 			return Resource();
 		}
+		// Check if a resource is currently loaded
+		bool Contains(const std::string& name) {
+
+			bool result = false;
+			locker.lock();
+			auto it = resources.find(name);
+			if (it != resources.end())
+			{
+				auto resource = it->second.lock();
+				result = resource != nullptr;
+			}
+			locker.unlock();
+			return result;
+		}
+
+
+		void Serialize_READ(Archive& archive, ResourceSerializer& seri) {
+			assert(archive.IsReadMode());
+			pf::jobsystem::Wait(streaming_ctx); // stop streaming at this point
+
+			size_t serializable_count = 0;
+			archive >> serializable_count;
+
+			struct TempResource
+			{
+				std::string name;
+				const uint8_t* filedata = nullptr;
+				size_t filesize = 0;
+			};
+			pf::vector<TempResource> temp_resources;
+			temp_resources.resize(serializable_count);
+
+			pf::jobsystem::context ctx;
+			ctx.priority = pf::jobsystem::Priority::Low;
+
+			for (size_t i = 0; i < serializable_count; ++i)
+			{
+				auto& resource = temp_resources[i];
+
+				archive >> resource.name;
+				uint32_t flags_temp;
+				archive >> flags_temp;
+				// Note: flags not applied here, but they must be read
+				//	We don't apply the flags, because they will be requested later by for example materials
+				//	If we would apply flags here, then flags from previous session would be applied, that maybe we no longer want (for example RETAIN_FILEDATA)
+
+				// We don't read the file data from archive into a vector like usual, instead map the vector,
+				//  this is much faster and we don't need to retain this data after archive lifetime
+				archive.MapVector(resource.filedata, resource.filesize);
+
+				size_t file_offset = archive.GetPos() - resource.filesize;
+
+				resource.name = archive.GetSourceDirectory() + resource.name;
+
+				if (Contains(resource.name))
+					continue;
+
+				// "Loading" the resource can happen asynchronously to serialization of file data, to improve performance
+				pf::jobsystem::Execute(ctx, [i, &temp_resources, &seri, &archive, file_offset](pf::jobsystem::JobArgs args) {
+					auto& tmp_resource = temp_resources[i];
+					Flags flags = Flags::IMPORT_DELAY;
+					if (archive.IsCompressionEnabled())
+					{
+						// If compressed archive, cannot stream from it, retain file data in memory:
+						flags |= Flags::IMPORT_RETAIN_FILEDATA;
+					}
+					auto res = Load(
+						tmp_resource.name,
+						flags,
+						tmp_resource.filedata,
+						tmp_resource.filesize,
+						archive.GetSourceFileName(),
+						file_offset
+					);
+					static std::mutex seri_locker;
+					seri_locker.lock();
+					seri.resources.push_back(res);
+					seri_locker.unlock();
+					});
+			}
+			pf::jobsystem::Wait(ctx);
+		}
+		void Serialize_WRITE(Archive& archive, const unordered_set<std::string>& resource_names) {
+
+			assert(!archive.IsReadMode());
+
+			pf::jobsystem::Wait(streaming_ctx); // stop streaming at this point
+
+			locker.lock();
+			size_t serializable_count = 0;
+
+			if (mode == Mode::NO_EMBEDDING)
+			{
+				// Simply not serialize any embedded resources
+				serializable_count = 0;
+				archive << serializable_count;
+			}
+			else
+			{
+				// Count embedded resources:
+				for (auto& name : resource_names)
+				{
+					auto it = resources.find(name);
+					if (it == resources.end())
+						continue;
+					std::shared_ptr<ResourceInternal> resource = it->second.lock();
+					if (resource != nullptr)
+					{
+						serializable_count++;
+					}
+				}
+
+				// Write all embedded resources:
+				archive << serializable_count;
+				for (auto& name : resource_names)
+				{
+					auto it = resources.find(name);
+					if (it == resources.end())
+						continue;
+					std::shared_ptr<ResourceInternal> resource = it->second.lock();
+
+					if (resource != nullptr)
+					{
+						std::string name = it->first;
+						pf::helper::MakePathRelative(archive.GetSourceDirectory(), name);
+
+						if (resource->filedata.empty())
+						{
+							// Directly re-read the file part that is needed:
+							pf::helper::FileRead(
+								resource->container_filename,
+								resource->filedata,
+								resource->container_filesize,
+								resource->container_fileoffset
+							);
+						}
+
+						archive << name;
+						archive << (uint32_t)resource->flags;
+						archive << resource->filedata;
+
+						if (!archive.GetSourceFileName().empty())
+						{
+							// Refresh the container file properties to the current file:
+							//	The old file offsets could get stale otherwise if it's overwritten
+							resource->container_filename = archive.GetSourceFileName();
+							resource->container_fileoffset = archive.GetPos() - resource->filedata.size();
+							resource->container_filesize = resource->filedata.size();
+							if (archive.IsCompressionEnabled())
+							{
+								// Compressed archive: retain file data to keep resource streamable
+								resource->flags |= Flags::IMPORT_RETAIN_FILEDATA;
+							}
+							if (!has_flag(resource->flags, Flags::IMPORT_RETAIN_FILEDATA))
+							{
+								resource->filedata.clear();
+								resource->filedata.shrink_to_fit();
+							}
+						}
+					}
+				}
+			}
+			locker.unlock();
+		}
 	}
 }

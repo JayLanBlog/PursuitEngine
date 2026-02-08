@@ -130,7 +130,7 @@ namespace pf {
 				return true;
 			}
 
-			//pf::backlog::post("File not found: " + fileName, pf::backlog::LogLevel::Warning);
+			pf::backlogger::postin("File not found: " + fileName, LogLevel::Warning);
 			return false;
 		}
 

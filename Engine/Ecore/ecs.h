@@ -27,7 +27,9 @@ namespace pf::ecs {
 	inline Entity CreateEntity()
 	{
 		static std::atomic<Entity> next{ INVALID_ENTITY + 1 };
-		return next.fetch_add(1);
+		Entity enty = next.fetch_add(1);
+
+		return enty;
 	}
 
 	inline static constexpr size_t INVALID_INDEX = ~0ull;
@@ -753,6 +755,8 @@ namespace pf::ecs {
 						archive >> name;
 						uint64_t jump_pos = 0;
 						archive >> jump_pos;
+						size_t pos = name.find("wi");
+						name.replace(pos,2, "pf");
 						auto it = entries.find(name);
 						if (it != entries.end())
 						{
@@ -777,6 +781,8 @@ namespace pf::ecs {
 						archive >> name;
 						uint64_t jump_pos = 0;
 						archive >> jump_pos;
+						size_t pos = name.find("wi");
+						name.replace(pos, 2, "pf");
 						auto it = entries.find(name);
 						if (it != entries.end())
 						{

@@ -159,11 +159,11 @@ namespace pf::initializer {
 		pf::jobsystem::Execute(ctx, [](pf::jobsystem::JobArgs args) { pf::gpusortlib::Initialize(); systems[INITIALIZED_SYSTEM_GPUSORTLIB].store(true); });
 		pf::jobsystem::Execute(ctx, [](pf::jobsystem::JobArgs args) { pf::GPUBVH::Initialize(); systems[INITIALIZED_SYSTEM_GPUBVH].store(true); });
 		pf::jobsystem::Execute(ctx, [](pf::jobsystem::JobArgs args) { pf::physics::Initialize(); systems[INITIALIZED_SYSTEM_PHYSICS].store(true); });
-		//pf::jobsystem::Execute(ctx, [](pf::jobsystem::JobArgs args) { pf::TrailRenderer::Initialize(); systems[INITIALIZED_SYSTEM_TRAILRENDERER].store(true); });
+		pf::jobsystem::Execute(ctx, [](pf::jobsystem::JobArgs args) { pf::TrailRenderer::Initialize(); systems[INITIALIZED_SYSTEM_TRAILRENDERER].store(true); });
 
 		// Initialize these immediately:
 		//pf::lua::Initialize(); systems[INITIALIZED_SYSTEM_LUA].store(true);
-		pf::audio::Initialize(); systems[INITIALIZED_SYSTEM_AUDIO].store(true);
+		//pf::audio::Initialize(); systems[INITIALIZED_SYSTEM_AUDIO].store(true);
 		pf::font::Initialize(); systems[INITIALIZED_SYSTEM_FONT].store(true);
 
 		std::thread([] {

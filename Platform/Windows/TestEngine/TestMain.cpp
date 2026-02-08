@@ -11,6 +11,7 @@
 #include "Run/app_run.h"
 #include "Run/samples/sprite_app.h"
 #include "Component/gui/test_gui_sample.h"
+#include "Run/samples/test_render_path2d_main.h"
 
 int main(int argc, char* argv[]) {
 	// Test Lua
@@ -35,7 +36,9 @@ int main(int argc, char* argv[]) {
 	//pf::arun::TLauncher luancher;
 	//luancher.run();
 	
-	pf::arun::GUISample launcher;
-	launcher.run();
+	/*pf::arun::GUISample launcher;
+	launcher.run();*/
+
+	test_render_path_main();
 	return 0;
 }

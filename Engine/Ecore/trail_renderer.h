@@ -49,6 +49,6 @@ namespace pf
 
 		void Draw(const pf::scene::CameraComponent& camera, pf::graphics::CommandList cmd) const;
 
-		void Initialize();
+		static void Initialize();
 	};
 }
