@@ -211,6 +211,12 @@
     <Filter Include="shader\compressonator">
       <UniqueIdentifier>{f15b48cc-3d1e-44bf-877e-78f9d968ea8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="binder">
+      <UniqueIdentifier>{6248bbba-c38e-4ecf-842f-33dccab380df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Binder">
+      <UniqueIdentifier>{1ed68328-e6af-4174-a95d-999c09e1bae9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp">
@@ -1013,6 +1019,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Test\Run\samples\test_render_path2d_main.cpp">
       <Filter>src\Run\samples</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\math_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Test\Binder\math_binder_test.cpp">
+      <Filter>src\Binder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2425,6 +2437,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Test\Run\samples\test_render_path2d_main.h">
       <Filter>src\Run\samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\math_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Test\Binder\math_binder_test.h">
+      <Filter>src\Binder</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

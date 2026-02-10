@@ -11,7 +11,6 @@ extern "C"
 }
 
 #include <string>
-
 typedef int(*lua_CFunction) (lua_State* L);
 
 namespace Luaer {

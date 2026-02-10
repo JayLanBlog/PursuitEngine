@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Binder\math_bind.cpp" />
     <ClCompile Include="..\..\..\Core\pf_version.cpp" />
     <ClCompile Include="..\..\..\Engine\Component\font.cpp" />
     <ClCompile Include="..\..\..\Engine\Component\pgui.cpp" />
@@ -207,6 +208,7 @@
     <ClCompile Include="..\..\..\Module\Util\raw_input.cpp" />
     <ClCompile Include="..\..\..\Module\Util\sdl_input.cpp" />
     <ClCompile Include="..\..\..\Module\Util\xInput.cpp" />
+    <ClCompile Include="..\..\..\Test\Binder\math_binder_test.cpp" />
     <ClCompile Include="..\..\..\Test\Component\gui\test_gui_sample.cpp" />
     <ClCompile Include="..\..\..\Test\Component\test_component_vk.cpp" />
     <ClCompile Include="..\..\..\Test\Lua\lua_test.cpp" />
@@ -425,6 +427,7 @@
     <ClCompile Include="TestMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Binder\math_bind.h" />
     <ClInclude Include="..\..\..\Core\core_include.h" />
     <ClInclude Include="..\..\..\Core\pf_version.h" />
     <ClInclude Include="..\..\..\Core\platform.h" />
@@ -533,6 +536,7 @@
     <ClInclude Include="..\..\..\Shader\ShaderInterop_VoxelGrid.h" />
     <ClInclude Include="..\..\..\Shader\ShaderInterop_VXGI.h" />
     <ClInclude Include="..\..\..\Shader\ShaderInterop_Weather.h" />
+    <ClInclude Include="..\..\..\Test\Binder\math_binder_test.h" />
     <ClInclude Include="..\..\..\Test\Component\gui\test_gui_sample.h" />
     <ClInclude Include="..\..\..\Test\Component\test_component_vk.h" />
     <ClInclude Include="..\..\..\Test\Lua\lua_sample_include.h" />

@@ -1,12 +1,8 @@
 #pragma once
 
 #include "Core/core_include.h"
-
-
 #include <cmath>
-
 #include <algorithm>
-
 #include <limits>
 
 #ifndef CKED_CMAKE_BUILD
