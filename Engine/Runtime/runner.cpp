@@ -11,7 +11,6 @@
 #include "Engine/Component/font.h"
 #include "Engine/Ecore/draw_image.h"
 #include "Core/platform.h"
-
 #include <string>
 #include <algorithm>
 #include <new>
@@ -19,14 +18,13 @@
 #include <atomic>
 #include "Engine/Device/vulkan_driver.h"
 #include <Engine/Ecore/input.h>
-
-
+#include <Binder/application_bind.h>
 
 using namespace pf::graphics;
-
 namespace pf {
 
 	void Application::Initialize() {
+
 		if (initialized)
 		{
 			return;
@@ -38,7 +36,11 @@ namespace pf {
 		alwaysactive = pf::arguments::HasArgument("alwaysactive");
 
 		// Note: lua is always initialized immediately on main thread by pf::initializer, so this is safe to do:
-		// assert(pf::initializer::IsInitializeFinished(pf::initializer::INITIALIZED_SYSTEM_LUA));
+		assert(pf::initializer::IsInitializeFinished(pf::initializer::INITIALIZED_SYSTEM_LUA));
+
+		//Rigster Obj to lua
+		Luna<Luaer::Application_BindLua>::push_global(Luaer::GetLuaState(), "main", this);
+		Luna<Luaer::Application_BindLua>::push_global(Luaer::GetLuaState(), "application", this);
 
 	}
 
@@ -183,7 +185,7 @@ namespace pf {
 			{
 				// If there is no splash screen, the log is rendered while engine is initializing
 				ColorSpace colorspace = graphicsDevice->GetSwapChainColorSpace(&swapChain);
-				//TO DO :pf::backlogger::DrawOutputText(canvas, cmd, colorspace);
+				pf::backlogger::DrawOutputText(canvas, cmd, colorspace);
 			}
 			graphicsDevice->RenderPassEnd(cmd);
 
@@ -211,32 +213,31 @@ namespace pf {
 			const std::string rewriteable_script_filename = workingdir + rewriteable_startup_script_text;
 			if (pf::helper::FileExists(rewriteable_script_filename))
 			{
-				/*
-				if (pf::lua::RunFile(rewriteable_script_filename))
+				
+				if (Luaer::RunFile(rewriteable_script_filename))
 				{
-					pf::backlog::post("Executed startup file: " + rewriteable_script_filename);
+					pf::backlogger::postin("Executed startup file: " + rewriteable_script_filename);
 				}
-				*/
+				
 			}
 			else
 			{
 				const std::string startup_lua_filename = workingdir + "startup.lua";
 				if (pf::helper::FileExists(startup_lua_filename))
 				{
-					/*if (pf::lua::RunFile(startup_lua_filename))
+					if (Luaer::RunFile(startup_lua_filename))
 					{
-						pf::backlog::post("Executed startup file: " + startup_lua_filename);
-					}*/
+						pf::backlogger::postin("Executed startup file: " + startup_lua_filename);
+					}
 				}
 				const std::string startup_luab_filename = workingdir + "startup.luab";
 				if (pf::helper::FileExists(startup_luab_filename))
 				{
-					/*
-					if (pf::lua::RunBinaryFile(startup_luab_filename))
+					
+					if (Luaer::RunBinaryFile(startup_luab_filename))
 					{
-						pf::backlog::post("Executed startup file: " + startup_luab_filename);
+						pf::backlogger::postin("Executed startup file: " + startup_luab_filename);
 					}
-					*/
 				}
 			}
 		}
@@ -261,8 +262,6 @@ namespace pf {
 			pf::helper::QuickSleep((target_deltaTime - deltaTime) * 1000);
 			deltaTime += float(timer.record_elapsed_seconds());
 		}
-
-
 		// avoid instability caused by large delta time
 		deltaTime = clamp(deltaTime, 0.0f, 0.5f);
 
@@ -304,19 +303,13 @@ namespace pf {
 				FixedUpdate();
 			}
 		}
-
 		profiler::EndRange(range); // Fixed Update
-
 		// Variable-timed update:
 		Update(deltaTime);
 
 		Render();
-
-
-
 		// Begin final compositing:
 		CommandList cmd = graphicsDevice->BeginCommandList();
-
 		// CrossFade texture save:
 		if (fadeManager.crossFadeTextureSaveRequired)
 		{
@@ -361,8 +354,7 @@ namespace pf {
 
 		Compose(cmd);
 		graphicsDevice->RenderPassEnd(cmd);
-
-
+		
 		if (rendertargetPreHDR10.IsValid())
 		{
 			// In HDR10, we perform a final mapping from linear to HDR10, into the swapchain
@@ -385,12 +377,11 @@ namespace pf {
 		auto range = pf::profiler::BeginRangeCPU("Update");
 
 		infoDisplay.rect = {};
-
 		//TO DO
-		//pf::lua::SetDeltaTime(double(dt));
-		//pf::lua::Update();
+		Luaer::SetDeltaTime(double(dt));
+		Luaer::Update();
 
-		//pf::backlogger::Update(canvas, dt);
+		pf::backlogger::Update(canvas, dt);
 
 		pf::resourcemanager::UpdateStreamingResources(dt);
 
@@ -405,7 +396,7 @@ namespace pf {
 
 	void Application::FixedUpdate()
 	{
-		//TO DO : pf::lua::FixedUpdate();
+		Luaer::FixedUpdate();
 
 		if (activePath != nullptr)
 		{
@@ -417,7 +408,7 @@ namespace pf {
 	{
 		auto range = pf::profiler::BeginRangeCPU("Render");
 
-		//TO DO : pf::lua::Render();
+		Luaer::Render();
 
 		if (activePath != nullptr)
 		{
@@ -615,16 +606,13 @@ namespace pf {
 			);
 
 			params.shadow_softness = 0.4f;
-
 			// Explanation: this compose pass is in LINEAR space if display output is linear or HDR10
 			//	If HDR10, the HDR10 output mapping will be performed on whole image later when drawing to swapchain
 			if (colorspace != ColorSpace::SRGB)
 			{
 				params.enableLinearOutputMapping(9);
 			}
-
 			params.cursor = pf::font::Draw(infodisplay_str, params, cmd);
-
 			// VRAM:
 			{
 				GraphicsDevice::MemoryUsage vram = graphicsDevice->GetMemoryUsage();
@@ -666,10 +654,10 @@ namespace pf {
 			{
 				params.cursor = pf::font::Draw(std::to_string(pf::renderer::GetShaderErrorCount()) + " shader compilation errors! Check the backlog for more information!\n", params, cmd);
 			}
-			/*if (pf::backlogger::GetUnseenLogLevelMax() >=LogLevel::Error)
+			if (pf::backlogger::GetUnseenLogLevelMax() >=LogLevel::Error)
 			{
 				params.cursor = pf::font::Draw("Errors found, check the backlog for more information!", params, cmd);
-			}*/
+			}
 
 			if (infoDisplay.colorgrading_helper)
 			{
@@ -684,7 +672,6 @@ namespace pf {
 					cmd
 				);
 			}
-
 			if (infoDisplay.rect.right > 0)
 			{
 				Rect rect;
@@ -693,11 +680,8 @@ namespace pf {
 				graphicsDevice->BindScissorRects(1, &rect, cmd);
 			}
 		}
-
 		pf::profiler::DrawData(canvas, 4, 10, cmd, colorspace);
-
-		//pf::backlog::Draw(canvas, cmd, colorspace);
-
+		pf::backlogger::Draw(canvas, cmd, colorspace);
 		pf::profiler::EndRange(range); // Compose
 	}
 	void Application::Exit()
@@ -836,9 +820,7 @@ namespace pf {
 			bool success = graphicsDevice->CreateSwapChain(&desc, nullptr, &swapChain);
 			assert(success);
 			});
-
 	}
-
 
 	void Application::SetFullScreen(bool fullscreen)
 	{
@@ -883,5 +865,4 @@ namespace pf {
 	{
 		return pf::helper::FileExists(rewriteable_startup_script_text);
 	}
-
 }

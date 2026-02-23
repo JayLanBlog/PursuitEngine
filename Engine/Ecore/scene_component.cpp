@@ -2951,12 +2951,12 @@ namespace pf::scene {
 		return foot_placement_enabled;
 	}
 	//TO DO:
-	//void CharacterComponent::SetPathGoal(const XMFLOAT3& goal, const pf::VoxelGrid* voxelgrid)
-	//{
-	//	this->goal = goal;
-	//	this->voxelgrid = voxelgrid;
-	//	process_goal = true;
-	//}
+	void CharacterComponent::SetPathGoal(const XMFLOAT3& goal, const pf::VoxelGrid* voxelgrid)
+	{
+		this->goal = goal;
+		this->voxelgrid = voxelgrid;
+		process_goal = true;
+	}
 	void CharacterComponent::SetActive(bool value)
 	{
 		if (value)

@@ -5,12 +5,36 @@
 #include <vector>
 #include <algorithm>
 
+#include "Binder/application_bind.h"
+#include "Binder/async_bind.h"
+#include "Binder/audio_bind.h"
+#include "Binder/back_log_bind.h"
+#include "Binder/image_params_bind.h"
+#include "Binder/input_bind.h"
+#include "Binder/loading_screen_bind.h"
+#include "Binder/math_bind.h"
+#include "Binder/path_query_bind.h"
+#include "Binder/primitive_bind.h"
+#include "Binder/render_path_2d_bind.h"
+#include "Binder/render_path_3d_bind.h"
+#include "Binder/render_path_bind.h"
+#include "Binder/scene_bind.h"
+#include "Binder/sprite_bind.h"
+#include "Binder/sprite_font_bind.h"
+#include "Binder/texture_bind.h"
+#include "Binder/video_bind.h"
+#include "Binder/voxel_grid_bind.h"
+#include "Binder/sprite_animation_bind.h"
+#include "Binder/render_bind.h"
+#include "Binder/trail_renderer_bind.h"
+#include "Binder/physics_bind.h"
+#include "Binder/network_bind.h"
 
+#include <memory>
+#include <Core/pf_version.h>
 
 namespace Luaer {
-
 	static constexpr const char* ERROR_PREFIX = "[Lua Error] ";
-
 	struct LuaInternal {
 		lua_State* m_luaState = NULL;
 		~LuaInternal()
@@ -26,20 +50,28 @@ namespace Luaer {
 		static LuaInternal luainternal;
 		return luainternal;
 	}
-	
+	pf::Application* editorApplication = nullptr;
+	pf::RenderPath* editorRenderPath = nullptr;
+	int IsThisEditor(lua_State* L)
+	{
+		bool ret = editorApplication != nullptr && editorRenderPath != nullptr;
+		Luaer::SSetBool(L, ret);
+		return 1;
+	}
 	int ReturnToEditor(lua_State* L) {
-		
+		if (editorApplication != nullptr && editorRenderPath != nullptr)
+		{
+			KillProcesses();
+			editorApplication->ActivatePath(editorRenderPath);
+		}
 		return 0;
 	}
-
 
 	void PostErrorMsg(lua_State* L)
 	{
 		const char* str = lua_tostring(L, -1);
-
 		if (str == nullptr)
 			return;
-
 		std::string ss;
 		ss +=ERROR_PREFIX;
 		ss += str;
@@ -65,7 +97,6 @@ namespace Luaer {
 			PostErrorMsg();
 		}
 	}
-
 
 	int Internal_CompileBinaryFile(lua_State* L)
 	{
@@ -138,7 +169,6 @@ namespace Luaer {
 			SError(L, "dofile(string filename) not enough arguments!");
 		}
 		return 0;
-		
 	}
 
 	int Internal_DoBinaryFile(lua_State* L) {
@@ -169,6 +199,37 @@ namespace Luaer {
 	}
 
 
+	int GetVersionMajor(lua_State* L)
+	{
+		SSetInt(L, pf::version::GetMajor());
+		return 1;
+	}
+	int GetVersionMinor(lua_State* L)
+	{
+		SSetInt(L, pf::version::GetMinor());
+		return 1;
+	}
+	int GetVersionRevision(lua_State* L)
+	{
+		SSetInt(L, pf::version::GetRevision());
+		return 1;
+	}
+	int GetVersionString(lua_State* L)
+	{
+		SSetString(L, pf::version::GetVersionString());
+		return 1;
+	}
+	int GetCreditsString(lua_State* L)
+	{
+		SSetString(L, pf::version::GetCreditsString());
+		return 1;
+	}
+	int GetSupportersString(lua_State* L)
+	{
+		SSetString(L, pf::version::GetSupportersString());
+		return 1;
+	}
+
 
 	void Initialize() {
 		if (lua_internal().m_luaState != nullptr)
@@ -180,6 +241,44 @@ namespace Luaer {
 		RegisterFunc("compilebinaryfile", Internal_CompileBinaryFile);
 		RunText(lua_Globals);
 		RegisterFunc("IsThisDebugBuild", IsThisDebugBuild);
+		RegisterFunc("IsThisEditor", IsThisEditor);
+		RegisterFunc("ReturnToEditor", ReturnToEditor);
+		RegisterFunc("IsThisDebugBuild", IsThisDebugBuild);
+	
+		RegisterFunc("GetVersionMajor", GetVersionMajor);
+		RegisterFunc("GetVersionMinor", GetVersionMinor);
+		RegisterFunc("GetVersionRevision", GetVersionRevision);
+		RegisterFunc("GetVersionString", GetVersionString);
+		RegisterFunc("GetCreditsString", GetCreditsString);
+		RegisterFunc("GetSupportersString", GetSupportersString);
+		Vector_BindLua::Bind();
+		Matrix_BindLua::Bind();
+		Application_BindLua::Bind();
+		Canvas_BindLua::Bind();
+		RenderPath_BindLua::Bind();
+		RenderPath2D_BindLua::Bind();
+		LoadingScreen_BindLua::Bind();
+		RenderPath3D_BindLua::Bind();
+		Texture_BindLua::Bind();
+		renderer::Bind();
+		Audio_BindLua::Bind();
+		Video_BindLua::Bind();
+		VideoInstance_BindLua::Bind();
+		Sprite_BindLua::Bind();
+		ImageParams_BindLua::Bind();
+		SpriteAnim_BindLua::Bind();
+		scene::Bind();
+		Input_BindLua::Bind();
+		SpriteFont_BindLua::Bind();
+		Luaer::BackLog::Bind();
+		Network_BindLua::Bind();
+		primitive::Bind();
+		Physics_BindLua::Bind();
+		VoxelGrid_BindLua::Bind();
+		PathQuery_BindLua::Bind();
+		TrailRenderer_BindLua::Bind();
+		Async_BindLua::Bind();
+
 	}
 
 
@@ -516,6 +615,10 @@ namespace Luaer {
 		return true;
 	}
 
+	XMFLOAT4 SGetFloat4(lua_State* L, int stackpos)
+	{
+		return XMFLOAT4(SGetFloat(L, stackpos), SGetFloat(L, stackpos + 1), SGetFloat(L, stackpos + 2), SGetFloat(L, stackpos + 3));
+	}
 
 	bool CompileFile(const char* filename, pf::vector<uint8_t>& dst) {
 		pf::vector<uint8_t> filedata;

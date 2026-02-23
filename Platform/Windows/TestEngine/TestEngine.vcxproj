@@ -86,7 +86,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/imgui;../../../Thirdparty/;../../../Test;../../../Thirdparty/Lua;../../../;../../../Thirdparty/evulkan;../../../Thirdparty/evulkan/volk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -104,7 +104,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/imgui;../../../Thirdparty/;../../../Test;../../../Thirdparty/Lua;../../../;../../../Thirdparty/evulkan;../../../Thirdparty/evulkan/volk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -122,7 +122,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;VK_USE_PLATFORM_WIN32_KHR;VK_NO_PROTOTYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;VK_USE_PLATFORM_WIN32_KHR;VK_NO_PROTOTYPES;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/imgui;../../../Thirdparty/;../../../Test;../../../Thirdparty/Lua;../../../;../../../Thirdparty/evulkan;../../../Thirdparty/evulkan/volk;../../../IExporter;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -141,7 +141,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../../../Thirdparty/Common;../../../Thirdparty/gltf;../../../Thirdparty/qoi;../../../Thirdparty/imgui;../../../Thirdparty/;../../../Test;../../../Thirdparty/Lua;../../../;../../../Thirdparty/evulkan;../../../Thirdparty/evulkan/volk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -156,7 +156,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Binder\application_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\async_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\audio_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\back_log_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\image_params_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\input_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\loading_screen_bind.cpp" />
     <ClCompile Include="..\..\..\Binder\math_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\network_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\path_query_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\physics_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\primitive_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\render_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\render_path_2d_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\render_path_3d_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\render_path_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\scene_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\sprite_animation_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\sprite_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\sprite_font_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\texture_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\trail_renderer_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\video_bind.cpp" />
+    <ClCompile Include="..\..\..\Binder\voxel_grid_bind.cpp" />
     <ClCompile Include="..\..\..\Core\pf_version.cpp" />
     <ClCompile Include="..\..\..\Engine\Component\font.cpp" />
     <ClCompile Include="..\..\..\Engine\Component\pgui.cpp" />
@@ -191,6 +214,7 @@
     <ClCompile Include="..\..\..\Engine\Ecore\video.cpp" />
     <ClCompile Include="..\..\..\Engine\Ecore\voxel_grid.cpp" />
     <ClCompile Include="..\..\..\Engine\Runtime\initializer.cpp" />
+    <ClCompile Include="..\..\..\Engine\Runtime\load_screen.cpp" />
     <ClCompile Include="..\..\..\Engine\Runtime\runner.cpp" />
     <ClCompile Include="..\..\..\Engine\Shaders\ShaderCompiler.cpp" />
     <ClCompile Include="..\..\..\Module\Filer\file_helper.cpp" />
@@ -199,6 +223,8 @@
     <ClCompile Include="..\..\..\Module\Math\pf_math.cpp" />
     <ClCompile Include="..\..\..\Module\Util\arguments.cpp" />
     <ClCompile Include="..\..\..\Module\Util\event_handle.cpp" />
+    <ClCompile Include="..\..\..\Module\Util\network_linux.cpp" />
+    <ClCompile Include="..\..\..\Module\Util\network_windows.cpp" />
     <ClCompile Include="..\..\..\Module\Util\p_input.cpp" />
     <ClCompile Include="..\..\..\Module\Util\job_system.cpp" />
     <ClCompile Include="..\..\..\Module\Util\localization.cpp" />
@@ -427,7 +453,30 @@
     <ClCompile Include="TestMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Binder\application_bind.h" />
+    <ClInclude Include="..\..\..\Binder\async_bind.h" />
+    <ClInclude Include="..\..\..\Binder\audio_bind.h" />
+    <ClInclude Include="..\..\..\Binder\back_log_bind.h" />
+    <ClInclude Include="..\..\..\Binder\image_params_bind.h" />
+    <ClInclude Include="..\..\..\Binder\input_bind.h" />
+    <ClInclude Include="..\..\..\Binder\loading_screen_bind.h" />
     <ClInclude Include="..\..\..\Binder\math_bind.h" />
+    <ClInclude Include="..\..\..\Binder\network_bind.h" />
+    <ClInclude Include="..\..\..\Binder\path_query_bind.h" />
+    <ClInclude Include="..\..\..\Binder\physics_bind.h" />
+    <ClInclude Include="..\..\..\Binder\primitive_bind.h" />
+    <ClInclude Include="..\..\..\Binder\render_bind.h" />
+    <ClInclude Include="..\..\..\Binder\render_path_2d_bind.h" />
+    <ClInclude Include="..\..\..\Binder\render_path_3d_bind.h" />
+    <ClInclude Include="..\..\..\Binder\render_path_bind.h" />
+    <ClInclude Include="..\..\..\Binder\scene_bind.h" />
+    <ClInclude Include="..\..\..\Binder\sprite_animation_bind.h" />
+    <ClInclude Include="..\..\..\Binder\sprite_bind.h" />
+    <ClInclude Include="..\..\..\Binder\sprite_font_bind.h" />
+    <ClInclude Include="..\..\..\Binder\texture_bind.h" />
+    <ClInclude Include="..\..\..\Binder\trail_renderer_bind.h" />
+    <ClInclude Include="..\..\..\Binder\video_bind.h" />
+    <ClInclude Include="..\..\..\Binder\voxel_grid_bind.h" />
     <ClInclude Include="..\..\..\Core\core_include.h" />
     <ClInclude Include="..\..\..\Core\pf_version.h" />
     <ClInclude Include="..\..\..\Core\platform.h" />
@@ -477,6 +526,7 @@
     <ClInclude Include="..\..\..\Engine\Ecore\waterripple.h" />
     <ClInclude Include="..\..\..\Engine\pfengine.h" />
     <ClInclude Include="..\..\..\Engine\Runtime\initializer.h" />
+    <ClInclude Include="..\..\..\Engine\Runtime\load_screen.h" />
     <ClInclude Include="..\..\..\Engine\Runtime\runner.h" />
     <ClInclude Include="..\..\..\Engine\Shaders\ShaderCompiler.h" />
     <ClInclude Include="..\..\..\IExporter\core.h" />
@@ -508,6 +558,7 @@
     <ClInclude Include="..\..\..\Module\Util\input.h" />
     <ClInclude Include="..\..\..\Module\Util\job_system.h" />
     <ClInclude Include="..\..\..\Module\Util\localization.h" />
+    <ClInclude Include="..\..\..\Module\Util\network.h" />
     <ClInclude Include="..\..\..\Module\Util\noise.h" />
     <ClInclude Include="..\..\..\Module\Util\offset_allocator.h" />
     <ClInclude Include="..\..\..\Module\Util\profiler.h" />
@@ -894,9 +945,12 @@
     <ClInclude Include="..\..\..\Thirdparty\Utility\lodepng.h" />
     <ClInclude Include="..\..\..\Thirdparty\Utility\meshoptimizer\meshoptimizer.h" />
     <ClInclude Include="..\..\..\Thirdparty\Utility\mikktspace.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Utility\minimp4.h" />
     <ClInclude Include="..\..\..\Thirdparty\Utility\pugiconfig.hpp" />
     <ClInclude Include="..\..\..\Thirdparty\Utility\pugixml.hpp" />
     <ClInclude Include="..\..\..\Thirdparty\Utility\spirv_reflect.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Utility\stb_image_write.h" />
+    <ClInclude Include="..\..\..\Thirdparty\Utility\win32ico.h" />
     <ClInclude Include="..\..\..\Thirdparty\Utility\zstd\zstd.h" />
     <ClInclude Include="..\..\..\Thirdparty\Utility\zstd\zstd_errors.h" />
   </ItemGroup>

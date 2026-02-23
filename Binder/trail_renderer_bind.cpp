@@ -1,0 +1,356 @@
+#include "trail_renderer_bind.h"
+#include "math_bind.h"
+#include "texture_bind.h"
+
+using namespace pf;
+
+namespace Luaer
+{
+	Luna<TrailRenderer_BindLua>::FunctionType TrailRenderer_BindLua::methods[] = {
+		lunamethod(TrailRenderer_BindLua, AddPoint),
+		lunamethod(TrailRenderer_BindLua, Cut),
+		lunamethod(TrailRenderer_BindLua, Fade),
+		lunamethod(TrailRenderer_BindLua, Clear),
+		lunamethod(TrailRenderer_BindLua, GetPointCount),
+		lunamethod(TrailRenderer_BindLua, GetPoint),
+		lunamethod(TrailRenderer_BindLua, SetPoint),
+		lunamethod(TrailRenderer_BindLua, SetBlendMode),
+		lunamethod(TrailRenderer_BindLua, GetBlendMode),
+		lunamethod(TrailRenderer_BindLua, SetSubdivision),
+		lunamethod(TrailRenderer_BindLua, GetSubdivision),
+		lunamethod(TrailRenderer_BindLua, SetWidth),
+		lunamethod(TrailRenderer_BindLua, GetWidth),
+		lunamethod(TrailRenderer_BindLua, SetColor),
+		lunamethod(TrailRenderer_BindLua, GetColor),
+		lunamethod(TrailRenderer_BindLua, SetTexture),
+		lunamethod(TrailRenderer_BindLua, GetTexture),
+		lunamethod(TrailRenderer_BindLua, SetTexture2),
+		lunamethod(TrailRenderer_BindLua, GetTexture2),
+		lunamethod(TrailRenderer_BindLua, SetTexMulAdd),
+		lunamethod(TrailRenderer_BindLua, GetTexMulAdd),
+		lunamethod(TrailRenderer_BindLua, SetTexMulAdd2),
+		lunamethod(TrailRenderer_BindLua, GetTexMulAdd2),
+		lunamethod(TrailRenderer_BindLua, SetDepthSoften),
+		{ NULL, NULL }
+	};
+	Luna<TrailRenderer_BindLua>::PropertyType TrailRenderer_BindLua::properties[] = {
+		{ NULL, NULL }
+	};
+
+	int TrailRenderer_BindLua::AddPoint(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::AddPoint(Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1), opt Vector rotationQuaternion = Vector()) not enough arguments!");
+			return 0;
+		}
+		Vector_BindLua* pos = Luna<Vector_BindLua>::lightcheck(L, 1);
+		if (pos == nullptr)
+		{
+			Luaer::SError(L, "TrailRenderer::AddPoint(Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1), opt Vector rotationQuaternion = Vector()) first argument is not a Vector!");
+			return 0;
+		}
+		TrailRenderer::TrailPoint point;
+		point.position = pos->GetFloat3();
+
+		if (argc > 1)
+		{
+			point.width = Luaer::SGetFloat(L, 2);
+			if (argc > 2)
+			{
+				Vector_BindLua* col = Luna<Vector_BindLua>::lightcheck(L, 3);
+				if (col == nullptr)
+				{
+					Luaer::SError(L, "TrailRenderer::AddPoint(Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1), opt Vector rotationQuaternion = Vector()) third argument is not a Vector!");
+				}
+				else
+				{
+					point.color = col->data;
+				}
+
+				if (argc > 3)
+				{
+					Vector_BindLua* rot = Luna<Vector_BindLua>::lightcheck(L, 4);
+					if (rot == nullptr)
+					{
+						Luaer::SError(L, "TrailRenderer::AddPoint(Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1), opt Vector rotationQuaternion = Vector()) fourth argument is not a Vector!");
+					}
+					else
+					{
+						point.rotation = rot->data;
+					}
+				}
+			}
+		}
+
+		trail.points.push_back(point);
+		return 0;
+	}
+	int TrailRenderer_BindLua::Cut(lua_State* L)
+	{
+		bool loop = false;
+		int argc = Luaer::SGetArgCount(L);
+		if (argc > 0)
+		{
+			loop = Luaer::SGetBool(L, 1);
+		}
+		trail.Cut(loop);
+		return 0;
+	}
+	int TrailRenderer_BindLua::Fade(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "Fade(float amount): not enough arguments!");
+			return 0;
+		}
+		float amount = Luaer::SGetFloat(L, 1);
+		trail.Fade(amount);
+		return 0;
+	}
+	int TrailRenderer_BindLua::Clear(lua_State* L)
+	{
+		trail.Clear();
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetPointCount(lua_State* L)
+	{
+		Luaer::SSetInt(L, int(trail.points.size()));
+		return 1;
+	}
+	int TrailRenderer_BindLua::GetPoint(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		int index = Luaer::SGetInt(L, 1);
+		if (index >= trail.points.size())
+		{
+			Luaer::SError(L, "TrailRenderer::GetPoint(int index): index out of range!");
+			return 0;
+		}
+		auto& point = trail.points[index];
+		Luna<Vector_BindLua>::push(L, point.position);
+		Luaer::SSetFloat(L, point.width);
+		Luna<Vector_BindLua>::push(L, point.color);
+		return 3;
+	}
+	int TrailRenderer_BindLua::SetPoint(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 2)
+		{
+			Luaer::SError(L, "TrailRenderer::SetPoint(int index, Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1)): not enough arguments!");
+			return 0;
+		}
+		Vector_BindLua* pos = Luna<Vector_BindLua>::lightcheck(L, 2);
+		if (pos == nullptr)
+		{
+			Luaer::SError(L, "TrailRenderer::SetPoint(int index, Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1)): second argument is not a Vector!");
+			return 0;
+		}
+		int index = Luaer::SGetInt(L, 1);
+		if (index >= trail.points.size())
+		{
+			Luaer::SError(L, "TrailRenderer::SetPoint(int index, Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1)): index out of range!");
+			return 0;
+		}
+		auto& point = trail.points[index];
+		point.position = pos->GetFloat3();
+		if (argc > 2)
+		{
+			point.width = Luaer::SGetFloat(L, 3);
+			if (argc > 3)
+			{
+				Vector_BindLua* col = Luna<Vector_BindLua>::lightcheck(L, 4);
+				if (col == nullptr)
+				{
+					Luaer::SError(L, "TrailRenderer::SetPoint(int index, Vector pos, opt float width = 1, opt Vector color = Vector(1,1,1,1)): fourth argument is not a Vector!");
+				}
+				else
+				{
+					point.color = col->data;
+				}
+			}
+		}
+		return 0;
+	}
+	int TrailRenderer_BindLua::SetBlendMode(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetBlendMode(int blendmode): not enough arguments!");
+			return 0;
+		}
+		trail.blendMode = (pf::enums::BLENDMODE)Luaer::SGetInt(L, 1);
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetBlendMode(lua_State* L)
+	{
+		Luaer::SSetInt(L, (int)trail.blendMode);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetSubdivision(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetSubdivision(int subdiv): not enough arguments!");
+			return 0;
+		}
+		trail.subdivision = (uint32_t)Luaer::SGetInt(L, 1);
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetSubdivision(lua_State* L)
+	{
+		Luaer::SSetInt(L, (int)trail.subdivision);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetWidth(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetWidth(float width): not enough arguments!");
+			return 0;
+		}
+		trail.width = Luaer::SGetFloat(L, 1);
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetWidth(lua_State* L)
+	{
+		Luaer::SSetFloat(L, trail.width);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetColor(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetColor(Vector color): not enough arguments!");
+			return 0;
+		}
+		Vector_BindLua* vec = Luna<Vector_BindLua>::lightcheck(L, 1);
+		if (vec == nullptr)
+		{
+			Luaer::SError(L, "TrailRenderer::SetColor(Vector color): first argument is not a Vector!");
+			return 0;
+		}
+		trail.color = vec->data;
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetColor(lua_State* L)
+	{
+		Luna<Vector_BindLua>::push(L, trail.color);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetTexture(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexture(Texture tex): not enough arguments!");
+			return 0;
+		}
+		Texture_BindLua* tex = Luna<Texture_BindLua>::lightcheck(L, 1);
+		if (tex == nullptr)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexture(Texture tex): first argument is not a Texture!");
+			return 0;
+		}
+		trail.texture = tex->resource.GetTexture();
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetTexture(lua_State* L)
+	{
+		pf::Resource res;
+		res.SetTexture(trail.texture);
+		Luna<Texture_BindLua>::push(L, res);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetTexture2(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexture2(Texture tex): not enough arguments!");
+			return 0;
+		}
+		Texture_BindLua* tex = Luna<Texture_BindLua>::lightcheck(L, 1);
+		if (tex == nullptr)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexture2(Texture tex): first argument is not a Texture!");
+			return 0;
+		}
+		trail.texture2 = tex->resource.GetTexture();
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetTexture2(lua_State* L)
+	{
+		pf::Resource res;
+		res.SetTexture(trail.texture2);
+		Luna<Texture_BindLua>::push(L, res);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetTexMulAdd(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexMulAdd(Vector): not enough arguments!");
+			return 0;
+		}
+		Vector_BindLua* vec = Luna<Vector_BindLua>::lightcheck(L, 1);
+		if (vec == nullptr)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexMulAdd(Vector): first argument is not a Vector!");
+			return 0;
+		}
+		trail.texMulAdd = vec->data;
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetTexMulAdd(lua_State* L)
+	{
+		Luna<Vector_BindLua>::push(L, trail.texMulAdd);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetTexMulAdd2(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexMulAdd2(Vector): not enough arguments!");
+			return 0;
+		}
+		Vector_BindLua* vec = Luna<Vector_BindLua>::lightcheck(L, 1);
+		if (vec == nullptr)
+		{
+			Luaer::SError(L, "TrailRenderer::SetTexMulAdd2(Vector): first argument is not a Vector!");
+			return 0;
+		}
+		trail.texMulAdd2 = vec->data;
+		return 0;
+	}
+	int TrailRenderer_BindLua::GetTexMulAdd2(lua_State* L)
+	{
+		Luna<Vector_BindLua>::push(L, trail.texMulAdd2);
+		return 1;
+	}
+	int TrailRenderer_BindLua::SetDepthSoften(lua_State* L)
+	{
+		int argc = Luaer::SGetArgCount(L);
+		if (argc < 1)
+		{
+			Luaer::SError(L, "TrailRenderer::SetDepthSoften(float value): not enough arguments!");
+			return 0;
+		}
+		trail.depth_soften = Luaer::SGetFloat(L, 1);
+		return 0;
+	}
+
+	void TrailRenderer_BindLua::Bind()
+	{
+		Luna<TrailRenderer_BindLua>::Register(Luaer::GetLuaState());
+	}
+}

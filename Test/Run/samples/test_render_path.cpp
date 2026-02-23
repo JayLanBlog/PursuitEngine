@@ -163,9 +163,9 @@ void TestsRenderer::Load()  {
 		pf::scene::GetScene().weather = WeatherComponent();
 		this->ClearSprites();
 		this->ClearFonts();
-	/*	if (pf::lua::GetLuaState() != nullptr) {
-			pf::lua::KillProcesses();
-		}*/
+		if (Luaer::GetLuaState() != nullptr) {
+			Luaer::KillProcesses();
+		}
 
 		// Reset camera position:
 		TransformComponent transform;
@@ -200,6 +200,10 @@ void TestsRenderer::Load()  {
 		case MODEL:
 			pf::renderer::SetTemporalAAEnabled(true);
 			pf::scene::LoadModel(CONTENT_DIR "models/teapot.wiscene");
+			break;
+		case LUASCRIPT:
+			pf::renderer::SetToDrawGridHelper(true);
+			Luaer::RunFile(CONTENT_DIR"scripts/test_script.lua");
 			break;
 		}
 

@@ -124,33 +124,38 @@ namespace pf::video {
 	// Set video instance state to a timer (approximately), this will take efect the next time it is decoded
 	void Seek(VideoInstance* instance, float timerSeconds);
 }
+//
+//
+//inline pf::video::VideoInstance::Flags operator|(pf::video::VideoInstance::Flags lhs, pf::video::VideoInstance::Flags rhs) {
+//	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
+//	return static_cast<pf::video::VideoInstance::Flags>(static_cast<T>(lhs) | static_cast<T>(rhs));
+//}
+//
+//
+//inline pf::video::VideoInstance::Flags operator&(pf::video::VideoInstance::Flags lhs, pf::video::VideoInstance::Flags rhs) {
+//	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
+//	return static_cast<pf::video::VideoInstance::Flags>(static_cast<T>(lhs) & static_cast<T>(rhs));
+//}
+//
+//
+//inline pf::video::VideoInstance::Flags operator~(pf::video::VideoInstance::Flags rhs) {
+//	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
+//	return static_cast<pf::video::VideoInstance::Flags>(~static_cast<T>(rhs));
+//}
+//
+//
+//inline pf::video::VideoInstance::Flags& operator&=(pf::video::VideoInstance::Flags& lhs, pf::video::VideoInstance::Flags rhs) {
+//	lhs = lhs & rhs;
+//	return lhs;
+//}
+//
+//
+//inline pf::video::VideoInstance::Flags& operator|=(pf::video::VideoInstance::Flags& lhs, pf::video::VideoInstance::Flags rhs) {
+//	lhs = lhs | rhs;
+//	return lhs;
+//}
 
-
-inline pf::video::VideoInstance::Flags operator|(pf::video::VideoInstance::Flags lhs, pf::video::VideoInstance::Flags rhs) {
-	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
-	return static_cast<pf::video::VideoInstance::Flags>(static_cast<T>(lhs) | static_cast<T>(rhs));
-}
-
-
-inline pf::video::VideoInstance::Flags operator&(pf::video::VideoInstance::Flags lhs, pf::video::VideoInstance::Flags rhs) {
-	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
-	return static_cast<pf::video::VideoInstance::Flags>(static_cast<T>(lhs) & static_cast<T>(rhs));
-}
-
-
-inline pf::video::VideoInstance::Flags operator~(pf::video::VideoInstance::Flags rhs) {
-	using T = std::underlying_type_t<pf::video::VideoInstance::Flags>;
-	return static_cast<pf::video::VideoInstance::Flags>(~static_cast<T>(rhs));
-}
-
-
-inline pf::video::VideoInstance::Flags& operator&=(pf::video::VideoInstance::Flags& lhs, pf::video::VideoInstance::Flags rhs) {
-	lhs = lhs & rhs;
-	return lhs;
-}
-
-
-inline pf::video::VideoInstance::Flags& operator|=(pf::video::VideoInstance::Flags& lhs, pf::video::VideoInstance::Flags rhs) {
-	lhs = lhs | rhs;
-	return lhs;
-}
+template<>
+struct enable_bitmask_operators<pf::video::VideoInstance::Flags> {
+	static const bool enable = true;
+};

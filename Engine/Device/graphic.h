@@ -2189,6 +2189,8 @@ struct enable_bitmask_operators<pf::graphics::VideoDecoderSupportFlags> {
 	static const bool enable = true;
 };
 
+
+
 namespace std
 {
 	template <>

@@ -845,6 +845,7 @@ namespace Luaer {
 	{
 		int argc = Luaer::SGetArgCount(L);
 		XMMATRIX mat = XMMatrixIdentity();
+	
 		if (argc > 0)
 		{
 			Vector_BindLua* vector = Luna<Vector_BindLua>::lightcheck(L, 1);

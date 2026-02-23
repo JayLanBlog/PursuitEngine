@@ -173,7 +173,8 @@ namespace Luaer {
 
 	//throw error
 	void SError(lua_State* L, const std::string& error = "");
-
+	//get float4 from lua on stack position
+	XMFLOAT4 SGetFloat4(lua_State* L, int stackpos);
 	// Compiles text file containing LUA source code to binary LUA code
 	bool CompileFile(const char* filename, pf::vector<uint8_t>& dst);
 	inline bool CompileFile(const std::string& filename, pf::vector<uint8_t>& dst) { return CompileFile(filename.c_str(), dst); }

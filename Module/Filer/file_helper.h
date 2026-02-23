@@ -134,7 +134,7 @@ namespace pf{
 
 
 		//bool saveTextureToMemoryFile(const vector<uint8_t>& texturedata, const graphics::TextureDesc& desc, const std::string& fileExtension, vector<uint8_t>& filedata);
-		
+		bool FileWrite(const std::string& fileName, const uint8_t* data, size_t size);
 
 		void StringConvert(const std::string& from, std::wstring& to);
 

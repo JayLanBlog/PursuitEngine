@@ -1026,6 +1026,84 @@
     <ClCompile Include="..\..\..\Test\Binder\math_binder_test.cpp">
       <Filter>src\Binder</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Binder\back_log_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\image_params_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\input_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\render_path_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\sprite_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\sprite_animation_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\texture_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\render_path_2d_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\sprite_font_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\audio_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\render_path_3d_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\primitive_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\voxel_grid_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\video_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\async_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\path_query_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\application_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Engine\Runtime\load_screen.cpp">
+      <Filter>engine\runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\loading_screen_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\scene_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\render_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\trail_renderer_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\physics_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\network_windows.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Module\Util\network_linux.cpp">
+      <Filter>module\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Binder\network_bind.cpp">
+      <Filter>binder</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Thirdparty\Lua\lapi.h">
@@ -2443,6 +2521,90 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Test\Binder\math_binder_test.h">
       <Filter>src\Binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\back_log_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\image_params_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\input_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\render_path_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\sprite_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\sprite_animation_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\texture_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\win32ico.h">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\stb_image_write.h">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\render_path_2d_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\sprite_font_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\audio_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\render_path_3d_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\primitive_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\voxel_grid_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Thirdparty\Utility\minimp4.h">
+      <Filter>Thirdparty\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\video_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\async_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\path_query_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\application_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Engine\Runtime\load_screen.h">
+      <Filter>engine\runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\loading_screen_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\scene_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\render_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\trail_renderer_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\physics_bind.h">
+      <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Module\Util\network.h">
+      <Filter>module\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Binder\network_bind.h">
+      <Filter>binder</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

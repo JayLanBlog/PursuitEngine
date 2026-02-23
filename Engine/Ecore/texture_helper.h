@@ -31,6 +31,11 @@ namespace pf::texturehelper {
 		graphics::Swizzle swizzle = {}
 	);
 
+	bool saveTextureToFile(const pf::graphics::Texture& texture, const std::string& fileName);
+	bool saveTextureToMemory(const graphics::Texture& texture, vector<uint8_t>& texturedata);
+	bool saveTextureToFile(const vector<uint8_t>& texturedata, const pf::graphics::TextureDesc& desc, const std::string& fileName);
+	std::string GetExtensionFromFileName(const std::string& filename);
+	bool saveTextureToMemoryFile(const vector<uint8_t>& texturedata, const graphics::TextureDesc& desc, const std::string& fileExtension, vector<uint8_t>& filedata);
 	enum class GradientType
 	{
 		Linear,

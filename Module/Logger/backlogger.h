@@ -6,7 +6,9 @@
 #include <string>
 #include <cassert>
 
-
+#include "Engine/Device/graphic.h"
+#include "Engine/Ecore/canvas.h"
+using namespace pf::graphics;
 
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : \
@@ -33,13 +35,17 @@ enum class LogLevel
 namespace pf {
 	namespace backlogger {
 		// Do not modify the order, as this is exposed to LUA scripts as int!
-
+		void Toggle();
+		
+		void Scroll(int direction);
 
 		std::string getText();
 
 		void postin(const char* input, LogLevel level = LogLevel::Default);
 		
 		void postin(const std::string& input, LogLevel level = LogLevel::Default);
+
+		LogLevel GetUnseenLogLevelMax();
 
 		void historyPre();
 
@@ -56,6 +62,30 @@ namespace pf {
 		void UnblockLuaExecution();
 
 		void SaveLogToFile(const std::string& path);
+
+		void setFontRowspacing(float value);
+
+		void setFontSize(int value);
+
+		void SetLogLevel(LogLevel newLevel);
+
+		void historyPrev();
+			
+		void clear();
+
+		void Update(const pf::Canvas& canvas, float dt = 1.0f / 60.0f);
+
+		void Draw(
+			const pf::Canvas& canvas,
+			pf::graphics::CommandList cmd,
+			pf::graphics::ColorSpace colorspace = pf::graphics::ColorSpace::SRGB
+		);
+
+		void DrawOutputText(
+			const pf::Canvas& canvas,
+			CommandList cmd,
+			ColorSpace colorspace
+		);
 
 		struct LogEntry
 		{

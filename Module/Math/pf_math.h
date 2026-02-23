@@ -13,7 +13,7 @@
 namespace pf::math {
 	inline constexpr XMFLOAT4X4 IDENTITY_MATRIX = XMFLOAT4X4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
-	inline constexpr float PI = 3.1415926;
+	inline constexpr float PI = 3.1415926f;
 
 	inline bool float_equal(float f1, float f2) {
 		return (std::abs(f1 - f2) <= std::numeric_limits<float>::epsilon() * std::max(std::abs(f1), std::abs(f2)));

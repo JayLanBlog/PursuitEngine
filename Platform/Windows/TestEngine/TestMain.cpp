@@ -40,10 +40,10 @@ int main(int argc, char* argv[]) {
 	/*pf::arun::GUISample launcher;
 	launcher.run();*/
 
-	//test_render_path_main();
+	test_render_path_main();
 
 	//test_lua_class_param_sample();	
 
-	test_math_binder();
+	//test_math_binder();
 	return 0;
 }
