@@ -97,7 +97,6 @@ namespace Luaer {
 		);
 
 		Luaer::SSetBool(L, result);
-
 		return 1;
 	}
 	int PathQuery_BindLua::IsSuccessful(lua_State* L)

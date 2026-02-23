@@ -166,5 +166,4 @@ namespace Luaer {
 			Luna<VideoInstance_BindLua>::Register(Luaer::GetLuaState());
 		}
 	}
-
 }

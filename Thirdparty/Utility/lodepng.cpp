@@ -865,7 +865,6 @@ typedef struct BPMLists {
 static BPMNode* bpmnode_create(BPMLists* lists, int weight, unsigned index, BPMNode* tail) {
   unsigned i;
   BPMNode* result;
-
   /*memory full, so garbage collect*/
   if(lists->nextfree >= lists->numfree) {
     /*mark only those that are in use*/
@@ -882,7 +881,6 @@ static BPMNode* bpmnode_create(BPMLists* lists, int weight, unsigned index, BPMN
     }
     lists->nextfree = 0;
   }
-
   result = lists->freelist[lists->nextfree++];
   result->weight = weight;
   result->index = index;
@@ -959,7 +957,6 @@ unsigned lodepng_huffman_code_lengths(unsigned* lengths, const unsigned* frequen
       ++numpresent;
     }
   }
-
   lodepng_memset(lengths, 0, numcodes * sizeof(*lengths));
 
   /*ensure at least two present symbols. There should be at least one symbol
@@ -5059,7 +5056,7 @@ static unsigned readChunk_iCCP(LodePNGInfo* info, const LodePNGDecoderSettings* 
                           length, &zlibsettings);
   /*error: ICC profile larger than  decoder->max_icc_size*/
   if(error && size > zlibsettings.max_output_size) error = 113;
-  info->iccp_profile_size = size;
+  info->iccp_profile_size = static_cast<unsigned int>(size);
   if(!error && !info->iccp_profile_size) error = 100; /*invalid ICC profile size*/
   return error;
 }

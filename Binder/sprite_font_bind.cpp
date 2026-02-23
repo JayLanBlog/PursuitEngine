@@ -2,9 +2,8 @@
 #include "Engine/Component/font.h"
 #include "math_bind.h"
 #include "audio_bind.h"
-
 namespace Luaer {
-	
+
 	Luna<SpriteFont_BindLua>::FunctionType SpriteFont_BindLua::methods[] = {
 		lunamethod(SpriteFont_BindLua, SetText),
 		lunamethod(SpriteFont_BindLua, SetSize),

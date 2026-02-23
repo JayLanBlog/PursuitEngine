@@ -14,6 +14,8 @@
 #include "Run/samples/test_render_path2d_main.h"
 #include <Lua/samples/4.lua_class_param_sample.h>
 #include "Binder/math_binder_test.h"
+#include "Core/launch_main.h"
+#include "Run/samples/test_render_path.h"
 int main(int argc, char* argv[]) {
 	// Test Lua
 	//test_main();
@@ -36,14 +38,14 @@ int main(int argc, char* argv[]) {
 	//test_component();
 	//pf::arun::TLauncher luancher;
 	//luancher.run();
-	
 	/*pf::arun::GUISample launcher;
 	launcher.run();*/
-
 	test_render_path_main();
-
 	//test_lua_class_param_sample();	
-
 	//test_math_binder();
+	//
+	//Tests test;
+	//pf::Luancher launhcer(test);
+	//launhcer.launch();
 	return 0;
 }

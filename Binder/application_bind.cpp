@@ -8,7 +8,6 @@
 
 namespace Luaer {
 
-
 	Luna<Application_BindLua>::FunctionType Application_BindLua::methods[] = {
 		lunamethod(Application_BindLua, GetActivePath),
 		lunamethod(Application_BindLua, SetActivePath),

@@ -1104,6 +1104,9 @@
     <ClCompile Include="..\..\..\Binder\network_bind.cpp">
       <Filter>binder</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Core\launch_main.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Thirdparty\Lua\lapi.h">
@@ -2605,6 +2608,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Binder\network_bind.h">
       <Filter>binder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Core\launch_main.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

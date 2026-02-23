@@ -3,6 +3,7 @@
 #include "math_bind.h"
 
 namespace Luaer {
+
 	 	Luna<VoxelGrid_BindLua>::FunctionType VoxelGrid_BindLua::methods[] = {
 		lunamethod(VoxelGrid_BindLua, Init),
 		lunamethod(VoxelGrid_BindLua, ClearData),
@@ -30,6 +31,7 @@ namespace Luaer {
 		lunamethod(VoxelGrid_BindLua, FloodFill),
 		{ NULL, NULL }
 	};
+
 	Luna<VoxelGrid_BindLua>::PropertyType VoxelGrid_BindLua::properties[] = {
 		{ NULL, NULL }
 	};

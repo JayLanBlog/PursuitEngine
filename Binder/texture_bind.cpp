@@ -3,11 +3,10 @@
 #include "Module/Filer/file_helper.h"
 #include "math_bind.h"
 
-
 using namespace pf::graphics;
+
 namespace Luaer
 {
-
 	Luna<Texture_BindLua>::FunctionType Texture_BindLua::methods[] = {
 		lunamethod(Texture_BindLua, GetLogo),
 		lunamethod(Texture_BindLua, CreateGradientTexture),

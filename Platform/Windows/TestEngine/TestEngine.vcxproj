@@ -180,6 +180,7 @@
     <ClCompile Include="..\..\..\Binder\trail_renderer_bind.cpp" />
     <ClCompile Include="..\..\..\Binder\video_bind.cpp" />
     <ClCompile Include="..\..\..\Binder\voxel_grid_bind.cpp" />
+    <ClCompile Include="..\..\..\Core\launch_main.cpp" />
     <ClCompile Include="..\..\..\Core\pf_version.cpp" />
     <ClCompile Include="..\..\..\Engine\Component\font.cpp" />
     <ClCompile Include="..\..\..\Engine\Component\pgui.cpp" />
@@ -478,6 +479,7 @@
     <ClInclude Include="..\..\..\Binder\video_bind.h" />
     <ClInclude Include="..\..\..\Binder\voxel_grid_bind.h" />
     <ClInclude Include="..\..\..\Core\core_include.h" />
+    <ClInclude Include="..\..\..\Core\launch_main.h" />
     <ClInclude Include="..\..\..\Core\pf_version.h" />
     <ClInclude Include="..\..\..\Core\platform.h" />
     <ClInclude Include="..\..\..\Engine\Component\font.h" />

@@ -46,7 +46,6 @@ int sdl_loop() {
 				}
 				break;
 			}
-
 			pf::input::sdlinput::ProcessEvent(event);
 		}
 	}
@@ -54,7 +53,6 @@ int sdl_loop() {
 }
 
 int test_render_path_main(){
-
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 		SDL_Log("Failed : %s", SDL_GetError());
 	}
@@ -63,15 +61,11 @@ int test_render_path_main(){
 	//graphicsDevice_c = std::make_unique<GraphicsDevice_Vulkan>(window_c, ValidationMode::Enabled, GPUPreference::Discrete);
 	//pf::graphics::GetDevice() = graphicsDevice_c.get();
 	SDL_ShowWindow(window_c);
-
 	//if (!window_c) {
 	//	throw sdl3::SDLError("Error creating window");
 	//}
-
 	tests.SetWindow(window_c);
-
 	int ret = sdl_loop();
-
 	SDL_Quit();
 	return ret;
 }
